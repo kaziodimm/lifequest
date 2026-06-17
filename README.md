@@ -6,9 +6,11 @@ Habidoo is a mobile-first Life Strategy web app that turns real life into a stra
 
 This is not a habit tracker, not a task manager, and not a todo list. The core product is a **Life Technology Tree**: users progress through real-life categories by unlocking technologies such as Morning Walk, Cardio I, MVP Launch, First Paying User, Emergency Fund, and Financial Independence.
 
-The experience should feel like a premium strategy game for ambitious adults: inspired by Civilization, Stellaris, Path of Exile progression systems, and personal development.
+The experience should feel like a premium strategy game for ambitious adults: inspired by Civilization, Stellaris, Path of Exile progression systems, Duolingo-style daily loops, and personal development.
 
-## Core Principle
+## Source of Truth
+
+Read [VISION.md](./VISION.md) before making product, design, or engineering decisions.
 
 The Life Tree is the product. Everything else supports the Life Tree.
 
@@ -16,7 +18,7 @@ Users should open Habidoo because they want to progress their Life Tree, not bec
 
 ## Product Direction
 
-The Life Tree pivot keeps the earlier business decisions: global audience, strong visual identity, five visual styles, multilingual architecture, Vercel deployment, and future Supabase/Resend/mobile monetization.
+The Life Tree direction keeps the business decisions: global audience, strong visual identity, five visual styles, multilingual architecture, Vercel deployment, and future Supabase/Resend/mobile monetization.
 
 ## Main Screens
 
@@ -51,6 +53,7 @@ Version 1 has no backend. Future architecture should be ready for Supabase, Verc
 
 ## Product Docs
 
+- [Vision](./VISION.md)
 - [Product Decisions](./PRODUCT_DECISIONS.md)
 - [Life Strategy Product Brief](./PRODUCT_BRIEF.md)
 - [MVP Scope](./MVP_SCOPE.md)
