@@ -16,6 +16,22 @@ export type Requirement = {
   target: number;
 };
 
+export type TechnologyMission = {
+  action: string;
+  durationLabel: string;
+  minDurationSeconds: number;
+  cooldownSeconds: number;
+  progressGain: number;
+};
+
+export type TechnologyRuntime = {
+  progress: number;
+  status: MissionStatus;
+  startedAt?: number;
+  completedAt?: number;
+  cooldownUntil?: number;
+};
+
 export type LifeTechnology = {
   id: string;
   category: LifeCategory;
@@ -24,6 +40,7 @@ export type LifeTechnology = {
   description: string;
   xpReward: number;
   requirements: Requirement[];
+  mission?: TechnologyMission;
   unlocks: string[];
   parents: string[];
   x: number;
@@ -67,6 +84,7 @@ export type PlayerState = {
   totalXp: number;
   streak: number;
   completedTechnologyIds: string[];
+  technologyRuntime: Record<string, TechnologyRuntime>;
   dailyMissions: DailyMission[];
   planner: PlannerBlock[];
   achievements: Achievement[];
