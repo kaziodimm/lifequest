@@ -1,11 +1,12 @@
 "use client";
 
-import { Award, GitBranch, Languages, Palette, Trophy } from "lucide-react";
+import { Award, Flame, GitBranch, Languages, Palette, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { locales } from "@/lib/i18n";
+import { streakMilestones } from "@/lib/milestones";
 import { levelFromXp, lifeScore } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
 import { visualThemes } from "@/lib/themes";
@@ -49,6 +50,23 @@ export default function ProfilePage() {
                   <p className="mt-1 text-xs text-muted-foreground">{achievement.description}</p>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Flame size={18} className="text-strategy-red" />Streak Milestones</CardTitle></CardHeader>
+            <CardContent className="grid gap-2">
+              {streakMilestones.map((milestone) => {
+                const unlocked = state.streak >= milestone.days;
+                return (
+                  <div key={milestone.days} className={cn("rounded-md border p-3", unlocked ? "border-strategy-red/60 bg-strategy-red/10" : "border-border bg-muted/30") }>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-bold text-foreground">{milestone.title}</p>
+                      <span className="text-xs font-black text-muted-foreground">{milestone.days}d</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{milestone.description}</p>
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
           <Card>
