@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
-import { DailyMission, PlayerState } from "./types";
+import { DailyMission, Locale, PlayerState, VisualThemeId } from "./types";
 
 const initialMissions: DailyMission[] = [
   {
@@ -37,6 +37,8 @@ const initialMissions: DailyMission[] = [
 
 const initialState: PlayerState = {
   avatarName: "Strategist",
+  locale: "en",
+  theme: "focus-dark",
   totalXp: 80,
   streak: 3,
   completedTechnologyIds: ["health-root", "business-root"],
@@ -50,6 +52,8 @@ const initialState: PlayerState = {
 };
 
 type LifeStore = PlayerState & {
+  setLocale: (locale: Locale) => void;
+  setTheme: (theme: VisualThemeId) => void;
   completeMission: (missionId: string) => void;
   unlockTechnology: (technologyId: string) => void;
   updatePlannerBlock: (hour: number, plan: string, technologyId?: string) => void;
@@ -59,6 +63,12 @@ export const useLifeStore = create<LifeStore>()(
   persist(
     (set, get) => ({
       ...initialState,
+      setLocale(locale) {
+        set({ locale });
+      },
+      setTheme(theme) {
+        set({ theme });
+      },
       completeMission(missionId) {
         const mission = get().dailyMissions.find((item) => item.id === missionId);
         if (!mission || mission.completed) return;
@@ -89,6 +99,9 @@ export const useLifeStore = create<LifeStore>()(
         }));
       }
     }),
-    { name: "habidoo-life-strategy-v1" }
+    {
+      name: "habidoo-life-strategy-v1",
+      merge: (persisted, current) => ({ ...current, ...(persisted as Partial<PlayerState>) })
+    }
   )
 );
