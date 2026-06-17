@@ -41,6 +41,12 @@ The user develops a life.
 - Duolingo
 - Path of Exile passive tree
 - RPG progression systems
+- constellation-style research maps
+- premium game HUDs
+
+These are references for principles, not assets to copy.
+
+Habidoo must never reproduce another game's exact layout, icons, panels, colors, node shapes, names, or decorative trim.
 
 ## Core Loop
 
@@ -71,6 +77,10 @@ The tree must feel larger than the user can complete quickly.
 The user should always see future goals.
 
 The user should always want to unlock the next node.
+
+The Life Tree must feel like a navigable game map, not a boxed scroll section.
+
+The user should be able to move through it like a constellation field: pan, zoom, inspect a node, start a mission, close the panel, and return to the previous camera position.
 
 ## Technologies
 
@@ -107,6 +117,10 @@ Example eras:
 6. Legacy
 
 The user should feel they are entering new chapters of life.
+
+Each era can contain 12 monthly epochs.
+
+A first era should be designed as a physically realistic year-long campaign: enough missions to feel meaningful, but not so many that honest completion becomes stressful.
 
 ## Missions
 
@@ -188,6 +202,7 @@ Habidoo should feel:
 - strategic
 - mobile-first
 - visually memorable
+- game-grade
 
 Habidoo should not feel:
 
@@ -196,10 +211,11 @@ Habidoo should not feel:
 - generic productivity
 - like a todo list
 - like a habit tracker template
+- like a dashboard with decorative circles
 
 Think:
 
-> Civilization + Duolingo + Apple.
+> Civilization + Duolingo + Apple + an original constellation research map.
 
 ## Graphics And Motion
 
@@ -208,6 +224,7 @@ Graphics and animation are part of the product, not optional decoration.
 The app should eventually feel game-grade through:
 
 - custom technology icons
+- generated or custom background art
 - animated Life Tree connections
 - unlock pulses
 - timer rings
@@ -218,6 +235,8 @@ The app should eventually feel game-grade through:
 Motion must communicate progress, state, and reward. It should make the user want to return to the Life Tree.
 
 Every visual effect must support progression, missions, eras, or unlock desire.
+
+The canonical art direction lives in `ART_DIRECTION.md`.
 
 ## Mobile First
 
@@ -258,3 +277,9 @@ The user returns because they want to unlock the next technology.
 When making product, design, or engineering decisions, check this document first.
 
 If a feature does not support the Life Tree, progression, missions, eras, or meaningful real-life development, it should be questioned before implementation.
+
+When making visual decisions, check `ART_DIRECTION.md` first.
+
+If the Life Tree screenshot looks like a dashboard, the visual direction failed.
+
+If it looks like a mysterious progression map that invites interaction, it is moving in the right direction.
