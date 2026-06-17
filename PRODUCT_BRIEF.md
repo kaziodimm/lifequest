@@ -2,146 +2,124 @@
 
 ## Vision
 
-Habidoo is a playful daily progress app that helps people turn habits, tasks, and tiny starts into visible game-like progress.
+Habidoo is a mobile-first Life Strategy game for real life.
 
-The product should be easy to understand in the first 30 seconds:
+The user does not manage tasks. The user researches and unlocks real-life technologies through a Life Technology Tree.
 
-- Add a habit.
-- Add a daily task.
-- Start with a tiny step.
-- Complete actions.
-- Earn XP.
-- Keep a streak.
-- Watch your profile, mascot, and visual world grow.
+The product should feel like a mix of:
 
-## Brand Meaning
+- Civilization
+- Stellaris
+- Path of Exile progression
+- RPG levels
+- Personal development
 
-Habidoo comes from:
+## Product Definition
 
-- habit
-- do
+Habidoo is not:
 
-It is simple, pronounceable, and connected to action. It should feel like a friendly app name, not a corporate productivity tool.
+- a habit tracker
+- a task manager
+- a todo list
+- a childish RPG clone
 
-## Positioning
+Habidoo is:
 
-A playful daily habit app for tiny steps, streaks, and level-ups.
+- a premium strategy-game interface for personal development
+- a Life Tree that shows where the user's real life can grow
+- a daily command center that reduces morning decision fatigue
+- an XP and progression system that makes real progress visible
 
-Alternative one-liners:
+## Core Mechanic
 
-- Make your day playable.
-- Tiny steps. Real progress.
-- Build habits like a game.
-- Do the day. Level up.
+The central mechanic is the **Life Technology Tree**.
 
-## Product Personality
+Users unlock technologies in life categories:
 
-Habidoo should feel:
+- Health
+- Mind
+- Career
+- Business
+- Finance
+- Relationships
+- Creativity
 
-- playful
-- visual
-- encouraging
-- simple
-- colorful
-- a little silly
-- never shame-based
-- easy to return to daily
+Example branch:
 
-It should not feel:
+```txt
+Health
+├── Morning Walk
+├── Cardio I
+├── Cardio II
+├── Strength Training
+└── Athlete
+```
 
-- corporate
-- cold
-- overloaded
-- like a project management system
-- like a direct clone of Habitica or Duolingo
+Each technology has:
 
-## Core User Loop
+- title
+- description
+- category
+- requirements
+- XP reward
+- status
+- connected unlocks
 
-1. Open Habidoo.
-2. See today's focus and progress.
-3. Choose a tiny first step.
-4. Complete a habit or task.
-5. Earn XP and feedback.
-6. Protect streak.
-7. Return tomorrow.
+## Main Goal
 
-## Key Product Mechanics
+Users should open Habidoo because they want to progress their Life Tree.
 
-### Tiny Start
+Every morning they should immediately understand:
 
-Every task can have a tiny first step. This helps users who struggle to begin.
+1. What to do.
+2. What technology it progresses.
+3. Why it matters.
 
-Examples:
+## UX Principle
 
-- Open laptop.
-- Put shoes on.
-- Write one sentence.
-- Drink water.
-- Sit at desk for two minutes.
+The Life Tree is the product. Everything else supports the Life Tree.
 
-### XP and Levels
+Daily actions are not the main identity of the app. Daily actions are fuel for unlocking technologies.
 
-Tasks and habits give XP. Levels create visible long-term progress.
+## Design Direction
 
-### Streaks
+Dark theme by default.
 
-Streaks encourage daily return, but the product should include recovery mechanics later so users do not quit after one failed day.
+Premium, modern, strategy-game inspired.
 
-### Profile or Character
+Not childish. Not cartoon. Not a generic productivity dashboard.
 
-MVP can start with a simple profile level. Later versions should add a mascot, avatar, cosmetics, mood, badges, and visual growth.
+Think:
 
-### Rewards
+> Professional strategy game UI for ambitious adults.
 
-Personal rewards let users define what they are working toward.
+## Platform
 
-## Languages
+- Mobile-first web app
+- iPhone
+- Android
+- PWA installable
 
-Default MVP language:
+## MVP Technology
 
-- Czech
+Version 1 has no backend.
 
-Planned languages:
+Use:
 
-- English
-- Russian
-- Ukrainian
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Recharts
+- Zustand
+- localStorage
 
-Localization should be built into the app architecture from the beginning.
+Prepare future architecture for:
 
-## Visual Themes
-
-Habidoo should support multiple styles because different users respond to different moods.
-
-Initial theme directions:
-
-1. Focus Dark
-2. Soft Light
-3. Pixel Quest
-4. Cyber Calm
-5. Nature Progress
-
-MVP should ship with at least two themes and keep the theme system extensible.
-
-## MVP Screens
-
-- Landing or welcome screen
-- Sign in / sign up
-- Dashboard
-- Daily tasks
-- Habits
-- Profile / level
-- Statistics
-- Settings
-
-## First Success Criteria
-
-The first version is successful if a user can:
-
-1. Create an account.
-2. Add one habit.
-3. Add one daily task.
-4. Complete something.
-5. Earn XP.
-6. See a streak or progress state.
-7. Return the next day.
+- Supabase
+- Vercel
+- Resend
+- leaderboards
+- friends ranking
+- guilds
