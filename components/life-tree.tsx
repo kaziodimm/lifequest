@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { LucideIcon, X } from "lucide-react";
+import type { LucideIcon, PointerEvent, WheelEvent } from "react";
 import { Brain, BriefcaseBusiness, Check, Clock3, HeartPulse, Landmark, LocateFixed, Lock, Palette, Play, Rocket, ShieldAlert, Sparkles, Timer, Users, X as CloseIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -22,11 +22,13 @@ const categoryIcons: Record<LifeCategory, LucideIcon> = {
   creativity: Palette
 };
 
-const treeSize = 2200;
+const treeSize = 4200;
 const corePoint = { x: treeSize / 2, y: treeSize / 2 };
 const nodeCenterOffset = { x: 64, y: 46 };
-const overviewZoom = 0.68;
-const focusZoom = 1.08;
+const overviewZoom = 0.54;
+const focusZoom = 1.06;
+const minZoom = 0.34;
+const maxZoom = 1.38;
 
 type ViewState = { zoom: number; pan: { x: number; y: number } };
 type PanelAnchor = { x: number; y: number };
@@ -88,8 +90,8 @@ function createRadialPositions() {
     const index = group.findIndex((item) => item.id === tech.id);
     const branch = radialBranches[tech.category];
     const angle = (branch.angle + depth * 2) * (Math.PI / 180);
-    const radius = 260 + depth * 278;
-    const spread = Math.min(210, 92 + depth * 40);
+    const radius = 380 + depth * 390;
+    const spread = Math.min(250, 110 + depth * 48);
     const siblingOffset = (index - (group.length - 1) / 2) * spread;
     const perpendicular = angle + Math.PI / 2;
 
@@ -116,7 +118,7 @@ function getBranchPath(start: { x: number; y: number }, end: { x: number; y: num
   const distance = Math.hypot(dx, dy) || 1;
   const normalX = -dy / distance;
   const normalY = dx / distance;
-  const bend = Math.min(42, Math.max(18, distance * 0.08));
+  const bend = Math.min(56, Math.max(22, distance * 0.07));
   const joint = {
     x: start.x + dx * 0.56 + normalX * bend,
     y: start.y + dy * 0.56 + normalY * bend
@@ -131,7 +133,7 @@ function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: nu
   const distance = Math.hypot(dx, dy) || 1;
   const normalX = -dy / distance;
   const normalY = dx / distance;
-  const bend = Math.min(42, Math.max(18, distance * 0.08));
+  const bend = Math.min(56, Math.max(22, distance * 0.07));
   return { x: start.x + dx * 0.56 + normalX * bend, y: start.y + dy * 0.56 + normalY * bend };
 }
 
@@ -308,18 +310,39 @@ export function LifeTree() {
     setReturnView(null);
   }
 
-  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+  function handleWheel(event: WheelEvent<HTMLDivElement>) {
+    if (panelOpen) return;
+    event.preventDefault();
+    const rect = stageRef.current?.getBoundingClientRect();
+    const stageWidth = rect?.width ?? 390;
+    const stageHeight = rect?.height ?? 760;
+    const delta = event.deltaY > 0 ? -0.08 : 0.08;
+    const nextZoom = clamp(view.zoom + delta, minZoom, maxZoom);
+    const zoomRatio = nextZoom / view.zoom;
+    const pointerX = event.clientX - (rect?.left ?? 0) - stageWidth / 2;
+    const pointerY = event.clientY - (rect?.top ?? 0) - stageHeight / 2;
+
+    setView({
+      zoom: nextZoom,
+      pan: {
+        x: pointerX - (pointerX - view.pan.x) * zoomRatio,
+        y: pointerY - (pointerY - view.pan.y) * zoomRatio
+      }
+    });
+  }
+
+  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     if (event.button !== 0 || panelOpen) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     setDragStart({ pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: view.pan.x, panY: view.pan.y });
   }
 
-  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     if (!dragStart || dragStart.pointerId !== event.pointerId) return;
     setView((current) => ({ ...current, pan: { x: dragStart.panX + event.clientX - dragStart.x, y: dragStart.panY + event.clientY - dragStart.y } }));
   }
 
-  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+  function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
     if (dragStart?.pointerId === event.pointerId) setDragStart(null);
   }
 
@@ -344,6 +367,7 @@ export function LifeTree() {
       <div
         ref={stageRef}
         className={cn("life-tree-stage", dragStart && "is-dragging", panelOpen && "is-focused")}
+        onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -355,14 +379,14 @@ export function LifeTree() {
 
         <div
           className="life-tree-canvas"
-          style={{ width: treeSize, height: treeSize, transform: `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
+          style={{ width: treeSize, height: treeSize, ["--tree-half" as string]: `-${treeSize / 2}px`, transform: `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
         >
           {Object.entries(radialBranches).map(([id, branch]) => {
             const category = id as LifeCategory;
             const color = categoryColors[category];
             const angle = branch.angle * (Math.PI / 180);
-            const x = corePoint.x + Math.cos(angle) * 548;
-            const y = corePoint.y + Math.sin(angle) * 548;
+            const x = corePoint.x + Math.cos(angle) * 748;
+            const y = corePoint.y + Math.sin(angle) * 748;
 
             return (
               <div key={id} className="branch-label" style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
@@ -383,10 +407,11 @@ export function LifeTree() {
                 <stop offset="100%" stopColor="rgba(76, 224, 210, 0)" />
               </radialGradient>
             </defs>
-            <circle cx={corePoint.x} cy={corePoint.y} r="380" fill="url(#coreAura)" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="260" fill="none" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 18" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="540" fill="none" stroke="rgba(255,255,255,0.045)" strokeDasharray="2 22" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="820" fill="none" stroke="rgba(255,255,255,0.035)" strokeDasharray="2 26" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="560" fill="url(#coreAura)" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="360" fill="none" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 18" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="760" fill="none" stroke="rgba(255,255,255,0.045)" strokeDasharray="2 22" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="1140" fill="none" stroke="rgba(255,255,255,0.035)" strokeDasharray="2 26" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="1500" fill="none" stroke="rgba(246,196,83,0.025)" strokeDasharray="1 30" />
 
             {rootTechnologies.map((tech) => {
               const runtime = technologyRuntime[tech.id];
