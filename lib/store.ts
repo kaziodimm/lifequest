@@ -166,7 +166,10 @@ export const useLifeStore = create<LifeStore>()(
     }),
     {
       name: "habidoo-life-strategy-v1",
-      merge: (persisted) => normalizeState(persisted as Partial<PlayerState> | undefined)
+      merge: (persisted, current) => ({
+        ...current,
+        ...normalizeState(persisted as Partial<PlayerState> | undefined)
+      })
     }
   )
 );
