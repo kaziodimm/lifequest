@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { technologies } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 export default function CommandPage() {
   const missions = useLifeStore((state) => state.dailyMissions);
   const completeMission = useLifeStore((state) => state.completeMission);
   const planner = useLifeStore((state) => state.planner);
+  const updatePlannerBlock = useLifeStore((state) => state.updatePlannerBlock);
+  const togglePlannerBlock = useLifeStore((state) => state.togglePlannerBlock);
 
   return (
     <AppShell>
@@ -46,11 +49,29 @@ export default function CommandPage() {
 
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><Clock size={18} className="text-strategy-gold" />24h Planner</CardTitle></CardHeader>
-          <CardContent className="grid max-h-[560px] gap-2 overflow-auto">
+          <CardContent className="grid max-h-[620px] gap-2 overflow-auto">
             {planner.map((block) => (
-              <div key={block.hour} className="grid grid-cols-[56px_1fr] items-center gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
+              <div key={block.hour} className={cn("grid gap-2 rounded-md border bg-muted/30 p-3 sm:grid-cols-[56px_1fr_190px_44px] sm:items-center", block.completed ? "border-primary/60 bg-primary/10" : "border-border")}>
                 <span className="text-xs font-black text-primary">{String(block.hour).padStart(2, "0")}:00</span>
-                <span className="text-sm text-muted-foreground">{block.plan || "Assign a mission later"}</span>
+                <input
+                  className="h-10 rounded-md border border-border bg-background/60 px-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary"
+                  value={block.plan}
+                  placeholder="Assign a real-world action"
+                  onChange={(event) => updatePlannerBlock(block.hour, event.target.value, block.technologyId)}
+                />
+                <select
+                  className="h-10 rounded-md border border-border bg-background/60 px-3 text-sm outline-none transition focus:border-primary"
+                  value={block.technologyId ?? ""}
+                  onChange={(event) => updatePlannerBlock(block.hour, block.plan, event.target.value || undefined)}
+                >
+                  <option value="">No technology</option>
+                  {technologies.map((tech) => (
+                    <option key={tech.id} value={tech.id}>{tech.title}</option>
+                  ))}
+                </select>
+                <Button size="icon" variant={block.completed ? "default" : "outline"} onClick={() => togglePlannerBlock(block.hour)}>
+                  <CheckCircle2 size={17} />
+                </Button>
               </div>
             ))}
           </CardContent>
