@@ -30,6 +30,7 @@
 
   html {
     color-scheme: dark;
+    overflow-x: hidden;
   }
 
   body {
@@ -39,6 +40,12 @@
       radial-gradient(circle at 92% 0%, rgba(155, 124, 255, 0.16), transparent 24rem),
       linear-gradient(180deg, #090c16 0%, #0e1321 46%, #080a12 100%);
     min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body:has(.immersive-tree-shell) {
+    height: 100dvh;
+    overflow: hidden;
   }
 
   button,
@@ -89,11 +96,12 @@
     cursor: grab;
     touch-action: none;
     background:
-      radial-gradient(circle at 50% 50%, rgba(246, 196, 83, 0.08), transparent 18rem),
-      radial-gradient(circle at 16% 18%, rgba(76, 224, 210, 0.13), transparent 26rem),
-      radial-gradient(circle at 84% 28%, rgba(155, 124, 255, 0.13), transparent 25rem),
-      radial-gradient(circle at 70% 82%, rgba(255, 138, 179, 0.08), transparent 22rem),
-      linear-gradient(140deg, #060812 0%, #0b1020 48%, #080910 100%);
+      radial-gradient(circle at 50% 50%, rgba(246, 196, 83, 0.1), transparent 17rem),
+      radial-gradient(circle at 16% 18%, rgba(76, 224, 210, 0.16), transparent 28rem),
+      radial-gradient(circle at 84% 28%, rgba(155, 124, 255, 0.15), transparent 27rem),
+      radial-gradient(circle at 70% 82%, rgba(255, 138, 179, 0.09), transparent 24rem),
+      radial-gradient(circle at 32% 76%, rgba(85, 184, 255, 0.1), transparent 22rem),
+      linear-gradient(140deg, #050711 0%, #0a1020 48%, #060810 100%);
   }
 
   .life-tree-stage.is-dragging {
@@ -107,28 +115,30 @@
   .life-tree-vignette {
     @apply pointer-events-none absolute inset-0 z-10;
     background:
+      radial-gradient(circle at center, transparent 0%, transparent 52%, rgba(2, 4, 10, 0.58) 100%),
       linear-gradient(90deg, rgba(5, 7, 14, 0.84), transparent 16%, transparent 76%, rgba(5, 7, 14, 0.72)),
       linear-gradient(180deg, rgba(5, 7, 14, 0.62), transparent 20%, transparent 74%, rgba(5, 7, 14, 0.72));
   }
 
   .life-tree-starfield {
-    @apply pointer-events-none absolute inset-0 opacity-70;
+    @apply pointer-events-none absolute inset-0 opacity-80;
     background-image:
-      radial-gradient(circle, rgba(255, 255, 255, 0.22) 1px, transparent 1px),
-      radial-gradient(circle, rgba(76, 224, 210, 0.24) 1px, transparent 1px),
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-    background-position: 0 0, 17px 23px, 0 0, 0 0;
-    background-size: 74px 74px, 116px 116px, 64px 64px, 64px 64px;
-    mask-image: radial-gradient(circle at center, black, transparent 78%);
+      radial-gradient(circle, rgba(255, 255, 255, 0.25) 1px, transparent 1.5px),
+      radial-gradient(circle, rgba(76, 224, 210, 0.3) 1px, transparent 1.4px),
+      radial-gradient(circle, rgba(246, 196, 83, 0.2) 1px, transparent 1.3px),
+      linear-gradient(rgba(255, 255, 255, 0.034) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.034) 1px, transparent 1px);
+    background-position: 0 0, 17px 23px, 51px 9px, 0 0, 0 0;
+    background-size: 74px 74px, 116px 116px, 149px 149px, 64px 64px, 64px 64px;
+    mask-image: radial-gradient(circle at center, black, transparent 82%);
   }
 
   .life-tree-rune-grid {
     pointer-events: none;
     position: absolute;
-    inset: 0;
+    inset: -10%;
     z-index: 1;
-    opacity: 0.42;
+    opacity: 0.5;
     background-image:
       linear-gradient(30deg, rgba(246, 196, 83, 0.055) 1px, transparent 1px),
       linear-gradient(150deg, rgba(76, 224, 210, 0.05) 1px, transparent 1px),
@@ -137,13 +147,25 @@
     mask-image: radial-gradient(circle at center, black, transparent 84%);
   }
 
+  .life-tree-rune-grid::after {
+    content: "";
+    position: absolute;
+    inset: 8%;
+    border-radius: 999px;
+    background:
+      repeating-radial-gradient(circle at center, transparent 0 118px, rgba(76, 224, 210, 0.055) 119px 121px, transparent 122px 242px),
+      conic-gradient(from 18deg, transparent 0 8deg, rgba(246, 196, 83, 0.08) 9deg 10deg, transparent 11deg 42deg, rgba(76, 224, 210, 0.07) 43deg 44deg, transparent 45deg 72deg);
+    opacity: 0.5;
+    mask-image: radial-gradient(circle at center, transparent 0 9%, black 13%, black 66%, transparent 78%);
+  }
+
   .life-tree-canvas {
     position: absolute;
     left: 50%;
     top: 50%;
     z-index: 20;
-    margin-left: -1100px;
-    margin-top: -1100px;
+    margin-left: var(--tree-half, -1100px);
+    margin-top: var(--tree-half, -1100px);
     transform-origin: 50% 50%;
     transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -156,7 +178,7 @@
     position: absolute;
     left: 0.75rem;
     right: 0.75rem;
-    bottom: 5.35rem;
+    bottom: calc(5.35rem + env(safe-area-inset-bottom));
     z-index: 70;
     max-height: 39vh;
     overflow: auto;
@@ -311,56 +333,6 @@
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
-  .tech-node {
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  }
-
-  .tech-node::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--node-color) 16%, transparent), transparent 42%);
-    opacity: 0.45;
-  }
-
-  .tech-node.available {
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--node-color) 36%, transparent), 0 0 34px color-mix(in srgb, var(--node-color) 22%, transparent), 0 18px 40px rgba(0, 0, 0, 0.3);
-  }
-
-  .tech-node.available .node-emblem {
-    animation: nodePulse 1.8s ease-in-out infinite;
-  }
-
-  .tech-node.unlocked {
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--node-color) 48%, transparent), 0 0 38px color-mix(in srgb, var(--node-color) 28%, transparent), 0 18px 40px rgba(0, 0, 0, 0.3);
-  }
-
-  .tech-node.unlocked::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    pointer-events: none;
-    border-radius: inherit;
-    border: 1px solid color-mix(in srgb, var(--node-color) 40%, transparent);
-    opacity: 0.65;
-  }
-
-  .tech-node.locked {
-    filter: grayscale(0.88);
-    opacity: 0.5;
-  }
-
-  .node-glow {
-    box-shadow: 0 0 0 1px rgba(76, 224, 210, 0.45), 0 0 34px rgba(76, 224, 210, 0.22);
-  }
-
-  .locked-node {
-    filter: grayscale(0.8);
-    opacity: 0.48;
-  }
-
   .unlock-burst {
     animation: unlockPop 700ms ease-out;
   }
@@ -397,14 +369,14 @@
   }
 
   .immersive-tree-shell .life-tree-stage {
-    height: calc(100dvh - 68px);
+    height: calc(100dvh - 68px - env(safe-area-inset-bottom));
     min-height: 0;
   }
 
   .epoch-toolbar {
     height: 68px;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding-left: calc(0.75rem + env(safe-area-inset-left));
+    padding-right: calc(0.75rem + env(safe-area-inset-right));
   }
 
   .epoch-strip {
