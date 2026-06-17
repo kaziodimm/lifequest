@@ -3,12 +3,15 @@
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "@/components/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { categoryProgress } from "@/lib/insights";
+import { categoryColors } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
 
 export default function StatsPage() {
-  const history = useLifeStore((state) => state.progressHistory);
-  const completed = useLifeStore((state) => state.completedTechnologyIds.length);
-  const data = history.map((value, index) => ({ day: `D${index + 1}`, progress: value }));
+  const state = useLifeStore();
+  const data = state.progressHistory.map((value, index) => ({ day: `D${index + 1}`, progress: value }));
+  const categories = categoryProgress(state);
 
   return (
     <AppShell>
@@ -40,10 +43,17 @@ export default function StatsPage() {
         </Card>
         <Card>
           <CardHeader><CardTitle>Category Growth</CardTitle></CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Unlocked technologies: <span className="font-bold text-foreground">{completed}</span></p>
-            <p>Prepared for future category analytics: Health, Mind, Career, Business, Finance, Relationships, Creativity.</p>
-            <p>Future: streak history, XP growth, category balance, and strategic recommendations.</p>
+          <CardContent className="space-y-4">
+            {categories.map((item) => (
+              <div key={item.category}>
+                <div className="mb-1 flex justify-between text-xs">
+                  <span className="font-bold" style={{ color: categoryColors[item.category as keyof typeof categoryColors] }}>{item.label}</span>
+                  <span className="text-muted-foreground">{item.percent}%</span>
+                </div>
+                <Progress value={item.percent} />
+                <p className="mt-1 text-[11px] text-muted-foreground">{item.unlocked} of {item.total} technologies unlocked</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </section>
