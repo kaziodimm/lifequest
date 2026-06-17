@@ -6,7 +6,7 @@ import { Brain, BriefcaseBusiness, Check, HeartPulse, Landmark, Lock, Palette, R
 import { Button } from "@/components/ui/button";
 import { technologies, categoryColors, categoryLabels } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
-import { LifeCategory } from "@/lib/types";
+import type { LifeCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const categoryIcons: Record<LifeCategory, LucideIcon> = {
