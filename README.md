@@ -12,6 +12,10 @@ The Life Tree is the product. Everything else supports the Life Tree.
 
 Users should open Habidoo because they want to progress their Life Tree, not because they want to check off tasks.
 
+## Product Direction
+
+The Life Tree pivot keeps the earlier business decisions: global audience, strong visual identity, five visual styles, multilingual architecture, Vercel deployment, and future Supabase/Resend/mobile monetization.
+
 ## Main Screens
 
 - Home
@@ -45,6 +49,7 @@ Version 1 has no backend. Future architecture should be ready for Supabase, Verc
 
 ## Product Docs
 
+- [Product Decisions](./PRODUCT_DECISIONS.md)
 - [Life Strategy Product Brief](./PRODUCT_BRIEF.md)
 - [MVP Scope](./MVP_SCOPE.md)
 - [Roadmap](./ROADMAP.md)
