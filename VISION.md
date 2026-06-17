@@ -201,6 +201,24 @@ Think:
 
 > Civilization + Duolingo + Apple.
 
+## Graphics And Motion
+
+Graphics and animation are part of the product, not optional decoration.
+
+The app should eventually feel game-grade through:
+
+- custom technology icons
+- animated Life Tree connections
+- unlock pulses
+- timer rings
+- era transitions
+- fog-of-war for future progression
+- profile emblems and achievement medals
+
+Motion must communicate progress, state, and reward. It should make the user want to return to the Life Tree.
+
+Every visual effect must support progression, missions, eras, or unlock desire.
+
 ## Mobile First
 
 Mobile is primary.
