@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { LucideIcon, PointerEvent, WheelEvent } from "react";
+import type { PointerEvent, WheelEvent } from "react";
+import type { LucideIcon } from "lucide-react";
 import { Brain, BriefcaseBusiness, Check, Clock3, HeartPulse, Landmark, LocateFixed, Lock, Palette, Play, Rocket, ShieldAlert, Sparkles, Timer, Users, X as CloseIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
