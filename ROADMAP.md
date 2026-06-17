@@ -1,106 +1,137 @@
 # Habidoo Roadmap
 
-## Phase 0: Product Foundation
+## Phase 0: Product Pivot Foundation
 
 Status: in progress
 
+Goal: lock the Life Strategy direction before scaling features.
+
+Tasks:
+
 - Confirm product name: Habidoo.
-- Define business plan.
-- Define product brief.
-- Define MVP scope.
-- Define design direction.
-- Define technical architecture.
+- Preserve global business direction and five visual styles.
+- Pivot core mechanic from habit tracking to Life Technology Tree.
+- Define MVP scope around the tree.
+- Document deployment and mobile strategy.
 - Prepare repository structure.
 
-## Phase 1: App Foundation
+## Phase 1: Local MVP Foundation
 
-Goal: create a clean Next.js application that is ready for product work.
+Goal: create a usable web MVP without backend dependencies.
 
 Tasks:
 
 - Set up Next.js, TypeScript, Tailwind CSS.
-- Add app shell and responsive layout.
-- Add theme system.
-- Add localization system.
-- Add basic route structure.
-- Add reusable UI primitives.
-- Add Vercel-ready config.
+- Add shadcn-style UI primitives.
+- Add Zustand store with localStorage persistence.
+- Add mobile-first app shell.
+- Add PWA manifest and icon.
+- Add Vercel config.
+- Add Life Tree data model.
+- Add XP, levels, streak, and life score foundation.
 
-## Phase 2: Supabase Foundation
+## Phase 2: Life Tree Core
 
-Goal: make Habidoo a real user-based product.
+Goal: make the Life Tree feel like the real product.
+
+Tasks:
+
+- Build scrollable visual technology tree.
+- Add locked, available, and unlocked node states.
+- Add category colors and legend.
+- Add starter branches for Health, Mind, Career, Business, Finance, Relationships, and Creativity.
+- Add unlock mechanic.
+- Add available research summary.
+- Improve tree layout, density, and visual impact.
+- Prepare future zoom controls.
+
+## Phase 3: Daily Command Center
+
+Goal: make mornings easier while keeping the tree central.
+
+Tasks:
+
+- Add Top 3 missions.
+- Add tiny first step.
+- Connect missions to technologies.
+- Add editable 24-hour planner.
+- Connect planner blocks to technologies.
+- Award small XP for completed planner blocks.
+- Add notes and mission creation later.
+
+## Phase 4: Intelligence and Profile
+
+Goal: show strategic progress, not checklist completion.
+
+Tasks:
+
+- Add category progress.
+- Add 7-day progress chart.
+- Add strategic recommendation.
+- Add profile level and life score.
+- Add achievements.
+- Add language selector.
+- Add visual style selector.
+
+## Phase 5: First Deployment
+
+Goal: get the product running publicly on Vercel.
+
+Tasks:
+
+- Import GitHub repository to Vercel.
+- Run first deployment.
+- Fix build/type errors from Vercel logs.
+- Test mobile navigation.
+- Test localStorage interactions.
+- Connect purchased domain.
+- Verify PWA manifest.
+
+## Phase 6: Visual Identity Upgrade
+
+Goal: make Habidoo visually memorable enough for short-form videos.
+
+Tasks:
+
+- Improve Life Tree node design.
+- Add custom category icons.
+- Add unlock feedback and celebration.
+- Add premium empty states.
+- Add first real brand visuals.
+- Polish Focus Dark.
+- Start Soft Light foundation.
+
+## Phase 7: Validation and Growth
+
+Goal: test whether people return to progress the Life Tree.
+
+Tasks:
+
+- Add analytics.
+- Track Life Tree opens.
+- Track mission completions.
+- Track technology unlocks.
+- Create Reels/TikTok concepts.
+- Add feedback capture.
+- Improve onboarding and day-two return.
+
+## Phase 8: Backend and Accounts
+
+Goal: add cloud sync only after the local MVP loop is clear.
 
 Tasks:
 
 - Create Supabase project.
 - Add auth.
-- Add database schema.
-- Add row level security.
 - Add user profiles.
-- Add habits table.
-- Add daily tasks table.
-- Add progress/events table if needed.
+- Add Life Tree progress tables.
+- Add daily missions and planner tables.
+- Add RLS policies.
+- Add Resend welcome/reminder flows.
 
-## Phase 3: MVP Product Loop
+## Phase 9: Mobile and Monetization
 
-Goal: user can complete the core daily loop.
-
-Tasks:
-
-- Landing/welcome screen.
-- Sign up/sign in.
-- Dashboard.
-- Create/edit/complete habits.
-- Create/edit/complete daily tasks.
-- Tiny first step mechanic.
-- XP calculation.
-- Level calculation.
-- Daily streak.
-- Basic statistics.
-
-## Phase 4: Visual Identity
-
-Goal: make the product feel memorable and shareable.
-
-Tasks:
-
-- Define mascot direction.
-- Add custom app icons or icon style.
-- Add game-like status cards.
-- Add XP feedback states.
-- Add empty states.
-- Add micro animations.
-- Add first two visual themes.
-
-## Phase 5: Deployment and Analytics
-
-Goal: launch a usable public MVP.
-
-Tasks:
-
-- Connect GitHub to Vercel.
-- Deploy preview and production.
-- Connect Supabase env vars.
-- Add analytics.
-- Track activation and retention events.
-- Add basic error monitoring if needed.
-
-## Phase 6: Growth Test
-
-Goal: validate whether people understand and return to Habidoo.
-
-Tasks:
-
-- Create first landing copy.
-- Create Reels/TikTok concepts.
-- Add feedback form or simple contact flow.
-- Track signups and usage.
-- Improve onboarding.
-- Improve day-two return loop.
-
-## Phase 7: Mobile and Monetization
-
-Goal: prepare app-store and revenue strategy after retention signals.
+Goal: prepare app-store strategy after retention signals.
 
 Tasks:
 
