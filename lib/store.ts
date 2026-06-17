@@ -57,6 +57,7 @@ type LifeStore = PlayerState & {
   completeMission: (missionId: string) => void;
   unlockTechnology: (technologyId: string) => void;
   updatePlannerBlock: (hour: number, plan: string, technologyId?: string) => void;
+  togglePlannerBlock: (hour: number) => void;
 };
 
 export const useLifeStore = create<LifeStore>()(
@@ -96,6 +97,14 @@ export const useLifeStore = create<LifeStore>()(
       updatePlannerBlock(hour, plan, technologyId) {
         set((state) => ({
           planner: state.planner.map((block) => (block.hour === hour ? { ...block, plan, technologyId } : block))
+        }));
+      },
+      togglePlannerBlock(hour) {
+        const block = get().planner.find((item) => item.hour === hour);
+        if (!block || !block.plan.trim()) return;
+        set((state) => ({
+          totalXp: block.completed ? Math.max(0, state.totalXp - 5) : state.totalXp + 5,
+          planner: state.planner.map((item) => (item.hour === hour ? { ...item, completed: !item.completed } : item))
         }));
       }
     }),
