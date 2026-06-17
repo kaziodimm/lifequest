@@ -1,5 +1,7 @@
 # Habidoo
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/kaziodimm/lifequest)
+
 Habidoo is a mobile-first Life Strategy web app that turns real life into a strategy game.
 
 This is not a habit tracker, not a task manager, and not a todo list. The core product is a **Life Technology Tree**: users progress through real-life categories by unlocking technologies such as Morning Walk, Cardio I, MVP Launch, First Paying User, Emergency Fund, and Financial Independence.
