@@ -1,4 +1,4 @@
-export type Locale = "en" | "cs" | "ru" | "uk";
+import type { Locale } from "./types";
 
 export const locales: { id: Locale; label: string }[] = [
   { id: "en", label: "English" },
