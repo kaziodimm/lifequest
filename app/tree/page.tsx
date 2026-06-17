@@ -27,7 +27,7 @@ export default function TreePage() {
               <p className="text-xs text-muted-foreground">Scroll the map, inspect requirements, then unlock available nodes.</p>
             </div>
           </div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Zoom controls planned</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foundation era active</p>
         </CardContent>
       </Card>
       <LifeTree />
