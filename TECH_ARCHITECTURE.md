@@ -1,6 +1,8 @@
 # Habidoo Technical Architecture
 
-## Stack
+## Current Architecture
+
+Version 1 is a local-first Life Strategy MVP.
 
 Core stack:
 
@@ -8,15 +10,21 @@ Core stack:
 - React
 - TypeScript
 - Tailwind CSS
-- Supabase
+- shadcn/ui-style source components
+- Recharts
+- Zustand
+- localStorage
 - Vercel
-- Resend
 
-Later:
+No backend is required for version 1.
 
+Future stack:
+
+- Supabase for auth, database, and sync
+- Resend for email flows
 - Analytics provider
-- Stripe if web premium is added
-- Mobile wrapper or native app strategy
+- Stripe only if web premium is introduced
+- Mobile wrapper or PWA-first app strategy
 
 ## Hosting
 
@@ -24,7 +32,8 @@ Use Vercel for:
 
 - preview deployments
 - production deployment
-- environment variables
+- domain connection
+- environment variables later
 - analytics if selected
 - GitHub integration
 
@@ -34,62 +43,113 @@ GitHub repository:
 
 - kaziodimm/lifequest
 
-Project name in product docs:
+Product name:
 
 - Habidoo
 
 The repository name can stay `lifequest` during early development or be renamed later.
 
-## App Structure
-
-Recommended structure:
+## Current App Structure
 
 ```txt
 app/
-  [locale]/
-    page.tsx
-    dashboard/
-    habits/
-    tasks/
-    profile/
-    stats/
-    settings/
-  api/
+  page.tsx
+  tree/
+  command/
+  stats/
+  profile/
 components/
   ui/
-  layout/
-  game/
-  forms/
+  app-shell.tsx
+  life-tree.tsx
 lib/
-  supabase/
-  i18n/
-  theme/
-  xp/
-  analytics/
-  email/
-  utils/
-database/
-  migrations/
-  schema.sql
+  store.ts
+  types.ts
+  life-tree.ts
+  progression.ts
+  insights.ts
+  themes.ts
+  i18n.ts
+  utils.ts
 public/
-  icons/
-  mascots/
-  themes/
+  icon.svg
+  manifest.json
 ```
 
-## Supabase
+## State Model
+
+Version 1 uses Zustand with localStorage persistence.
+
+Stored state:
+
+- avatarName
+- locale
+- theme
+- totalXp
+- streak
+- completedTechnologyIds
+- dailyMissions
+- planner
+- achievements
+- progressHistory
+
+## Core Domain Model
+
+### LifeTechnology
+
+Each technology has:
+
+- id
+- category
+- title
+- description
+- XP reward
+- requirements
+- parents
+- unlocks
+- x/y tree position
+
+### DailyMission
+
+Daily missions are not the product. They are fuel for the Life Tree.
+
+Each mission has:
+
+- title
+- tiny first step
+- linked technology
+- importance flag
+- completion state
+- XP reward
+
+### PlannerBlock
+
+The 24-hour planner supports daily execution.
+
+Each block has:
+
+- hour
+- plan
+- linked technology
+- completion state
+
+## Supabase Future Architecture
+
+Add Supabase after the local MVP proves the Life Tree loop.
 
 Use Supabase for:
 
 - authentication
 - user profiles
-- habits
-- daily tasks
-- completions
+- cloud sync
+- Life Tree progress
+- daily missions
+- planner blocks
 - XP events
-- user settings
+- settings
+- future leaderboards and guilds
 
-### Suggested Tables
+### Future Tables
 
 #### profiles
 
@@ -103,59 +163,48 @@ Use Supabase for:
 - created_at timestamp
 - updated_at timestamp
 
-#### habits
+#### user_technologies
 
 - id uuid primary key
 - user_id uuid references auth.users
-- title text
-- description text
-- xp_reward integer
-- color text
-- icon text
-- active boolean
-- created_at timestamp
-- updated_at timestamp
-
-#### habit_completions
-
-- id uuid primary key
-- user_id uuid references auth.users
-- habit_id uuid references habits
-- completed_on date
+- technology_id text
+- status text
+- unlocked_at timestamp
 - xp_awarded integer
-- created_at timestamp
 
-Unique index:
-
-- user_id, habit_id, completed_on
-
-#### daily_tasks
+#### daily_missions
 
 - id uuid primary key
 - user_id uuid references auth.users
+- technology_id text
 - title text
 - tiny_step text
-- status text
 - important boolean
+- completed boolean
 - planned_for date
-- xp_awarded integer
+- xp_reward integer
 - created_at timestamp
 - updated_at timestamp
 
-Status values:
+#### planner_blocks
 
-- planned
-- completed
-- partial
-- failed
-- skipped
+- id uuid primary key
+- user_id uuid references auth.users
+- planned_for date
+- hour integer
+- plan text
+- technology_id text
+- completed boolean
+- xp_awarded integer
+- created_at timestamp
+- updated_at timestamp
 
 #### xp_events
 
 - id uuid primary key
 - user_id uuid references auth.users
 - source_type text
-- source_id uuid
+- source_id text
 - amount integer
 - reason text
 - created_at timestamp
@@ -173,117 +222,97 @@ Status values:
 
 Every user-owned table must enable RLS.
 
-Policy rule:
+Rule:
 
 - users can only select, insert, update, and delete their own rows.
 
-## Resend
+## Resend Future Use
 
-Use Resend for:
+Use Resend later for:
 
 - welcome email
-- future reminders
+- onboarding nudges
+- reminder experiments
 - retention emails
 - product updates
 
-MVP can prepare the integration but does not need complex email automation.
+Do not add email automation before the MVP loop is validated.
 
 ## Localization
 
-Build i18n from the start.
+Build i18n from the beginning.
 
-Default locale:
-
-- cs
-
-Planned locales:
+Current planned locales:
 
 - en
+- cs
 - ru
 - uk
 
-Translation files can start as simple dictionaries and later move to a more advanced i18n solution if needed.
+The current implementation starts with a simple dictionary in `lib/i18n.ts`.
 
 ## Theme System
 
-Themes should be token-based.
+Theme architecture starts in `lib/themes.ts`.
 
-Each theme should define:
-
-- background
-- surface
-- card
-- text
-- muted text
-- primary
-- secondary
-- success
-- warning
-- danger
-- border
-- glow/shadow
-
-MVP themes:
+Themes:
 
 - focus-dark
 - soft-light
-
-Future themes:
-
 - pixel-quest
 - cyber-calm
 - nature-progress
 
+MVP implementation starts with Focus Dark while keeping the UI ready for other modes.
+
 ## XP Logic
 
-Centralize XP logic in `lib/xp`.
+Centralized in:
+
+- `lib/progression.ts`
+- `lib/store.ts`
 
 Initial rules:
 
-- completed habit: habit xp_reward
-- completed task: default task XP
-- partial task: smaller XP
-- failed important task: optional penalty later
-- level = based on total XP thresholds
+- completed mission gives mission XP
+- completed planner block gives small XP
+- unlocked technology gives technology XP
+- levels scale progressively
 
-Avoid scattering XP calculations across UI components.
+## Analytics Future Events
 
-## Analytics
-
-Track events:
+Track later:
 
 - app_opened
-- signup_completed
-- habit_created
-- habit_completed
-- task_created
-- task_completed
-- tiny_step_used
+- life_tree_opened
+- mission_completed
+- planner_block_completed
+- technology_unlocked
 - xp_earned
 - level_up
 - theme_changed
 - locale_changed
 - returned_next_day
 
-Main retention metric:
+Main metric:
 
-- Day 1 return
-- Day 7 retention
+> Does the user return to progress the Life Tree?
 
 ## Deployment Flow
 
 1. Push code to GitHub.
-2. Connect repository to Vercel.
-3. Create Supabase project.
-4. Add env vars to Vercel.
-5. Run migrations.
-6. Deploy preview.
-7. Test auth and data.
-8. Promote to production.
+2. Import repository into Vercel.
+3. Deploy preview.
+4. Fix build errors from Vercel logs.
+5. Test mobile UI.
+6. Connect domain.
+7. Restore CI only after Vercel build is stable.
 
 ## Environment Variables
 
-Expected variables:
+Version 1 does not need env vars.
+
+Future variables:
 
 ```txt
 NEXT_PUBLIC_SUPABASE_URL=
@@ -298,8 +327,8 @@ Do not commit secrets.
 ## Quality Rules
 
 - Mobile-first UI.
-- Strong loading and empty states.
-- No broken unauthenticated routes.
-- Czech default copy.
-- Auth and database protected by RLS.
+- The Life Tree must remain central.
+- No broken navigation routes.
+- No backend dependency in v1.
 - No payment or ad logic before retention is tested.
+- No CI spam during early online setup.
