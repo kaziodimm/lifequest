@@ -19,7 +19,7 @@ export type Requirement = {
 export type LifeTechnology = {
   id: string;
   category: LifeCategory;
-  era: LifeEra;
+  era?: LifeEra;
   title: string;
   description: string;
   xpReward: number;
