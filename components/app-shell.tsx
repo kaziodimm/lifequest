@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, GitBranch, Home, Radar, UserRound } from "lucide-react";
+import { Award, BarChart3, GitBranch, Radar, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { href: "/", label: "Home", icon: Home },
   { href: "/tree", label: "Tree", icon: GitBranch },
-  { href: "/command", label: "Command", icon: Radar },
+  { href: "/command", label: "Missions", icon: Radar },
   { href: "/stats", label: "Stats", icon: BarChart3 },
+  { href: "/achievements", label: "Awards", icon: Award },
   { href: "/profile", label: "Profile", icon: UserRound }
 ];
 
@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <p className="text-xs text-muted-foreground">Life Strategy</p>
             </div>
           </Link>
-          <div className="rounded-md border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">MVP v1</div>
+          <div className="rounded-md border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">Foundation Era</div>
         </header>
         {children}
       </div>
