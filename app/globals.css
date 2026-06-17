@@ -72,6 +72,46 @@
     background-size: auto, auto, auto, 36px 36px, 36px 36px;
   }
 
+  .tech-node-button {
+    color: var(--node-color);
+  }
+
+  .tech-node-button .tech-orb {
+    position: relative;
+    border-color: color-mix(in srgb, var(--node-color) 46%, rgba(148, 163, 184, 0.26));
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36), inset 0 0 24px color-mix(in srgb, var(--node-color) 12%, transparent);
+  }
+
+  .tech-node-button.available .tech-orb {
+    animation: nodePulse 1.8s ease-in-out infinite;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--node-color) 52%, transparent), 0 0 36px color-mix(in srgb, var(--node-color) 28%, transparent), 0 18px 44px rgba(0, 0, 0, 0.36);
+  }
+
+  .tech-node-button.in_progress .tech-orb {
+    background: radial-gradient(circle, color-mix(in srgb, var(--node-color) 18%, #111827), hsl(var(--card)) 68%);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--node-color) 62%, transparent), 0 0 42px color-mix(in srgb, var(--node-color) 32%, transparent), 0 18px 44px rgba(0, 0, 0, 0.36);
+  }
+
+  .tech-node-button.unlocked .tech-orb {
+    background: radial-gradient(circle, color-mix(in srgb, var(--node-color) 28%, #0b1120), hsl(var(--card)) 70%);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--node-color) 70%, transparent), 0 0 48px color-mix(in srgb, var(--node-color) 40%, transparent), 0 18px 44px rgba(0, 0, 0, 0.36);
+  }
+
+  .tech-node-button.locked {
+    color: hsl(var(--muted-foreground));
+    filter: grayscale(0.9);
+    opacity: 0.46;
+  }
+
+  .tech-node-button.selected .tech-orb {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--node-color) 72%, transparent), 0 0 56px color-mix(in srgb, var(--node-color) 44%, transparent), 0 22px 60px rgba(0, 0, 0, 0.42);
+  }
+
+  .mission-panel {
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
   .tech-node {
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
