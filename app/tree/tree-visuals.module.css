@@ -37,3 +37,96 @@
     linear-gradient(180deg, rgba(9, 13, 26, 0.9), rgba(9, 13, 26, 0.64));
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
 }
+
+.visualTreeSkin :global(.tech-node-button) {
+  isolation: isolate;
+}
+
+.visualTreeSkin :global(.tech-node-button .tech-orb) {
+  border-width: 0;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 30%),
+    radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--node-color) 30%, #0f172a), #070b15 68%),
+    linear-gradient(150deg, color-mix(in srgb, var(--node-color) 34%, #0b1020), #060811);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--node-color) 44%, rgba(255, 255, 255, 0.08)),
+    0 0 0 6px rgba(7, 11, 21, 0.7),
+    0 18px 44px rgba(0, 0, 0, 0.45),
+    inset 0 0 26px color-mix(in srgb, var(--node-color) 18%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.visualTreeSkin :global(.tech-node-button .tech-orb::before),
+.visualTreeSkin :global(.tech-node-button .tech-orb::after) {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.visualTreeSkin :global(.tech-node-button .tech-orb::before) {
+  inset: 7px;
+  clip-path: polygon(50% 0%, 84% 18%, 96% 54%, 72% 96%, 28% 96%, 4% 54%, 16% 18%);
+  border: 1px solid color-mix(in srgb, var(--node-color) 38%, rgba(255, 255, 255, 0.12));
+  background:
+    radial-gradient(circle at 50% 48%, transparent 0 42%, color-mix(in srgb, var(--node-color) 18%, transparent) 43% 45%, transparent 46%),
+    conic-gradient(from 0deg, transparent 0 24deg, color-mix(in srgb, var(--node-color) 20%, transparent) 25deg 27deg, transparent 28deg 84deg, rgba(255, 255, 255, 0.12) 85deg 86deg, transparent 87deg 360deg);
+  opacity: 0.95;
+}
+
+.visualTreeSkin :global(.tech-node-button .tech-orb::after) {
+  inset: -8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--node-color) 22%, transparent), transparent 62%);
+  opacity: 0;
+  transform: scale(0.82);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.visualTreeSkin :global(.tech-node-button:hover .tech-orb::after),
+.visualTreeSkin :global(.tech-node-button.selected .tech-orb::after) {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.visualTreeSkin :global(.tech-node-button.locked .tech-orb) {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 32%),
+    radial-gradient(circle at 50% 34%, rgba(71, 85, 105, 0.28), #060914 70%);
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.14),
+    0 0 0 6px rgba(3, 5, 12, 0.72),
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    inset 0 0 26px rgba(15, 23, 42, 0.64);
+}
+
+.visualTreeSkin :global(.tech-node-button.locked .tech-orb::before) {
+  border-color: rgba(148, 163, 184, 0.12);
+  background:
+    radial-gradient(circle at center, rgba(148, 163, 184, 0.06), transparent 62%),
+    repeating-linear-gradient(135deg, transparent 0 8px, rgba(148, 163, 184, 0.035) 9px 10px);
+}
+
+.visualTreeSkin :global(.tech-node-button svg) {
+  stroke-width: 1.85;
+}
+
+.visualTreeSkin :global(.tech-node-button.available .tech-orb),
+.visualTreeSkin :global(.tech-node-button.in_progress .tech-orb) {
+  animation: nodePulse 2.2s ease-in-out infinite;
+}
+
+.visualTreeSkin :global(.branch-label) {
+  border-radius: 0.35rem;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.07), transparent 44%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 14px 38px rgba(0, 0, 0, 0.34),
+    inset 0 0 22px rgba(255, 255, 255, 0.035);
+}
+
+.visualTreeSkin :global(.mission-panel) {
+  border-color: rgba(148, 163, 184, 0.2);
+  background:
+    linear-gradient(180deg, rgba(19, 27, 46, 0.97), rgba(8, 12, 24, 0.96));
+}
