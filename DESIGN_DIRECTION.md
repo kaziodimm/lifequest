@@ -2,187 +2,215 @@
 
 ## Design Goal
 
-Habidoo should feel like a playful daily companion, not a serious productivity dashboard.
+Habidoo should feel like a premium strategy-game interface for real life.
 
 The interface should be:
 
 - mobile-first
-- colorful
-- friendly
-- game-like
-- easy to understand
+- dark by default
+- strategic
+- premium
 - visually memorable
+- game-inspired
+- clear enough for daily use
 - strong enough for Reels/TikTok demos
+
+It should not look like:
+
+- a todo list
+- a generic habit tracker
+- a corporate dashboard
+- a childish RPG clone
+- a direct copy of Habitica or Duolingo
 
 ## Brand Personality
 
 Habidoo is:
 
-- cheerful
+- ambitious
+- strategic
 - motivating
-- a little silly
-- supportive
-- energetic
-- simple
-- visual
+- polished
+- slightly playful
+- progress-driven
+- visually expressive
 
 Habidoo is not:
 
-- corporate
 - cold
-- overloaded
 - shame-based
-- generic SaaS
+- overloaded
+- childish
+- dry productivity software
 
-## Visual Identity Direction
+## Core Visual Product
 
-### Mascot
+The Life Tree is the hero visual.
 
-Habidoo should eventually have a mascot or companion.
+Every important screen should reinforce the idea that the user is researching and developing real life.
 
-Possible direction:
+Visual metaphors:
 
-- A small round creature that grows with daily progress.
-- A helper that celebrates tiny actions.
-- Not an owl, not a direct Duolingo reference.
-- Simple enough to become an app icon.
-- Expressive enough for streak, success, fail, tired, and celebration states.
+- technologies
+- research
+- command center
+- domains
+- unlocks
+- progress systems
+- strategic map
+- life score
 
-Working mascot name ideas:
-
-- Doo
-- Bidoo
-- Habi
-- Dobi
-
-### Icon Style
+## Icon and Node Style
 
 Custom icons should be:
 
-- rounded
-- playful
-- chunky
 - readable on mobile
-- colorful per state
+- geometric
+- premium
+- category-coded
 - consistent across themes
+- less cartoon, more strategy UI
 
 Icon categories:
 
-- habit
-- task
-- tiny start
+- Health
+- Mind
+- Career
+- Business
+- Finance
+- Relationships
+- Creativity
 - XP
-- level
-- streak
-- reward
-- profile
-- settings
-- language
-- theme
+- Level
+- Streak
+- Research
+- Mission
+- Profile
+- Settings
 
-### Motion
+Tree nodes should feel like research cards, not checklist items.
 
-Micro animations should support motivation:
+## Motion
 
-- XP gain pop.
-- Streak glow.
-- Completion bounce.
-- Level-up celebration.
-- Gentle mascot reaction.
+Motion should make progress feel powerful, not silly.
 
-Avoid heavy animations that slow the app down.
+Use:
+
+- XP gain pulse
+- node unlock glow
+- level-up sweep
+- category progress fill
+- subtle command center transitions
+
+Avoid:
+
+- heavy animation
+- childish bounces
+- distracting effects
+- excessive confetti for small actions
+
+Major technology unlocks can use stronger celebration.
 
 ## Theme System
 
-Habidoo should support multiple visual themes to appeal to different users.
+Habidoo keeps five visual directions.
 
 ### 1. Focus Dark
 
+MVP default.
+
 Mood:
 
-- night dashboard
-- neon progress
+- premium dark strategy UI
+- cyan/gold/violet accents
 - high contrast
-- energetic
-
-Use for users who like game dashboards and focus apps.
+- command center energy
 
 ### 2. Soft Light
 
+Future theme.
+
 Mood:
 
-- clean
-- warm
 - calm
-- friendly
-
-Use for users who do not want a dark or gamer look.
+- clean
+- accessible
+- less intense
 
 ### 3. Pixel Quest
 
+Future theme.
+
 Mood:
 
-- light retro game
-- playful
+- retro strategy
 - collectible
-
-Use for stronger game identity later.
+- more playful
 
 ### 4. Cyber Calm
+
+Future theme.
 
 Mood:
 
 - futuristic
-- glow accents
+- neon
 - structured
-- but not aggressive
-
-Use for night productivity and high-energy visuals.
+- night productivity
 
 ### 5. Nature Progress
+
+Future theme.
 
 Mood:
 
 - growth
 - recovery
-- routine
-- soft progress
-
-Use for users who respond to calm and wellness.
+- balance
+- organic progress
 
 ## MVP Design Scope
 
 For MVP, build:
 
 - Focus Dark theme.
-- Soft Light theme.
-- Theme tokens that allow future themes.
-- Strong dashboard cards.
-- Custom visual language for XP, streak, and level.
-- Empty states with friendly copy.
-- Clear mobile navigation.
+- Token-based theme architecture.
+- Strong Life Tree visual.
+- Mobile-first bottom navigation.
+- Premium cards and panels.
+- Category colors.
+- PWA icon.
+- Clear profile and stats pages.
 
 ## UX Principles
 
-- The next action should always be obvious.
-- Completing a small action should feel good.
-- Partial progress is still progress.
-- Never punish users so hard that they quit.
-- The app should reduce morning friction.
-- Setup should take less than one minute.
+- The user should always know the next strategic move.
+- Every mission should show what technology it progresses.
+- The app should reduce morning decision fatigue.
+- Progress should feel meaningful, not administrative.
+- Partial progress should still support momentum.
+- The tree should make future growth visible.
 
-## Czech UI Tone
+## Language Direction
 
-Default Czech should be friendly, simple, and not too formal.
+The product should support global audiences.
 
-Examples:
+Planned languages:
 
-- Zacni malym krokem
-- Dnesni mise
-- Hotovo
-- Ziskal jsi XP
-- Drzis serii
-- Vyber styl
-- Tvoje navyky
+- English
+- Czech
+- Russian
+- Ukrainian
 
-Final Czech copy should be reviewed before launch for natural tone.
+Tone should be concise, confident, and motivating.
+
+Example English copy:
+
+- Research your next upgrade
+- Today's command center
+- Unlock technology
+- Life domains
+- Strategic recommendation
+- Progress the tree
+
+Example Czech copy should be reviewed before launch for natural tone.
