@@ -1,31 +1,53 @@
 # Habidoo
 
-Habidoo is a playful daily habit and task app that turns real-life progress into XP, streaks, levels, and friendly visual rewards.
+Habidoo is a mobile-first Life Strategy web app that turns real life into a strategy game.
 
-The product is designed as a global mobile-first business project, not a Habitica clone. The core idea is simple: help people start their day with tiny steps, complete habits, build streaks, and feel visible progress every day.
+This is not a habit tracker, not a task manager, and not a todo list. The core product is a **Life Technology Tree**: users progress through real-life categories by unlocking technologies such as Morning Walk, Cardio I, MVP Launch, First Paying User, Emergency Fund, and Financial Independence.
 
-## Product Direction
+The experience should feel like a premium strategy game for ambitious adults: inspired by Civilization, Stellaris, Path of Exile progression systems, and personal development.
 
-- Czech-first interface, with English, Russian, and Ukrainian planned.
-- Game-like experience with custom visual identity, themes, icons, and a mascot.
-- Web MVP first, then PWA/mobile app strategy.
-- Free core experience, with future mobile ads, rewarded ads, cosmetics, and premium options.
+## Core Principle
 
-## Stack
+The Life Tree is the product. Everything else supports the Life Tree.
+
+Users should open Habidoo because they want to progress their Life Tree, not because they want to check off tasks.
+
+## Main Screens
+
+- Home
+- Life Tree
+- Daily Command Center
+- Statistics
+- Profile
+
+## Life Categories
+
+- Health
+- Mind
+- Career
+- Business
+- Finance
+- Relationships
+- Creativity
+
+## MVP Stack
 
 - Next.js
 - React
 - TypeScript
 - Tailwind CSS
-- Supabase
-- Vercel
-- Resend
+- shadcn/ui
+- Recharts
+- Zustand
+- localStorage
 
-## Planning Docs
+Version 1 has no backend. Future architecture should be ready for Supabase, Vercel, Resend, leaderboards, friends, and guilds.
 
-- [Business Plan](./BUSINESS_PLAN.md)
-- [Product Brief](./PRODUCT_BRIEF.md)
+## Product Docs
+
+- [Life Strategy Product Brief](./PRODUCT_BRIEF.md)
 - [MVP Scope](./MVP_SCOPE.md)
 - [Roadmap](./ROADMAP.md)
 - [Design Direction](./DESIGN_DIRECTION.md)
 - [Technical Architecture](./TECH_ARCHITECTURE.md)
+- [Business Plan](./BUSINESS_PLAN.md)
