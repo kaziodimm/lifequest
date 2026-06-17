@@ -1,0 +1,18 @@
+{
+  "name": "Habidoo Life Strategy",
+  "short_name": "Habidoo",
+  "description": "Turn real life into a strategy game with a Life Technology Tree.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080A12",
+  "theme_color": "#4CE0D2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
