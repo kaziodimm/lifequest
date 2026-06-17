@@ -72,6 +72,135 @@
     background-size: auto, auto, auto, 36px 36px, 36px 36px;
   }
 
+  .life-tree-shell {
+    @apply relative -mx-4 overflow-hidden border-y border-border/80 bg-background/40 shadow-command sm:-mx-6 lg:-mx-8;
+  }
+
+  .life-tree-toolbar {
+    @apply relative z-50 flex items-center justify-between gap-3 border-b border-border/80 bg-background/70 px-3 py-3 backdrop-blur-xl;
+  }
+
+  .tree-tool-button {
+    @apply grid size-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground;
+  }
+
+  .life-tree-stage {
+    @apply relative h-[calc(100vh-178px)] min-h-[650px] overflow-hidden;
+    cursor: grab;
+    touch-action: none;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(246, 196, 83, 0.08), transparent 18rem),
+      radial-gradient(circle at 16% 18%, rgba(76, 224, 210, 0.13), transparent 26rem),
+      radial-gradient(circle at 84% 28%, rgba(155, 124, 255, 0.13), transparent 25rem),
+      radial-gradient(circle at 70% 82%, rgba(255, 138, 179, 0.08), transparent 22rem),
+      linear-gradient(140deg, #060812 0%, #0b1020 48%, #080910 100%);
+  }
+
+  .life-tree-stage.is-dragging {
+    cursor: grabbing;
+  }
+
+  .life-tree-vignette {
+    @apply pointer-events-none absolute inset-0 z-10;
+    background:
+      linear-gradient(90deg, rgba(5, 7, 14, 0.84), transparent 16%, transparent 76%, rgba(5, 7, 14, 0.72)),
+      linear-gradient(180deg, rgba(5, 7, 14, 0.62), transparent 20%, transparent 74%, rgba(5, 7, 14, 0.72));
+  }
+
+  .life-tree-starfield {
+    @apply pointer-events-none absolute inset-0 opacity-70;
+    background-image:
+      radial-gradient(circle, rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+      radial-gradient(circle, rgba(76, 224, 210, 0.24) 1px, transparent 1px),
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-position: 0 0, 17px 23px, 0 0, 0 0;
+    background-size: 74px 74px, 116px 116px, 64px 64px, 64px 64px;
+    mask-image: radial-gradient(circle at center, black, transparent 78%);
+  }
+
+  .life-tree-canvas {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 20;
+    margin-left: -1100px;
+    margin-top: -1100px;
+    transform-origin: 50% 50%;
+    transition: transform 180ms ease-out;
+  }
+
+  .life-tree-stage.is-dragging .life-tree-canvas {
+    transition: none;
+  }
+
+  .life-tree-panel {
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 60;
+    max-height: 46vh;
+    overflow: auto;
+    border-radius: 0.5rem;
+  }
+
+  .branch-label {
+    position: absolute;
+    z-index: 24;
+    transform: translate(-50%, -50%);
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.025), 0 12px 34px rgba(0, 0, 0, 0.28);
+  }
+
+  .life-core-node {
+    position: absolute;
+    z-index: 35;
+    display: grid;
+    height: 148px;
+    width: 148px;
+    place-items: center;
+    align-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(246, 196, 83, 0.58);
+    background:
+      radial-gradient(circle at 50% 34%, rgba(246, 196, 83, 0.2), transparent 36%),
+      radial-gradient(circle, rgba(76, 224, 210, 0.12), rgba(12, 16, 28, 0.96) 66%);
+    box-shadow:
+      0 0 0 1px rgba(76, 224, 210, 0.16),
+      0 0 80px rgba(246, 196, 83, 0.18),
+      0 26px 90px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .life-core-node::before,
+  .life-core-node::after {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border-radius: inherit;
+    border: 1px dashed rgba(246, 196, 83, 0.22);
+    animation: slowSpin 26s linear infinite;
+  }
+
+  .life-core-node::after {
+    inset: -34px;
+    border-color: rgba(76, 224, 210, 0.14);
+    animation-duration: 38s;
+    animation-direction: reverse;
+  }
+
+  .radial-tech-node {
+    z-index: 34;
+  }
+
   .tech-node-button {
     color: var(--node-color);
   }
@@ -188,12 +317,36 @@
   .research-particle:nth-child(8) { --x: -42px; --y: -42px; }
 }
 
+@media (min-width: 1024px) {
+  .life-tree-stage {
+    min-height: 760px;
+  }
+
+  .life-tree-panel {
+    left: auto;
+    right: 1rem;
+    top: 1rem;
+    bottom: auto;
+    width: 360px;
+    max-height: calc(100% - 2rem);
+  }
+}
+
 @keyframes nodePulse {
   0%, 100% {
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--node-color) 35%, transparent);
   }
   50% {
     box-shadow: 0 0 0 8px color-mix(in srgb, var(--node-color) 0%, transparent);
+  }
+}
+
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
