@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { LucideIcon } from "lucide-react";
-import { Brain, BriefcaseBusiness, Check, Clock3, HeartPulse, Landmark, LocateFixed, Lock, Minus, Palette, Play, Plus, Rocket, ShieldAlert, Sparkles, Timer, Users } from "lucide-react";
+import type { LucideIcon, X } from "lucide-react";
+import { Brain, BriefcaseBusiness, Check, Clock3, HeartPulse, Landmark, LocateFixed, Lock, Palette, Play, Rocket, ShieldAlert, Sparkles, Timer, Users, X as CloseIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { lifeEras } from "@/lib/eras";
@@ -24,7 +24,19 @@ const categoryIcons: Record<LifeCategory, LucideIcon> = {
 
 const treeSize = 2200;
 const corePoint = { x: treeSize / 2, y: treeSize / 2 };
-const nodeCenterOffset = { x: 64, y: 40 };
+const nodeCenterOffset = { x: 64, y: 46 };
+const overviewZoom = 0.68;
+const focusZoom = 1.08;
+
+type ViewState = { zoom: number; pan: { x: number; y: number } };
+type PanelAnchor = { x: number; y: number };
+
+const epochs = Array.from({ length: 12 }, (_, index) => ({
+  id: index + 1,
+  title: `Epoch ${String(index + 1).padStart(2, "0")}`,
+  duration: "1 month",
+  unlocked: index === 0
+}));
 
 const radialBranches: Record<LifeCategory, { angle: number; label: string }> = {
   health: { angle: -92, label: "Body systems" },
@@ -35,6 +47,10 @@ const radialBranches: Record<LifeCategory, { angle: number; label: string }> = {
   relationships: { angle: 178, label: "Alliances" },
   creativity: { angle: -152, label: "Artifacts" }
 };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
 
 function getStatus(tech: LifeTechnology, completedIds: string[], runtimeStatus?: string, runtimeProgress = 0): TechStatus {
   if (completedIds.includes(tech.id)) return "unlocked";
@@ -71,9 +87,9 @@ function createRadialPositions() {
     const group = groups.get(`${tech.category}-${depth}`) ?? [tech];
     const index = group.findIndex((item) => item.id === tech.id);
     const branch = radialBranches[tech.category];
-    const angle = (branch.angle + depth * 3) * (Math.PI / 180);
-    const radius = 260 + depth * 260;
-    const spread = Math.min(190, 82 + depth * 34);
+    const angle = (branch.angle + depth * 2) * (Math.PI / 180);
+    const radius = 260 + depth * 278;
+    const spread = Math.min(210, 92 + depth * 40);
     const siblingOffset = (index - (group.length - 1) / 2) * spread;
     const perpendicular = angle + Math.PI / 2;
 
@@ -94,15 +110,29 @@ function getNodePoint(tech: LifeTechnology) {
   return { x: position.x + nodeCenterOffset.x, y: position.y + nodeCenterOffset.y };
 }
 
-function getConnectionPath(start: { x: number; y: number }, end: { x: number; y: number }) {
+function getBranchPath(start: { x: number; y: number }, end: { x: number; y: number }) {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
-  const distance = Math.hypot(dx, dy);
-  const curve = Math.min(160, Math.max(70, distance * 0.22));
-  const normalX = -dy / distance || 0;
-  const normalY = dx / distance || 0;
+  const distance = Math.hypot(dx, dy) || 1;
+  const normalX = -dy / distance;
+  const normalY = dx / distance;
+  const bend = Math.min(42, Math.max(18, distance * 0.08));
+  const joint = {
+    x: start.x + dx * 0.56 + normalX * bend,
+    y: start.y + dy * 0.56 + normalY * bend
+  };
 
-  return `M ${start.x} ${start.y} C ${start.x + dx * 0.28 + normalX * curve} ${start.y + dy * 0.28 + normalY * curve}, ${end.x - dx * 0.28 + normalX * curve} ${end.y - dy * 0.28 + normalY * curve}, ${end.x} ${end.y}`;
+  return `M ${start.x} ${start.y} L ${joint.x} ${joint.y} L ${end.x} ${end.y}`;
+}
+
+function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: number }) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const normalX = -dy / distance;
+  const normalY = dx / distance;
+  const bend = Math.min(42, Math.max(18, distance * 0.08));
+  return { x: start.x + dx * 0.56 + normalX * bend, y: start.y + dy * 0.56 + normalY * bend };
 }
 
 function formatDuration(totalSeconds: number) {
@@ -118,7 +148,7 @@ function getEraTitle(technology: LifeTechnology) {
   return lifeEras.find((era) => era.id === (technology.era ?? "foundation"))?.title ?? "Foundation";
 }
 
-function MissionPanel({ technology, now }: { technology: LifeTechnology; now: number }) {
+function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAnchor; technology: LifeTechnology; now: number; onClose: () => void }) {
   const runtime = useLifeStore((state) => state.technologyRuntime[technology.id]);
   const completedIds = useLifeStore((state) => state.completedTechnologyIds);
   const startTechnologyMission = useLifeStore((state) => state.startTechnologyMission);
@@ -137,14 +167,23 @@ function MissionPanel({ technology, now }: { technology: LifeTechnology; now: nu
   const Icon = categoryIcons[technology.category];
 
   return (
-    <aside className="mission-panel life-tree-panel border border-border bg-card/95 p-4 backdrop-blur" onPointerDown={(event) => event.stopPropagation()}>
+    <aside
+      className="mission-panel life-tree-panel border border-border bg-card/95 p-4 backdrop-blur"
+      style={{ ["--panel-left" as string]: `${anchor.x}px`, ["--panel-top" as string]: `${anchor.y}px` }}
+      onPointerDown={(event) => event.stopPropagation()}
+    >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color }}>{categoryLabels[technology.category]} / {getEraTitle(technology)}</p>
           <h2 className="mt-1 text-xl font-black text-foreground">{technology.title}</h2>
         </div>
-        <div className="grid size-11 place-items-center rounded-full border bg-muted/60" style={{ color, borderColor: `${color}66` }}>
-          <Icon size={20} />
+        <div className="flex items-center gap-2">
+          <div className="node-mini-emblem" style={{ color, borderColor: `${color}66` }}>
+            <Icon size={19} />
+          </div>
+          <button type="button" className="tree-close-button" aria-label="Close mission panel" onClick={onClose}>
+            <CloseIcon size={16} />
+          </button>
         </div>
       </div>
 
@@ -207,15 +246,17 @@ function MissionPanel({ technology, now }: { technology: LifeTechnology; now: nu
 }
 
 export function LifeTree() {
-  const [selectedId, setSelectedId] = useState(() => technologies[0]?.id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelAnchor, setPanelAnchor] = useState<PanelAnchor>({ x: 16, y: 96 });
+  const [returnView, setReturnView] = useState<ViewState | null>(null);
   const [now, setNow] = useState(() => Date.now());
-  const [zoom, setZoom] = useState(0.72);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [view, setView] = useState<ViewState>({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
   const [dragStart, setDragStart] = useState<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const completedIds = useLifeStore((state) => state.completedTechnologyIds);
   const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
-  const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? technologies[0], [selectedId]);
+  const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
   const rootTechnologies = useMemo(() => technologies.filter((tech) => tech.parents.length === 0), []);
 
   useEffect(() => {
@@ -224,19 +265,58 @@ export function LifeTree() {
   }, []);
 
   function resetView() {
-    setZoom(0.72);
-    setPan({ x: 0, y: 0 });
+    setPanelOpen(false);
+    setSelectedId(null);
+    setReturnView(null);
+    setView({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
+  }
+
+  function focusTechnology(tech: LifeTechnology) {
+    const rect = stageRef.current?.getBoundingClientRect();
+    const stageWidth = rect?.width ?? 390;
+    const stageHeight = rect?.height ?? 760;
+    const node = getNodePoint(tech);
+    const topSpace = 88;
+    const bottomNavSpace = 92;
+    const cardOffsetX = stageWidth >= 1024 ? -190 : 0;
+    const cardOffsetY = stageWidth >= 1024 ? 0 : -110;
+    const nextPan = {
+      x: -(node.x - corePoint.x) * focusZoom + cardOffsetX,
+      y: -(node.y - corePoint.y) * focusZoom + cardOffsetY
+    };
+    const screenX = stageWidth / 2 + nextPan.x + (node.x - corePoint.x) * focusZoom;
+    const screenY = stageHeight / 2 + nextPan.y + (node.y - corePoint.y) * focusZoom;
+
+    setSelectedId(tech.id);
+    setPanelOpen(true);
+    setView({ zoom: focusZoom, pan: nextPan });
+    setPanelAnchor({
+      x: clamp(screenX + 54, 16, Math.max(16, stageWidth - 392)),
+      y: clamp(screenY - 190, topSpace, Math.max(topSpace, stageHeight - bottomNavSpace - 430))
+    });
+  }
+
+  function handleNodeClick(tech: LifeTechnology) {
+    if (!panelOpen) setReturnView(view);
+    focusTechnology(tech);
+  }
+
+  function closePanel() {
+    setPanelOpen(false);
+    setSelectedId(null);
+    if (returnView) setView(returnView);
+    setReturnView(null);
   }
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || panelOpen) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    setDragStart({ pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y });
+    setDragStart({ pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: view.pan.x, panY: view.pan.y });
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (!dragStart || dragStart.pointerId !== event.pointerId) return;
-    setPan({ x: dragStart.panX + event.clientX - dragStart.x, y: dragStart.panY + event.clientY - dragStart.y });
+    setView((current) => ({ ...current, pan: { x: dragStart.panX + event.clientX - dragStart.x, y: dragStart.panY + event.clientY - dragStart.y } }));
   }
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
@@ -244,42 +324,26 @@ export function LifeTree() {
   }
 
   return (
-    <div className="life-tree-shell">
-      <div className="life-tree-toolbar">
-        <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
-          {Object.entries(categoryLabels).map(([id, label]) => {
-            const category = id as LifeCategory;
-            const Icon = categoryIcons[category];
-            const color = categoryColors[category];
-
-            return (
-              <button
-                key={id}
-                type="button"
-                className="shrink-0 rounded-full border border-border bg-background/55 px-3 py-2 text-xs font-black transition hover:border-primary/50"
-                style={{ color, boxShadow: `inset 0 0 18px ${color}14` }}
-                onClick={() => {
-                  const root = technologies.find((tech) => tech.category === category && tech.parents.length === 0);
-                  if (root) setSelectedId(root.id);
-                }}
-              >
-                <span className="flex items-center gap-2"><Icon size={14} />{label}</span>
-              </button>
-            );
-          })}
+    <div className="life-tree-shell immersive-tree-shell">
+      <div className="life-tree-toolbar epoch-toolbar">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Foundation Era</p>
+          <p className="text-xs text-muted-foreground">Year 1 / 12 monthly epochs</p>
         </div>
-
-        <div className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-background/70 p-1 backdrop-blur">
-          <button type="button" className="tree-tool-button" aria-label="Zoom out" onClick={() => setZoom((value) => Math.max(0.48, value - 0.1))}><Minus size={16} /></button>
-          <span className="w-12 text-center text-[11px] font-black text-muted-foreground">{Math.round(zoom * 100)}%</span>
-          <button type="button" className="tree-tool-button" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(1.35, value + 0.1))}><Plus size={16} /></button>
-          <button type="button" className="tree-tool-button" aria-label="Center tree" onClick={resetView}><LocateFixed size={16} /></button>
+        <div className="epoch-strip" aria-label="Era epochs">
+          {epochs.map((epoch) => (
+            <button key={epoch.id} type="button" disabled={!epoch.unlocked} className={cn("epoch-chip", epoch.unlocked ? "active" : "locked")}> 
+              <span>{epoch.title}</span>
+              <small>{epoch.duration}</small>
+            </button>
+          ))}
         </div>
+        <button type="button" className="tree-tool-button shrink-0" aria-label="Center tree" onClick={resetView}><LocateFixed size={16} /></button>
       </div>
 
       <div
         ref={stageRef}
-        className={cn("life-tree-stage", dragStart && "is-dragging")}
+        className={cn("life-tree-stage", dragStart && "is-dragging", panelOpen && "is-focused")}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -287,17 +351,18 @@ export function LifeTree() {
       >
         <div className="life-tree-vignette" />
         <div className="life-tree-starfield" />
+        <div className="life-tree-rune-grid" />
 
         <div
           className="life-tree-canvas"
-          style={{ width: treeSize, height: treeSize, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+          style={{ width: treeSize, height: treeSize, transform: `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
         >
           {Object.entries(radialBranches).map(([id, branch]) => {
             const category = id as LifeCategory;
             const color = categoryColors[category];
             const angle = branch.angle * (Math.PI / 180);
-            const x = corePoint.x + Math.cos(angle) * 520;
-            const y = corePoint.y + Math.sin(angle) * 520;
+            const x = corePoint.x + Math.cos(angle) * 548;
+            const y = corePoint.y + Math.sin(angle) * 548;
 
             return (
               <div key={id} className="branch-label" style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
@@ -313,33 +378,37 @@ export function LifeTree() {
                 <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
               <radialGradient id="coreAura" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(246, 196, 83, 0.3)" />
-                <stop offset="45%" stopColor="rgba(76, 224, 210, 0.12)" />
+                <stop offset="0%" stopColor="rgba(246, 196, 83, 0.34)" />
+                <stop offset="45%" stopColor="rgba(76, 224, 210, 0.13)" />
                 <stop offset="100%" stopColor="rgba(76, 224, 210, 0)" />
               </radialGradient>
             </defs>
-            <circle cx={corePoint.x} cy={corePoint.y} r="360" fill="url(#coreAura)" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="250" fill="none" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 18" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="520" fill="none" stroke="rgba(255,255,255,0.045)" strokeDasharray="2 22" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="790" fill="none" stroke="rgba(255,255,255,0.035)" strokeDasharray="2 26" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="380" fill="url(#coreAura)" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="260" fill="none" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 18" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="540" fill="none" stroke="rgba(255,255,255,0.045)" strokeDasharray="2 22" />
+            <circle cx={corePoint.x} cy={corePoint.y} r="820" fill="none" stroke="rgba(255,255,255,0.035)" strokeDasharray="2 26" />
 
             {rootTechnologies.map((tech) => {
               const runtime = technologyRuntime[tech.id];
               const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
               const color = categoryColors[tech.category];
               const end = getNodePoint(tech);
+              const joint = getBranchJoint(corePoint, end);
 
               return (
-                <path
-                  key={`core-${tech.id}`}
-                  d={getConnectionPath(corePoint, end)}
-                  fill="none"
-                  stroke={status === "locked" ? "rgba(148, 163, 184, 0.16)" : `${color}88`}
-                  strokeWidth={status === "locked" ? 2 : 3}
-                  strokeDasharray={status === "unlocked" ? "0" : "8 12"}
-                  strokeLinecap="round"
-                  filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
-                />
+                <g key={`core-${tech.id}`}>
+                  <path d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d={getBranchPath(corePoint, end)}
+                    fill="none"
+                    stroke={status === "locked" ? "rgba(148, 163, 184, 0.2)" : `${color}95`}
+                    strokeWidth={status === "locked" ? 3 : 5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
+                  />
+                  <circle cx={joint.x} cy={joint.y} r="5" fill={status === "locked" ? "rgba(148, 163, 184, 0.28)" : color} />
+                </g>
               );
             })}
 
@@ -351,18 +420,24 @@ export function LifeTree() {
                 const runtime = technologyRuntime[tech.id];
                 const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
                 const color = categoryColors[tech.category];
+                const start = getNodePoint(parent);
+                const end = getNodePoint(tech);
+                const joint = getBranchJoint(start, end);
 
                 return (
-                  <path
-                    key={`${parentId}-${tech.id}`}
-                    d={getConnectionPath(getNodePoint(parent), getNodePoint(tech))}
-                    fill="none"
-                    stroke={status === "unlocked" ? color : status === "available" || status === "in_progress" ? `${color}AA` : "rgba(148, 163, 184, 0.16)"}
-                    strokeWidth={status === "unlocked" ? 4 : status === "available" || status === "in_progress" ? 3 : 2}
-                    strokeDasharray={status === "unlocked" ? "0" : status === "available" || status === "in_progress" ? "10 10" : "5 14"}
-                    strokeLinecap="round"
-                    filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
-                  />
+                  <g key={`${parentId}-${tech.id}`}>
+                    <path d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d={getBranchPath(start, end)}
+                      fill="none"
+                      stroke={status === "unlocked" ? color : status === "available" || status === "in_progress" ? `${color}AA` : "rgba(148, 163, 184, 0.18)"}
+                      strokeWidth={status === "unlocked" ? 5 : status === "available" || status === "in_progress" ? 4 : 3}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
+                    />
+                    <circle cx={joint.x} cy={joint.y} r="4" fill={status === "locked" ? "rgba(148, 163, 184, 0.22)" : color} />
+                  </g>
                 );
               })
             )}
@@ -373,7 +448,7 @@ export function LifeTree() {
             className="life-core-node"
             style={{ left: corePoint.x - 74, top: corePoint.y - 74 }}
             onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => setSelectedId(rootTechnologies[0]?.id ?? technologies[0]?.id)}
+            onClick={resetView}
           >
             <span className="text-[10px] font-black uppercase tracking-[0.28em] text-accent">Habidoo</span>
             <span className="mt-1 text-lg font-black text-foreground">Life Core</span>
@@ -385,7 +460,7 @@ export function LifeTree() {
             const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
             const color = categoryColors[tech.category];
             const Icon = categoryIcons[tech.category];
-            const isSelected = selectedTechnology.id === tech.id;
+            const isSelected = selectedTechnology?.id === tech.id;
             const cooldownActive = runtime?.cooldownUntil ? runtime.cooldownUntil > now : false;
             const position = radialPositions[tech.id] ?? { x: tech.x, y: tech.y };
 
@@ -396,10 +471,11 @@ export function LifeTree() {
                 className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected")}
                 style={{ left: position.x, top: position.y, ["--node-color" as string]: color }}
                 onPointerDown={(event) => event.stopPropagation()}
-                onClick={() => setSelectedId(tech.id)}
+                onClick={() => handleNodeClick(tech)}
               >
-                <span className="tech-orb grid size-20 place-items-center rounded-full border bg-card/95 backdrop-blur">
-                  {status === "locked" ? <Lock size={24} /> : status === "unlocked" ? <Check size={26} /> : <Icon size={25} />}
+                <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
+                  <span className="tech-emblem-inner" />
+                  {status === "locked" ? <Lock size={23} /> : status === "unlocked" ? <Check size={25} /> : <Icon size={25} />}
                   {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                   {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
                 </span>
@@ -409,7 +485,7 @@ export function LifeTree() {
           })}
         </div>
 
-        <MissionPanel technology={selectedTechnology} now={now} />
+        {panelOpen && selectedTechnology ? <MissionPanel anchor={panelAnchor} technology={selectedTechnology} now={now} onClose={closePanel} /> : null}
       </div>
     </div>
   );
