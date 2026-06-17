@@ -1,11 +1,16 @@
 "use client";
 
-import { Award, GitBranch, Trophy } from "lucide-react";
+import { Award, GitBranch, Languages, Palette, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { locales } from "@/lib/i18n";
 import { levelFromXp, lifeScore } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
+import { visualThemes } from "@/lib/themes";
+import { Locale, VisualThemeId } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const state = useLifeStore();
@@ -43,6 +48,35 @@ export default function ProfilePage() {
                   <p className="font-bold text-foreground">{achievement.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{achievement.description}</p>
                 </div>
+              ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Languages size={18} className="text-primary" />Language</CardTitle></CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {locales.map((locale) => (
+                <Button key={locale.id} variant={state.locale === locale.id ? "default" : "outline"} size="sm" onClick={() => state.setLocale(locale.id as Locale)}>
+                  {locale.label}
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Palette size={18} className="text-strategy-gold" />Visual Style</CardTitle></CardHeader>
+            <CardContent className="grid gap-2">
+              {visualThemes.map((theme) => (
+                <button
+                  key={theme.id}
+                  type="button"
+                  onClick={() => state.setTheme(theme.id as VisualThemeId)}
+                  className={cn("rounded-md border p-3 text-left transition hover:border-primary", state.theme === theme.id ? "border-primary bg-primary/10" : "border-border bg-muted/30")}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-bold text-foreground">{theme.name}</p>
+                    <span className="rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">{theme.availableInMvp ? "active" : "reserved"}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{theme.description}</p>
+                </button>
               ))}
             </CardContent>
           </Card>
