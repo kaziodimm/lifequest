@@ -15,6 +15,7 @@ The product should feel like:
 - Stellaris-style systems
 - Path of Exile-style tree depth
 - Duolingo-level daily motivation clarity
+- Assassin's Creed-style skill tree readability and atmosphere
 - Apple-level interaction polish
 
 It should not feel like:
@@ -23,6 +24,24 @@ It should not feel like:
 - cartoon habit tracker
 - cheap mobile game
 - static dashboard
+- spreadsheet-like task management
+
+## Core Tree Composition
+
+The Life Tree should not feel like a boxed scroll window.
+
+It should feel like an open field:
+
+- central Life Core in the middle
+- categories branching outward from the center
+- free panning and zooming
+- large future space around the user
+- circular technology nodes
+- glowing connections
+- locked areas dimmed like undiscovered progression
+- active missions highlighted as the next meaningful move
+
+The user should feel that they are navigating a strategy map, not scrolling a list.
 
 ## Core Graphic Systems
 
@@ -41,6 +60,8 @@ Future improvements:
 - category icons
 - parallax background layers
 - zoom and pan controls
+- radial branch labels
+- open-field map composition
 
 ### 2. Technology Node Art
 
@@ -107,6 +128,60 @@ Future visuals:
 - category mastery rings
 - achievement medals
 
+## Visual Theme System
+
+Habidoo should support multiple visual styles over time. These are not just color themes; each style should affect icons, backgrounds, node treatment, connection style, and animation tone.
+
+### Animus Dark
+
+Default MVP direction.
+
+- dark open field
+- golden Life Core
+- cyan and violet energy lines
+- strategy-game interface
+- sharp geometric icons
+
+### Mirage Atlas
+
+Warm historical-map direction.
+
+- parchment atlas background
+- ink and lapis connections
+- compass geometry
+- etched artifact icons
+- calm but premium mood
+
+### Arcade Codex
+
+More collectible game direction.
+
+- readable pixel-grid field
+- chunky node frames
+- emerald, amber, and magenta accents
+- pixel achievement badges
+- stronger reward feel
+
+### Neon Synapse
+
+Sci-fi neural strategy direction.
+
+- holographic mesh field
+- electric cyan and plasma violet lines
+- scan-line atmosphere
+- neural/circuit icons
+- futuristic motion language
+
+### Verdant Relic
+
+Organic ancient growth direction.
+
+- dark botanical field
+- root-like connections
+- jade and ember highlights
+- relic/seed/flame icons
+- slower living glow
+
 ## Animation Principles
 
 Use animation to communicate state.
@@ -134,6 +209,8 @@ Near-term:
 - Tailwind animation utilities
 - SVG icons
 - lightweight unlock effects
+- radial SVG connection layer
+- local pan and zoom controls
 
 Later:
 
@@ -155,13 +232,17 @@ Add category icons and better node shapes.
 
 ### Step 3
 
-Add unlock animation and timer rings.
+Move the Life Tree from row sectors into an open radial field.
 
 ### Step 4
 
-Add era regions and fog-of-war.
+Add unlock animation and timer rings.
 
 ### Step 5
+
+Add era regions and fog-of-war.
+
+### Step 6
 
 Add custom branded graphics and app-store quality visual assets.
 
