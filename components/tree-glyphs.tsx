@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { LifeCategory } from "@/lib/types";
 
 const glyphTitles: Record<LifeCategory, string> = {
@@ -16,7 +17,7 @@ type CategoryGlyphProps = {
   className?: string;
 };
 
-function GlyphShell({ category, size = 25, className, children }: CategoryGlyphProps & { children: React.ReactNode }) {
+function GlyphShell({ category, size = 25, className, children }: CategoryGlyphProps & { children: ReactNode }) {
   return (
     <svg
       aria-hidden="true"
