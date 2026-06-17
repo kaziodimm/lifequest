@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 225 42% 6%;
+    --foreground: 218 36% 94%;
+    --card: 224 34% 10%;
+    --card-foreground: 218 36% 94%;
+    --primary: 176 70% 59%;
+    --primary-foreground: 226 45% 8%;
+    --secondary: 253 82% 72%;
+    --secondary-foreground: 225 42% 6%;
+    --muted: 224 22% 16%;
+    --muted-foreground: 219 18% 66%;
+    --accent: 43 88% 65%;
+    --accent-foreground: 225 42% 6%;
+    --destructive: 352 100% 70%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 24% 22%;
+    --input: 224 24% 22%;
+    --ring: 176 70% 59%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background:
+      radial-gradient(circle at 12% -10%, rgba(76, 224, 210, 0.18), transparent 26rem),
+      radial-gradient(circle at 92% 0%, rgba(155, 124, 255, 0.16), transparent 24rem),
+      linear-gradient(180deg, #090c16 0%, #0e1321 46%, #080a12 100%);
+    min-height: 100vh;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .strategy-panel {
+    @apply rounded-lg border bg-card/88 shadow-command backdrop-blur;
+  }
+
+  .strategy-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+
+  .node-glow {
+    box-shadow: 0 0 0 1px rgba(76, 224, 210, 0.45), 0 0 34px rgba(76, 224, 210, 0.22);
+  }
+
+  .locked-node {
+    filter: grayscale(0.8);
+    opacity: 0.48;
+  }
+}
