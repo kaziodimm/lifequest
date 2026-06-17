@@ -1,6 +1,10 @@
 export type LifeCategory = "health" | "mind" | "career" | "business" | "finance" | "relationships" | "creativity";
 
+export type LifeEra = "foundation" | "discipline" | "growth" | "mastery" | "leadership" | "legacy";
+
 export type TechStatus = "locked" | "available" | "in_progress" | "unlocked";
+
+export type MissionStatus = "ready" | "active" | "cooldown" | "completed";
 
 export type Locale = "en" | "cs" | "ru" | "uk";
 
@@ -15,6 +19,7 @@ export type Requirement = {
 export type LifeTechnology = {
   id: string;
   category: LifeCategory;
+  era: LifeEra;
   title: string;
   description: string;
   xpReward: number;
@@ -32,7 +37,12 @@ export type DailyMission = {
   technologyId: string;
   important: boolean;
   completed: boolean;
+  status: MissionStatus;
   xpReward: number;
+  minDurationSeconds: number;
+  startedAt?: number;
+  completedAt?: number;
+  cooldownUntil?: number;
 };
 
 export type PlannerBlock = {
@@ -53,6 +63,7 @@ export type PlayerState = {
   avatarName: string;
   locale: Locale;
   theme: VisualThemeId;
+  currentEra: LifeEra;
   totalXp: number;
   streak: number;
   completedTechnologyIds: string[];
