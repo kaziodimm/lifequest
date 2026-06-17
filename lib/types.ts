@@ -2,6 +2,10 @@ export type LifeCategory = "health" | "mind" | "career" | "business" | "finance"
 
 export type TechStatus = "locked" | "available" | "in_progress" | "unlocked";
 
+export type Locale = "en" | "cs" | "ru" | "uk";
+
+export type VisualThemeId = "focus-dark" | "soft-light" | "pixel-quest" | "cyber-calm" | "nature-progress";
+
 export type Requirement = {
   label: string;
   current: number;
@@ -47,6 +51,8 @@ export type Achievement = {
 
 export type PlayerState = {
   avatarName: string;
+  locale: Locale;
+  theme: VisualThemeId;
   totalXp: number;
   streak: number;
   completedTechnologyIds: string[];
