@@ -3,7 +3,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
-import { DailyMission, Locale, PlayerState, VisualThemeId } from "./types";
+import { getTechnologyMission, getTechnologyTarget } from "./missions";
+import { DailyMission, Locale, PlayerState, TechnologyRuntime, VisualThemeId } from "./types";
 
 const initialMissions: DailyMission[] = [
   {
@@ -41,6 +42,23 @@ const initialMissions: DailyMission[] = [
   }
 ];
 
+function createInitialTechnologyRuntime(completedTechnologyIds: string[]): Record<string, TechnologyRuntime> {
+  return Object.fromEntries(
+    technologies.map((tech) => {
+      const completed = completedTechnologyIds.includes(tech.id);
+      return [
+        tech.id,
+        {
+          progress: completed ? getTechnologyTarget(tech) : tech.requirements[0]?.current ?? 0,
+          status: completed ? "completed" : "ready"
+        }
+      ];
+    })
+  );
+}
+
+const initialCompletedTechnologyIds = ["health-root", "business-root"];
+
 const initialState: PlayerState = {
   avatarName: "Strategist",
   locale: "en",
@@ -48,7 +66,8 @@ const initialState: PlayerState = {
   currentEra: "foundation",
   totalXp: 80,
   streak: 3,
-  completedTechnologyIds: ["health-root", "business-root"],
+  completedTechnologyIds: initialCompletedTechnologyIds,
+  technologyRuntime: createInitialTechnologyRuntime(initialCompletedTechnologyIds),
   dailyMissions: initialMissions,
   planner: Array.from({ length: 24 }, (_, hour) => ({ hour, plan: "", completed: false })),
   achievements: [
@@ -73,6 +92,28 @@ function normalizeMission(mission: PartialMission): DailyMission {
   };
 }
 
+function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined) {
+  const completedIds = persisted?.completedTechnologyIds ?? initialState.completedTechnologyIds;
+  const base = createInitialTechnologyRuntime(completedIds);
+  const saved = persisted?.technologyRuntime ?? {};
+
+  return Object.fromEntries(
+    technologies.map((tech) => {
+      const savedRuntime = saved[tech.id];
+      const completed = completedIds.includes(tech.id);
+      return [
+        tech.id,
+        {
+          ...base[tech.id],
+          ...savedRuntime,
+          progress: completed ? getTechnologyTarget(tech) : savedRuntime?.progress ?? base[tech.id].progress,
+          status: completed ? "completed" : savedRuntime?.status ?? base[tech.id].status
+        }
+      ];
+    })
+  );
+}
+
 function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerState {
   const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => normalizeMission(mission));
 
@@ -80,6 +121,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     ...initialState,
     ...persisted,
     currentEra: persisted?.currentEra ?? initialState.currentEra,
+    technologyRuntime: normalizeTechnologyRuntime(persisted),
     dailyMissions: missions,
     planner: persisted?.planner ?? initialState.planner,
     achievements: persisted?.achievements ?? initialState.achievements,
@@ -92,6 +134,8 @@ type LifeStore = PlayerState & {
   setTheme: (theme: VisualThemeId) => void;
   startMission: (missionId: string) => void;
   completeMission: (missionId: string) => void;
+  startTechnologyMission: (technologyId: string) => void;
+  completeTechnologyMission: (technologyId: string) => void;
   unlockTechnology: (technologyId: string) => void;
   updatePlannerBlock: (hour: number, plan: string, technologyId?: string) => void;
   togglePlannerBlock: (hour: number) => void;
@@ -138,17 +182,58 @@ export const useLifeStore = create<LifeStore>()(
           )
         }));
       },
-      unlockTechnology(technologyId) {
+      startTechnologyMission(technologyId) {
         const tech = technologies.find((item) => item.id === technologyId);
         if (!tech) return;
+
         const completed = get().completedTechnologyIds;
-        const canUnlock = tech.parents.every((parentId) => completed.includes(parentId));
-        if (!canUnlock || completed.includes(technologyId)) return;
+        const canStart = tech.parents.every((parentId) => completed.includes(parentId));
+        const runtime = get().technologyRuntime[technologyId] ?? { progress: 0, status: "ready" };
+        if (!canStart || completed.includes(technologyId) || runtime.status === "active") return;
+        if (runtime.cooldownUntil && runtime.cooldownUntil > Date.now()) return;
 
         set((state) => ({
-          totalXp: state.totalXp + tech.xpReward,
-          completedTechnologyIds: [...state.completedTechnologyIds, technologyId]
+          technologyRuntime: {
+            ...state.technologyRuntime,
+            [technologyId]: { ...runtime, status: "active", startedAt: Date.now(), completedAt: undefined }
+          }
         }));
+      },
+      completeTechnologyMission(technologyId) {
+        const tech = technologies.find((item) => item.id === technologyId);
+        if (!tech) return;
+
+        const mission = getTechnologyMission(tech);
+        const runtime = get().technologyRuntime[technologyId];
+        if (!runtime || runtime.status !== "active" || !runtime.startedAt) return;
+
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - runtime.startedAt) / 1000);
+        if (elapsedSeconds < mission.minDurationSeconds) return;
+
+        const target = getTechnologyTarget(tech);
+        const nextProgress = Math.min(target, runtime.progress + mission.progressGain);
+        const completedTechnology = nextProgress >= target;
+        const alreadyCompleted = get().completedTechnologyIds.includes(technologyId);
+        const missionXp = completedTechnology ? tech.xpReward : Math.max(5, Math.round(tech.xpReward / target));
+
+        set((state) => ({
+          totalXp: state.totalXp + missionXp,
+          completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
+          technologyRuntime: {
+            ...state.technologyRuntime,
+            [technologyId]: {
+              ...runtime,
+              progress: nextProgress,
+              status: completedTechnology ? "completed" : "cooldown",
+              completedAt: now,
+              cooldownUntil: completedTechnology ? undefined : now + mission.cooldownSeconds * 1000
+            }
+          }
+        }));
+      },
+      unlockTechnology(technologyId) {
+        get().startTechnologyMission(technologyId);
       },
       updatePlannerBlock(hour, plan, technologyId) {
         set((state) => ({
