@@ -51,7 +51,7 @@
 
 @layer components {
   .strategy-panel {
-    @apply rounded-lg border bg-card/88 shadow-command backdrop-blur;
+    @apply rounded-lg border bg-card/90 shadow-command backdrop-blur;
   }
 
   .strategy-grid {
