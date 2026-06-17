@@ -15,7 +15,7 @@ The product should feel like:
 - Stellaris-style systems
 - Path of Exile-style tree depth
 - Duolingo-level daily motivation clarity
-- Assassin's Creed-style skill tree readability and atmosphere
+- constellation-style research map readability and atmosphere
 - Apple-level interaction polish
 
 It should not feel like:
@@ -25,6 +25,29 @@ It should not feel like:
 - cheap mobile game
 - static dashboard
 - spreadsheet-like task management
+
+## Reference Policy
+
+Habidoo can study strong game UIs for principles, but must not copy another game's art direction, layout, node shapes, icons, colors, panels, or decorative trim.
+
+Reference principles we can use:
+
+- open constellation map
+- free camera navigation
+- selected node focus
+- locked future paths
+- collectible research nodes
+- premium HUD panels
+- strong central object
+
+Reference details we must not copy:
+
+- exact node layout
+- exact star chart design
+- exact colors and frames
+- exact icons
+- exact panel styling
+- exact naming or progression logic
 
 ## Core Tree Composition
 
@@ -36,7 +59,7 @@ It should feel like an open field:
 - categories branching outward from the center
 - free panning and zooming
 - large future space around the user
-- circular technology nodes
+- non-circular technology emblems
 - glowing connections
 - locked areas dimmed like undiscovered progression
 - active missions highlighted as the next meaningful move
@@ -62,6 +85,7 @@ Future improvements:
 - zoom and pan controls
 - radial branch labels
 - open-field map composition
+- generated or hand-polished map background assets
 
 ### 2. Technology Node Art
 
@@ -182,6 +206,84 @@ Organic ancient growth direction.
 - relic/seed/flame icons
 - slower living glow
 
+## Production Asset Roadmap
+
+### Asset Set 1: Animus Dark Background
+
+Purpose:
+
+- replace pure CSS background with a real game-grade atmosphere
+- support fullscreen map readability
+- keep center readable for the Life Core
+
+Needed variants:
+
+- desktop wide background
+- mobile portrait background
+- subtle low-size fallback texture
+
+### Asset Set 2: Category Icon Medallions
+
+Purpose:
+
+- replace generic outline icons with Habidoo-owned visual identity
+
+Needed icons:
+
+- Health
+- Mind
+- Career
+- Business
+- Finance
+- Relationships
+- Creativity
+
+Format target:
+
+- SVG or optimized PNG/WebP after final art direction is accepted
+- consistent frame, lighting, trim, and category accent
+
+### Asset Set 3: Node Frames
+
+Purpose:
+
+- make nodes feel like collectible technology objects
+
+Needed states:
+
+- locked
+- available
+- in progress
+- completed
+- major milestone
+
+### Asset Set 4: Connection and Fog Layers
+
+Purpose:
+
+- make branches feel like a living research constellation
+
+Needed layers:
+
+- normal branch
+- active branch
+- completed branch
+- locked/fog branch
+- future era fog
+
+### Asset Set 5: Theme Packs
+
+Each future theme needs:
+
+- background
+- category medallions
+- node frames
+- line style
+- panel treatment
+- unlock effect direction
+
+Do not build all five themes before Animus Dark reaches game quality.
+
 ## Animation Principles
 
 Use animation to communicate state.
@@ -211,12 +313,14 @@ Near-term:
 - lightweight unlock effects
 - radial SVG connection layer
 - local pan and zoom controls
+- generated art concepts kept as reference until production assets are selected
 
 Later:
 
 - Framer Motion or Motion One
 - canvas/SVG hybrid tree layer
 - custom icon asset pipeline
+- optimized WebP/AVIF backgrounds
 - Lottie only if it fits performance
 - possible WebGL/Three.js only for specific hero/visual moments, not core UI by default
 
@@ -236,13 +340,17 @@ Move the Life Tree from row sectors into an open radial field.
 
 ### Step 4
 
-Add unlock animation and timer rings.
+Fix fullscreen viewport, camera movement, and map overflow.
 
 ### Step 5
 
-Add era regions and fog-of-war.
+Add unlock animation and timer rings.
 
 ### Step 6
+
+Add era regions and fog-of-war.
+
+### Step 7
 
 Add custom branded graphics and app-store quality visual assets.
 
