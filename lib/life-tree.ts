@@ -31,7 +31,7 @@ export const technologies: LifeTechnology[] = [
     parents: [],
     unlocks: ["morning-walk", "hydration"],
     x: 120,
-    y: 170
+    y: 150
   },
   {
     id: "morning-walk",
@@ -43,7 +43,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["health-root"],
     unlocks: ["cardio-i"],
     x: 360,
-    y: 90
+    y: 70
   },
   {
     id: "hydration",
@@ -55,7 +55,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["health-root"],
     unlocks: ["strength-training"],
     x: 360,
-    y: 250
+    y: 230
   },
   {
     id: "cardio-i",
@@ -67,7 +67,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["morning-walk"],
     unlocks: ["athlete"],
     x: 620,
-    y: 90
+    y: 70
   },
   {
     id: "strength-training",
@@ -79,7 +79,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["hydration"],
     unlocks: ["athlete"],
     x: 620,
-    y: 250
+    y: 230
   },
   {
     id: "athlete",
@@ -91,7 +91,55 @@ export const technologies: LifeTechnology[] = [
     parents: ["cardio-i", "strength-training"],
     unlocks: [],
     x: 900,
-    y: 170
+    y: 150
+  },
+  {
+    id: "mind-root",
+    category: "mind",
+    title: "Mental Clarity",
+    description: "Create space for deliberate thinking before the day controls you.",
+    xpReward: 50,
+    requirements: [{ label: "Complete 1 mind mission", current: 0, target: 1 }],
+    parents: [],
+    unlocks: ["reader", "deep-work"],
+    x: 120,
+    y: 500
+  },
+  {
+    id: "reader",
+    category: "mind",
+    title: "Reader",
+    description: "Build a knowledge base through consistent reading.",
+    xpReward: 130,
+    requirements: [{ label: "Read 500 pages", current: 80, target: 500 }],
+    parents: ["mind-root"],
+    unlocks: ["systems-thinker"],
+    x: 390,
+    y: 420
+  },
+  {
+    id: "deep-work",
+    category: "mind",
+    title: "Deep Work I",
+    description: "Protect attention for one meaningful session.",
+    xpReward: 120,
+    requirements: [{ label: "Complete 5 focus sessions", current: 1, target: 5 }],
+    parents: ["mind-root"],
+    unlocks: ["systems-thinker"],
+    x: 390,
+    y: 580
+  },
+  {
+    id: "systems-thinker",
+    category: "mind",
+    title: "Systems Thinker",
+    description: "Connect knowledge, attention, and decisions into a repeatable system.",
+    xpReward: 320,
+    requirements: [{ label: "Unlock Reader and Deep Work", current: 0, target: 2 }],
+    parents: ["reader", "deep-work"],
+    unlocks: [],
+    x: 690,
+    y: 500
   },
   {
     id: "business-root",
@@ -103,7 +151,7 @@ export const technologies: LifeTechnology[] = [
     parents: [],
     unlocks: ["first-project"],
     x: 120,
-    y: 500
+    y: 850
   },
   {
     id: "first-project",
@@ -115,7 +163,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["business-root"],
     unlocks: ["mvp-launch"],
     x: 380,
-    y: 500
+    y: 850
   },
   {
     id: "mvp-launch",
@@ -127,7 +175,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["first-project"],
     unlocks: ["first-paying-user", "one-hundred-users"],
     x: 650,
-    y: 500
+    y: 850
   },
   {
     id: "first-paying-user",
@@ -139,7 +187,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["mvp-launch"],
     unlocks: ["founder"],
     x: 930,
-    y: 420
+    y: 770
   },
   {
     id: "one-hundred-users",
@@ -151,7 +199,7 @@ export const technologies: LifeTechnology[] = [
     parents: ["mvp-launch"],
     unlocks: ["founder"],
     x: 930,
-    y: 580
+    y: 930
   },
   {
     id: "founder",
@@ -163,6 +211,174 @@ export const technologies: LifeTechnology[] = [
     parents: ["first-paying-user", "one-hundred-users"],
     unlocks: [],
     x: 1210,
-    y: 500
+    y: 850
+  },
+  {
+    id: "career-root",
+    category: "career",
+    title: "Career Direction",
+    description: "Define a professional vector instead of drifting between tasks.",
+    xpReward: 60,
+    requirements: [{ label: "Choose 1 career focus", current: 0, target: 1 }],
+    parents: [],
+    unlocks: ["portfolio", "interview-ready"],
+    x: 120,
+    y: 1200
+  },
+  {
+    id: "portfolio",
+    category: "career",
+    title: "Proof Portfolio",
+    description: "Create visible evidence of what you can do.",
+    xpReward: 160,
+    requirements: [{ label: "Publish 3 proof items", current: 0, target: 3 }],
+    parents: ["career-root"],
+    unlocks: ["career-upgrade"],
+    x: 400,
+    y: 1120
+  },
+  {
+    id: "interview-ready",
+    category: "career",
+    title: "Interview Ready",
+    description: "Prepare a clear story about skills, results, and direction.",
+    xpReward: 150,
+    requirements: [{ label: "Practice 5 answers", current: 0, target: 5 }],
+    parents: ["career-root"],
+    unlocks: ["career-upgrade"],
+    x: 400,
+    y: 1280
+  },
+  {
+    id: "career-upgrade",
+    category: "career",
+    title: "Career Upgrade",
+    description: "Use proof and preparation to unlock a better professional position.",
+    xpReward: 420,
+    requirements: [{ label: "Complete portfolio and interview prep", current: 0, target: 2 }],
+    parents: ["portfolio", "interview-ready"],
+    unlocks: [],
+    x: 720,
+    y: 1200
+  },
+  {
+    id: "finance-root",
+    category: "finance",
+    title: "Money Map",
+    description: "See where money goes before trying to optimize it.",
+    xpReward: 60,
+    requirements: [{ label: "Track 7 days", current: 0, target: 7 }],
+    parents: [],
+    unlocks: ["emergency-fund", "first-investment"],
+    x: 120,
+    y: 1550
+  },
+  {
+    id: "emergency-fund",
+    category: "finance",
+    title: "Emergency Fund",
+    description: "Build a financial shield against chaos.",
+    xpReward: 200,
+    requirements: [{ label: "Save first buffer", current: 0, target: 1 }],
+    parents: ["finance-root"],
+    unlocks: ["financial-independence"],
+    x: 410,
+    y: 1470
+  },
+  {
+    id: "first-investment",
+    category: "finance",
+    title: "First Investment",
+    description: "Move from saving only to building future assets.",
+    xpReward: 220,
+    requirements: [{ label: "Create first portfolio", current: 0, target: 1 }],
+    parents: ["finance-root"],
+    unlocks: ["financial-independence"],
+    x: 410,
+    y: 1630
+  },
+  {
+    id: "financial-independence",
+    category: "finance",
+    title: "Financial Independence",
+    description: "Long-term branch for freedom, optionality, and resilience.",
+    xpReward: 900,
+    requirements: [{ label: "Unlock fund and investing systems", current: 0, target: 2 }],
+    parents: ["emergency-fund", "first-investment"],
+    unlocks: [],
+    x: 760,
+    y: 1550
+  },
+  {
+    id: "relationships-root",
+    category: "relationships",
+    title: "Social Signal",
+    description: "Make relationships an intentional part of the life strategy.",
+    xpReward: 50,
+    requirements: [{ label: "Reach out once", current: 0, target: 1 }],
+    parents: [],
+    unlocks: ["weekly-check-in"],
+    x: 120,
+    y: 1900
+  },
+  {
+    id: "weekly-check-in",
+    category: "relationships",
+    title: "Weekly Check-in",
+    description: "Create a rhythm of connection with people who matter.",
+    xpReward: 140,
+    requirements: [{ label: "Complete 4 check-ins", current: 0, target: 4 }],
+    parents: ["relationships-root"],
+    unlocks: ["trusted-circle"],
+    x: 410,
+    y: 1900
+  },
+  {
+    id: "trusted-circle",
+    category: "relationships",
+    title: "Trusted Circle",
+    description: "Develop a small network of mutual support and accountability.",
+    xpReward: 340,
+    requirements: [{ label: "Build 3 consistent connections", current: 0, target: 3 }],
+    parents: ["weekly-check-in"],
+    unlocks: [],
+    x: 720,
+    y: 1900
+  },
+  {
+    id: "creativity-root",
+    category: "creativity",
+    title: "Creative Spark",
+    description: "Start turning ideas into visible creative output.",
+    xpReward: 50,
+    requirements: [{ label: "Capture 5 ideas", current: 1, target: 5 }],
+    parents: [],
+    unlocks: ["daily-output"],
+    x: 120,
+    y: 2250
+  },
+  {
+    id: "daily-output",
+    category: "creativity",
+    title: "Daily Output",
+    description: "Practice publishing or finishing small creative pieces.",
+    xpReward: 160,
+    requirements: [{ label: "Create 7 outputs", current: 0, target: 7 }],
+    parents: ["creativity-root"],
+    unlocks: ["creative-identity"],
+    x: 410,
+    y: 2250
+  },
+  {
+    id: "creative-identity",
+    category: "creativity",
+    title: "Creative Identity",
+    description: "Become someone who repeatedly turns ideas into artifacts.",
+    xpReward: 380,
+    requirements: [{ label: "Finish 3 meaningful artifacts", current: 0, target: 3 }],
+    parents: ["daily-output"],
+    unlocks: [],
+    x: 720,
+    y: 2250
   }
 ];
