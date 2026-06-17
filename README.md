@@ -56,3 +56,5 @@ Version 1 has no backend. Future architecture should be ready for Supabase, Verc
 - [Design Direction](./DESIGN_DIRECTION.md)
 - [Technical Architecture](./TECH_ARCHITECTURE.md)
 - [Business Plan](./BUSINESS_PLAN.md)
+- [Mobile App Strategy](./MOBILE_APP_STRATEGY.md)
+- [Deployment Guide](./DEPLOYMENT.md)
