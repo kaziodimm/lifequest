@@ -1,4 +1,4 @@
-export type VisualThemeId = "focus-dark" | "soft-light" | "pixel-quest" | "cyber-calm" | "nature-progress";
+import type { VisualThemeId } from "./types";
 
 export type VisualTheme = {
   id: VisualThemeId;
