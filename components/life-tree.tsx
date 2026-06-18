@@ -194,7 +194,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
 
       <p className="text-sm leading-6 text-muted-foreground">{technology.description}</p>
 
-      <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
+      <div className="mission-progress-card mt-4 rounded-md border border-border bg-background/45 p-3">
         <div className="mb-2 flex items-center justify-between text-xs font-bold">
           <span>Research progress</span>
           <span style={{ color }}>{progress}/{target}</span>
@@ -204,23 +204,23 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
       </div>
 
       <div className="mt-4 grid gap-2 text-sm">
-        <div className="rounded-md border border-border bg-muted/35 p-3">
+        <div className="mission-action-card rounded-md border border-border bg-muted/35 p-3">
           <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-primary"><Sparkles size={14} /> What do I do now?</p>
           <p className="text-foreground">{mission.action}</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-md border border-border bg-muted/35 p-3">
+          <div className="mission-meta-card rounded-md border border-border bg-muted/35 p-3">
             <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Timer size={14} /> Duration</p>
             <p className="font-bold text-foreground">{mission.durationLabel}</p>
           </div>
-          <div className="rounded-md border border-border bg-muted/35 p-3">
+          <div className="mission-meta-card rounded-md border border-border bg-muted/35 p-3">
             <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Clock3 size={14} /> Cooldown</p>
             <p className="font-bold text-foreground">{formatDuration(mission.cooldownSeconds)}</p>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
+      <div className="mission-unlock-card mt-4 rounded-md border border-border bg-background/45 p-3">
         <p className="mb-2 text-xs font-black uppercase tracking-wide text-muted-foreground">Next unlock</p>
         <p className="text-sm font-bold text-foreground">{nextUnlocks.length ? nextUnlocks.join(", ") : "Branch mastery"}</p>
       </div>

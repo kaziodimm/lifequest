@@ -73,13 +73,15 @@
 
 .generatedTreeAssets[data-tree-theme="animus-dark"] :global(.life-tree-stage) {
   background-image:
-    radial-gradient(circle at 50% 45%, transparent 0 12rem, rgba(0, 0, 0, 0.1) 25rem, rgba(0, 0, 0, 0.56) 52rem),
-    radial-gradient(circle at 22% 16%, rgba(76, 224, 210, 0.14), transparent 30rem),
-    radial-gradient(circle at 82% 20%, rgba(155, 124, 255, 0.13), transparent 28rem),
-    radial-gradient(circle at 52% 82%, rgba(246, 196, 83, 0.09), transparent 34rem),
-    repeating-radial-gradient(circle at 50% 50%, transparent 0 7.8rem, rgba(76, 224, 210, 0.08) 7.88rem 7.94rem, transparent 8rem 15.5rem),
-    conic-gradient(from 12deg at 50% 50%, transparent 0 12deg, rgba(246, 196, 83, 0.11) 12.25deg 12.75deg, transparent 13deg 46deg, rgba(76, 224, 210, 0.1) 46.25deg 46.75deg, transparent 47deg 92deg, rgba(155, 124, 255, 0.09) 92.25deg 92.75deg, transparent 93deg 360deg),
-    linear-gradient(180deg, rgba(5, 7, 17, 0.04), rgba(5, 7, 17, 0.36)),
+    radial-gradient(circle at 50% 45%, transparent 0 10rem, rgba(0, 0, 0, 0.08) 24rem, rgba(0, 0, 0, 0.48) 50rem),
+    radial-gradient(ellipse at 50% 48%, rgba(246, 196, 83, 0.11), transparent 19rem),
+    radial-gradient(circle at 22% 16%, rgba(76, 224, 210, 0.19), transparent 31rem),
+    radial-gradient(circle at 82% 20%, rgba(155, 124, 255, 0.17), transparent 29rem),
+    radial-gradient(circle at 52% 82%, rgba(246, 196, 83, 0.12), transparent 35rem),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 7.7rem, rgba(76, 224, 210, 0.12) 7.82rem 7.92rem, transparent 8rem 15.4rem),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 23.5rem, rgba(246, 196, 83, 0.07) 23.62rem 23.72rem, transparent 23.84rem 47rem),
+    conic-gradient(from 12deg at 50% 50%, transparent 0 12deg, rgba(246, 196, 83, 0.15) 12.2deg 12.85deg, transparent 13deg 46deg, rgba(76, 224, 210, 0.13) 46.2deg 46.85deg, transparent 47deg 92deg, rgba(155, 124, 255, 0.12) 92.2deg 92.85deg, transparent 93deg 174deg, rgba(76, 224, 210, 0.09) 174.2deg 174.75deg, transparent 175deg 360deg),
+    linear-gradient(180deg, rgba(5, 7, 17, 0.02), rgba(5, 7, 17, 0.28)),
     url("/art/themes/animus-dark-map.png");
   background-position: center;
   background-repeat: no-repeat;
@@ -167,7 +169,12 @@
 }
 
 .generatedTreeAssets :global(.life-tree-starfield) {
-  opacity: 0.18;
+  opacity: 0.24;
+}
+
+.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.life-tree-starfield) {
+  opacity: 0.34;
+  filter: drop-shadow(0 0 6px rgba(76, 224, 210, 0.28));
 }
 
 .generatedTreeAssets :global(.life-tree-rune-grid) {
@@ -181,6 +188,15 @@
 
 .generatedTreeAssets :global(.tech-node-button) {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+.generatedTreeAssets :global(.tech-node-button > span:last-child) {
+  padding: 0.18rem 0.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  background: rgba(3, 6, 14, 0.58);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(10px);
 }
 
 .generatedTreeAssets :global(.tech-node-button .tech-orb) {
@@ -197,8 +213,65 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
+.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.tech-node-button .tech-orb) {
+  clip-path: polygon(50% 0, 82% 11%, 100% 42%, 91% 78%, 63% 100%, 37% 100%, 9% 78%, 0 42%, 18% 11%);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.1), transparent 24%),
+    conic-gradient(from 0deg, transparent 0 34deg, color-mix(in srgb, var(--node-color) 18%, transparent) 35deg 38deg, transparent 39deg 86deg, rgba(246, 196, 83, 0.13) 87deg 89deg, transparent 90deg 180deg, color-mix(in srgb, var(--node-color) 14%, transparent) 181deg 184deg, transparent 185deg 360deg),
+    radial-gradient(circle at 50% 32%, color-mix(in srgb, var(--node-color) 42%, rgba(255, 255, 255, 0.06)), transparent 34%),
+    radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--node-color) 24%, rgba(5, 8, 18, 0.9)), rgba(3, 6, 14, 0.93) 71%) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--node-color) 64%, rgba(255, 255, 255, 0.1)),
+    0 0 0 5px rgba(3, 6, 14, 0.72),
+    0 0 0 8px rgba(246, 196, 83, 0.08),
+    0 0 38px color-mix(in srgb, var(--node-color) 30%, transparent),
+    0 20px 48px rgba(0, 0, 0, 0.56),
+    inset 0 0 30px color-mix(in srgb, var(--node-color) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.tech-node-button .tech-emblem-inner) {
+  inset: 12px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--node-color) 20%, transparent), transparent 50%),
+    repeating-conic-gradient(from 5deg, rgba(246, 196, 83, 0.16) 0deg 2deg, transparent 2deg 28deg);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.3);
+}
+
+.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.tech-node-button.selected .tech-orb) {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--node-color) 72%, rgba(255, 255, 255, 0.12)),
+    0 0 0 6px rgba(3, 6, 14, 0.72),
+    0 0 0 10px rgba(246, 196, 83, 0.14),
+    0 0 54px color-mix(in srgb, var(--node-color) 42%, transparent),
+    0 22px 58px rgba(0, 0, 0, 0.62),
+    inset 0 0 34px color-mix(in srgb, var(--node-color) 24%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
 .generatedTreeAssets :global(.tech-node-button.selected .tech-orb) {
   transform: translateY(-2px) scale(1.12);
+}
+
+.generatedTreeAssets :global(.tech-node-button.selected) {
+  z-index: 46;
+}
+
+.generatedTreeAssets :global(.tech-node-button.selected > span:last-child) {
+  border-color: color-mix(in srgb, var(--node-color) 52%, rgba(255, 255, 255, 0.08));
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--node-color) 18%, transparent), transparent 48%),
+    rgba(3, 6, 14, 0.78);
+  color: #fff;
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--node-color) 22%, transparent),
+    0 12px 28px rgba(0, 0, 0, 0.38);
+}
+
+.generatedTreeAssets :global(.tech-node-button.available > span:last-child),
+.generatedTreeAssets :global(.tech-node-button.in_progress > span:last-child) {
+  border-color: color-mix(in srgb, var(--node-color) 28%, rgba(255, 255, 255, 0.08));
 }
 
 .generatedTreeAssets :global(.tech-node-button.available .tech-orb),
