@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Award, Flame, GitBranch, Languages, Palette, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -9,14 +10,23 @@ import { locales } from "@/lib/i18n";
 import { streakMilestones } from "@/lib/milestones";
 import { levelFromXp, lifeScore } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
-import { visualThemes } from "@/lib/themes";
-import { Locale, VisualThemeId } from "@/lib/types";
+import { Locale } from "@/lib/types";
+import { defaultTreeThemeId, treeThemes, type TreeThemeId } from "@/lib/tree-themes";
+import { applySiteTheme, readSiteTheme } from "@/lib/site-theme";
 import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const state = useLifeStore();
   const level = levelFromXp(state.totalXp);
   const score = lifeScore(state);
+  const [siteTheme, setSiteTheme] = useState<TreeThemeId>(defaultTreeThemeId);
+
+  useEffect(() => setSiteTheme(readSiteTheme()), []);
+
+  function selectTheme(themeId: TreeThemeId) {
+    setSiteTheme(themeId);
+    applySiteTheme(themeId);
+  }
 
   return (
     <AppShell>
@@ -82,16 +92,16 @@ export default function ProfilePage() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Palette size={18} className="text-strategy-gold" />Visual Style</CardTitle></CardHeader>
             <CardContent className="grid gap-2">
-              {visualThemes.map((theme) => (
+              {treeThemes.map((theme) => (
                 <button
                   key={theme.id}
                   type="button"
-                  onClick={() => state.setTheme(theme.id as VisualThemeId)}
-                  className={cn("rounded-md border p-3 text-left transition hover:border-primary", state.theme === theme.id ? "border-primary bg-primary/10" : "border-border bg-muted/30")}
+                  onClick={() => selectTheme(theme.id)}
+                  className={cn("theme-choice rounded-md border p-3 text-left transition hover:border-primary", siteTheme === theme.id ? "border-primary bg-primary/10" : "border-border bg-muted/30")}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-bold text-foreground">{theme.name}</p>
-                    <span className="rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">{theme.availableInMvp ? "active" : "reserved"}</span>
+                    <p className="font-bold text-foreground">{theme.title}</p>
+                    <span className="rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">{siteTheme === theme.id ? "active" : theme.shortTitle}</span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{theme.description}</p>
                 </button>

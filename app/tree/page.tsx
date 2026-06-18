@@ -5,23 +5,23 @@ import { AppShell } from "@/components/app-shell";
 import { LifeTree } from "@/components/life-tree";
 import { TreeCameraController } from "@/components/tree-camera-controller";
 import { defaultTreeThemeId, treeThemes, type TreeThemeId } from "@/lib/tree-themes";
+import { applySiteTheme, readSiteTheme } from "@/lib/site-theme";
 import fieldStyles from "./tree-field.module.css";
 import styles from "./tree-visuals.module.css";
 import assetStyles from "./tree-generated-assets.module.css";
-
-const themeStorageKey = "habidoo-tree-theme";
 
 export default function TreePage() {
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem(themeStorageKey) as TreeThemeId | null;
-    if (savedTheme && treeThemes.some((theme) => theme.id === savedTheme)) setThemeId(savedTheme);
+    const savedTheme = readSiteTheme();
+    setThemeId(savedTheme);
+    applySiteTheme(savedTheme, false);
   }, []);
 
   function selectTheme(nextThemeId: TreeThemeId) {
     setThemeId(nextThemeId);
-    window.localStorage.setItem(themeStorageKey, nextThemeId);
+    applySiteTheme(nextThemeId);
   }
 
   return (

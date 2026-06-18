@@ -53,14 +53,14 @@ const epochs = Array.from({ length: 12 }, (_, index) => ({
   unlocked: index === 0
 }));
 
-const radialBranches: Record<LifeCategory, { angle: number; label: string }> = {
-  health: { angle: -92, label: "Body systems" },
-  mind: { angle: -42, label: "Cognition" },
-  business: { angle: 8, label: "Builder path" },
-  career: { angle: 58, label: "Direction" },
-  finance: { angle: 118, label: "Resources" },
-  relationships: { angle: 178, label: "Alliances" },
-  creativity: { angle: -152, label: "Artifacts" }
+const radialBranches: Record<LifeCategory, { angle: number; label: string; description: string }> = {
+  health: { angle: -92, label: "Body & Energy", description: "Strength, sleep and recovery" },
+  mind: { angle: -42, label: "Focus & Mind", description: "Clarity, learning and resilience" },
+  business: { angle: 8, label: "Build & Create", description: "Turn ideas into useful systems" },
+  career: { angle: 58, label: "Direction & Career", description: "Skills, contribution and growth" },
+  finance: { angle: 118, label: "Money & Freedom", description: "Stability, choice and resources" },
+  relationships: { angle: 178, label: "People & Connection", description: "Trust, community and support" },
+  creativity: { angle: -152, label: "Creative Practice", description: "Expression, play and craft" }
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -377,13 +377,7 @@ export function LifeTree() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
-        <div
-          className="life-tree-art-layer"
-          aria-hidden="true"
-          style={{
-            transform: `translate3d(${view.pan.x * 0.035}px, ${view.pan.y * 0.035}px, 0) scale(${clamp(1 + (view.zoom - overviewZoom) * 0.1, 0.96, 1.08)})`
-          }}
-        >
+        <div className="life-tree-art-layer" aria-hidden="true">
           <div className="life-tree-art-image" />
           <div className="life-tree-art-atmosphere" />
         </div>
@@ -400,12 +394,13 @@ export function LifeTree() {
             const category = id as LifeCategory;
             const color = categoryColors[category];
             const angle = branch.angle * (Math.PI / 180);
-            const x = corePoint.x + Math.cos(angle) * 748;
-            const y = corePoint.y + Math.sin(angle) * 748;
+            const x = corePoint.x + Math.cos(angle) * 610;
+            const y = corePoint.y + Math.sin(angle) * 610;
 
             return (
               <div key={id} className="branch-label" style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
-                {branch.label}
+                <strong>{branch.label}</strong>
+                <small>{branch.description}</small>
               </div>
             );
           })}
@@ -490,9 +485,11 @@ export function LifeTree() {
             onPointerDown={(event) => event.stopPropagation()}
             onClick={resetView}
           >
-            <span className="text-[10px] font-black uppercase tracking-[0.28em] text-accent">Habidoo</span>
-            <span className="mt-1 text-lg font-black text-foreground">Life Core</span>
-            <span className="mt-1 text-[10px] font-bold text-muted-foreground">Foundation Era</span>
+            <span className="life-core-art" aria-hidden="true" />
+            <span className="life-core-copy">
+              <span className="text-[9px] font-black uppercase tracking-[0.24em] text-accent">Habidoo</span>
+              <span className="text-sm font-black text-foreground">Life Core</span>
+            </span>
           </button>
 
           {technologies.map((tech) => {
@@ -516,11 +513,12 @@ export function LifeTree() {
               >
                 <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
                   <span className="tech-emblem-inner" />
-                  {status === "locked" ? <Lock size={23} /> : status === "unlocked" ? <Check size={25} /> : <Icon size={27} />}
+                  {status === "locked" ? <Lock size={23} /> : <Icon size={27} />}
+                  {status === "unlocked" ? <span className="tech-completion-badge" aria-label="Completed" /> : null}
                   {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                   {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
                 </span>
-                <span className="line-clamp-2 text-[11px] font-black leading-tight text-foreground">{tech.title}</span>
+                <span className="tech-node-label line-clamp-2 text-[12px] font-black leading-tight text-foreground">{tech.title}</span>
               </button>
             );
           })}

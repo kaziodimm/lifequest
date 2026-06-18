@@ -498,3 +498,101 @@
 .generatedTreeAssets[data-tree-theme="pulse"] :global(.mission-panel[data-category="relationships"]) { --branch-icon: url("/art/themes-v2/pulse/relationships.png"); }
 .generatedTreeAssets[data-tree-theme="pulse"] :global(.tech-node-button[data-category="creativity"]),
 .generatedTreeAssets[data-tree-theme="pulse"] :global(.mission-panel[data-category="creativity"]) { --branch-icon: url("/art/themes-v2/pulse/creativity.png"); }
+
+/* Site-system assets and stable map compositor. */
+.generatedTreeAssets[data-tree-theme="orbit"] { --core-art: url("/art/themes-v3/orbit/core.webp"); --check-art: url("/art/themes-v3/orbit/check.webp"); }
+.generatedTreeAssets[data-tree-theme="atlas"] { --core-art: url("/art/themes-v3/atlas/core.webp"); --check-art: url("/art/themes-v3/atlas/check.webp"); }
+.generatedTreeAssets[data-tree-theme="nexus"] { --core-art: url("/art/themes-v3/nexus/core.webp"); --check-art: url("/art/themes-v3/nexus/check.webp"); }
+.generatedTreeAssets[data-tree-theme="blueprint"] { --core-art: url("/art/themes-v3/blueprint/core.webp"); --check-art: url("/art/themes-v3/blueprint/check.webp"); }
+.generatedTreeAssets[data-tree-theme="pulse"] { --core-art: url("/art/themes-v3/pulse/core.webp"); --check-art: url("/art/themes-v3/pulse/check.webp"); }
+
+.generatedTreeAssets :global(.life-tree-art-layer) {
+  inset: 0 !important;
+  transform: none !important;
+  contain: strict;
+  isolation: isolate;
+  backface-visibility: hidden;
+  will-change: auto;
+}
+.generatedTreeAssets :global(.life-tree-art-image) {
+  transform: none !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  backface-visibility: hidden;
+}
+.generatedTreeAssets :global(.life-core-node) {
+  width: 172px;
+  height: 172px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.generatedTreeAssets :global(.life-core-art) {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--core-art) center / cover no-repeat;
+  box-shadow: 0 20px 70px rgba(0,0,0,.38);
+}
+.generatedTreeAssets :global(.life-core-copy) {
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  z-index: 3;
+  display: grid;
+  width: max-content;
+  transform: translateX(-50%);
+  border: 1px solid color-mix(in srgb, var(--theme-accent, #e7ae56) 42%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-node-shell) 92%, transparent);
+  padding: 5px 13px;
+  line-height: 1.1;
+  backdrop-filter: blur(12px);
+}
+.generatedTreeAssets :global(.tech-completion-badge) {
+  position: absolute;
+  z-index: 8;
+  top: -13px;
+  right: -13px;
+  width: 37px;
+  height: 37px;
+  border-radius: 50%;
+  background: var(--check-art) center / cover no-repeat;
+  filter: drop-shadow(0 5px 8px rgba(0,0,0,.35));
+}
+.generatedTreeAssets :global(.tech-node-label) {
+  max-width: 128px;
+  border: 1px solid color-mix(in srgb, var(--node-color) 28%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-node-shell) 90%, transparent);
+  padding: 5px 9px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+  backdrop-filter: blur(10px);
+}
+.generatedTreeAssets :global(.branch-label) {
+  display: grid;
+  min-width: 170px;
+  gap: 2px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--theme-node-shell) 88%, transparent) !important;
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+.generatedTreeAssets :global(.branch-label strong) { font-size: 11px; }
+.generatedTreeAssets :global(.branch-label small) {
+  color: color-mix(in srgb, currentColor 65%, #fff);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+
+@media (max-width: 768px) {
+  .generatedTreeAssets :global(.life-tree-art-image) { filter: none !important; }
+  .generatedTreeAssets :global(.life-tree-art-atmosphere) { display: none; }
+  .generatedTreeAssets :global(.life-tree-starfield),
+  .generatedTreeAssets :global(.life-tree-rune-grid) { display: none; }
+  .generatedTreeAssets :global(.tech-node-label),
+  .generatedTreeAssets :global(.branch-label) { backdrop-filter: none; }
+}
