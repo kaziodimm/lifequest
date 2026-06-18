@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LifeTree } from "@/components/life-tree";
+import { TreeCameraController } from "@/components/tree-camera-controller";
 import { defaultTreeThemeId, treeThemes, type TreeThemeId } from "@/lib/tree-themes";
 import fieldStyles from "./tree-field.module.css";
 import styles from "./tree-visuals.module.css";
@@ -25,6 +26,7 @@ export default function TreePage() {
   return (
     <AppShell immersive>
       <div className={`${styles.visualTreeSkin} ${fieldStyles.fullscreenField}`} data-tree-theme={themeId}>
+        <TreeCameraController className={fieldStyles.cameraDock} />
         <div className={fieldStyles.themeDock} aria-label="Visual themes">
           {treeThemes.map((theme) => (
             <button
