@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PointerEvent, WheelEvent } from "react";
-import type { LucideIcon } from "lucide-react";
-import { Brain, BriefcaseBusiness, Check, Clock3, HeartPulse, Landmark, LocateFixed, Lock, Palette, Play, Rocket, ShieldAlert, Sparkles, Timer, Users, X as CloseIcon } from "lucide-react";
+import type { ComponentType, PointerEvent, WheelEvent } from "react";
+import { Check, Clock3, LocateFixed, Lock, Play, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
+import { CategoryGlyph } from "@/components/tree-glyphs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { lifeEras } from "@/lib/eras";
@@ -13,14 +13,26 @@ import { useLifeStore } from "@/lib/store";
 import type { LifeCategory, LifeTechnology, TechStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const categoryIcons: Record<LifeCategory, LucideIcon> = {
-  health: HeartPulse,
-  mind: Brain,
-  career: BriefcaseBusiness,
-  business: Rocket,
-  finance: Landmark,
-  relationships: Users,
-  creativity: Palette
+type CategoryIconProps = { size?: number; className?: string };
+type CategoryIcon = ComponentType<CategoryIconProps>;
+
+function makeCategoryIcon(category: LifeCategory): CategoryIcon {
+  function LifeTreeCategoryIcon(props: CategoryIconProps) {
+    return <CategoryGlyph category={category} {...props} />;
+  }
+
+  LifeTreeCategoryIcon.displayName = `LifeTreeCategoryIcon.${category}`;
+  return LifeTreeCategoryIcon;
+}
+
+const categoryIcons: Record<LifeCategory, CategoryIcon> = {
+  health: makeCategoryIcon("health"),
+  mind: makeCategoryIcon("mind"),
+  career: makeCategoryIcon("career"),
+  business: makeCategoryIcon("business"),
+  finance: makeCategoryIcon("finance"),
+  relationships: makeCategoryIcon("relationships"),
+  creativity: makeCategoryIcon("creativity")
 };
 
 const treeSize = 4200;
@@ -113,21 +125,6 @@ function getNodePoint(tech: LifeTechnology) {
   return { x: position.x + nodeCenterOffset.x, y: position.y + nodeCenterOffset.y };
 }
 
-function getBranchPath(start: { x: number; y: number }, end: { x: number; y: number }) {
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const distance = Math.hypot(dx, dy) || 1;
-  const normalX = -dy / distance;
-  const normalY = dx / distance;
-  const bend = Math.min(56, Math.max(22, distance * 0.07));
-  const joint = {
-    x: start.x + dx * 0.56 + normalX * bend,
-    y: start.y + dy * 0.56 + normalY * bend
-  };
-
-  return `M ${start.x} ${start.y} L ${joint.x} ${joint.y} L ${end.x} ${end.y}`;
-}
-
 function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: number }) {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
@@ -136,6 +133,11 @@ function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: nu
   const normalY = dx / distance;
   const bend = Math.min(56, Math.max(22, distance * 0.07));
   return { x: start.x + dx * 0.56 + normalX * bend, y: start.y + dy * 0.56 + normalY * bend };
+}
+
+function getBranchPath(start: { x: number; y: number }, end: { x: number; y: number }) {
+  const joint = getBranchJoint(start, end);
+  return `M ${start.x} ${start.y} L ${joint.x} ${joint.y} L ${end.x} ${end.y}`;
 }
 
 function formatDuration(totalSeconds: number) {
@@ -182,7 +184,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
         </div>
         <div className="flex items-center gap-2">
           <div className="node-mini-emblem" style={{ color, borderColor: `${color}66` }}>
-            <Icon size={19} />
+            <Icon size={21} />
           </div>
           <button type="button" className="tree-close-button" aria-label="Close mission panel" onClick={onClose}>
             <CloseIcon size={16} />
@@ -501,7 +503,7 @@ export function LifeTree() {
               >
                 <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
                   <span className="tech-emblem-inner" />
-                  {status === "locked" ? <Lock size={23} /> : status === "unlocked" ? <Check size={25} /> : <Icon size={25} />}
+                  {status === "locked" ? <Lock size={23} /> : status === "unlocked" ? <Check size={25} /> : <Icon size={27} />}
                   {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                   {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
                 </span>
