@@ -376,6 +376,17 @@ export function LifeTree() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
+        <div
+          className="life-tree-art-layer"
+          aria-hidden="true"
+          style={{
+            transform: `translate3d(${view.pan.x * 0.035}px, ${view.pan.y * 0.035}px, 0) scale(${clamp(1 + (view.zoom - overviewZoom) * 0.1, 0.96, 1.08)})`
+          }}
+        >
+          <div className="life-tree-art-image" />
+          <div className="life-tree-art-atmosphere" />
+        </div>
+
         <div className="life-tree-vignette" />
         <div className="life-tree-starfield" />
         <div className="life-tree-rune-grid" />
