@@ -131,6 +131,38 @@
   opacity: var(--tree-skin-grid-opacity);
 }
 
+.visualTreeSkin[data-tree-theme="mirage-atlas"] :global(.life-tree-rune-grid) {
+  background-image:
+    linear-gradient(25deg, rgba(214, 168, 79, 0.07) 1px, transparent 1px),
+    linear-gradient(155deg, rgba(47, 159, 187, 0.055) 1px, transparent 1px),
+    repeating-radial-gradient(circle at center, transparent 0 84px, rgba(214, 168, 79, 0.06) 85px 86px, transparent 87px 170px);
+  background-size: 112px 112px, 112px 112px, auto;
+}
+
+.visualTreeSkin[data-tree-theme="arcade-codex"] :global(.life-tree-rune-grid) {
+  background-image:
+    linear-gradient(rgba(60, 255, 154, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 79, 216, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(255, 211, 77, 0.12) 1px, transparent 2px);
+  background-size: 48px 48px, 48px 48px, 96px 96px;
+}
+
+.visualTreeSkin[data-tree-theme="neon-synapse"] :global(.life-tree-rune-grid) {
+  background-image:
+    linear-gradient(45deg, rgba(0, 240, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(168, 85, 247, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(124, 255, 212, 0.16) 1px, transparent 2px);
+  background-size: 58px 58px, 58px 58px, 116px 116px;
+}
+
+.visualTreeSkin[data-tree-theme="verdant-relic"] :global(.life-tree-rune-grid) {
+  background-image:
+    radial-gradient(ellipse at center, rgba(74, 222, 128, 0.08) 0 1px, transparent 2px),
+    repeating-radial-gradient(circle at center, transparent 0 96px, rgba(245, 158, 11, 0.05) 97px 99px, transparent 100px 196px),
+    linear-gradient(30deg, rgba(74, 222, 128, 0.05) 1px, transparent 1px);
+  background-size: 74px 42px, auto, 94px 94px;
+}
+
 .visualTreeSkin :global(.life-tree-toolbar) {
   border-color: rgba(148, 163, 184, 0.18);
   background: linear-gradient(180deg, var(--tree-skin-surface), var(--tree-skin-surface-soft));
@@ -155,6 +187,40 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
+.visualTreeSkin[data-tree-theme="mirage-atlas"] :global(.tech-node-button .tech-orb) {
+  clip-path: polygon(50% 0%, 84% 12%, 100% 50%, 84% 88%, 50% 100%, 16% 88%, 0 50%, 16% 12%);
+  background:
+    radial-gradient(circle at 50% 34%, rgba(214, 168, 79, 0.2), transparent 40%),
+    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--node-color) 18%, transparent) 0deg 4deg, transparent 4deg 16deg),
+    linear-gradient(145deg, rgba(214, 168, 79, 0.16), rgba(17, 12, 7, 0.96));
+}
+
+.visualTreeSkin[data-tree-theme="arcade-codex"] :global(.tech-node-button .tech-orb) {
+  border-radius: 0.58rem;
+  clip-path: polygon(14% 0, 86% 0, 100% 14%, 100% 86%, 86% 100%, 14% 100%, 0 86%, 0 14%);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 28%),
+    linear-gradient(0deg, rgba(255, 79, 216, 0.08), transparent 55%),
+    radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--node-color) 34%, #111827), #07090f 72%);
+}
+
+.visualTreeSkin[data-tree-theme="neon-synapse"] :global(.tech-node-button .tech-orb) {
+  border-radius: 0.7rem;
+  clip-path: polygon(50% 0, 88% 18%, 100% 50%, 88% 82%, 50% 100%, 12% 82%, 0 50%, 12% 18%);
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.13), transparent 24%),
+    linear-gradient(45deg, transparent 0 45%, color-mix(in srgb, var(--node-color) 32%, transparent) 46% 48%, transparent 49%),
+    radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--node-color) 38%, #07101f), #020713 72%);
+}
+
+.visualTreeSkin[data-tree-theme="verdant-relic"] :global(.tech-node-button .tech-orb) {
+  border-radius: 999px 999px 1.25rem 1.25rem;
+  clip-path: polygon(50% 0%, 82% 12%, 100% 45%, 78% 100%, 22% 100%, 0 45%, 18% 12%);
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(245, 158, 11, 0.14), transparent 38%),
+    radial-gradient(circle at 50% 56%, color-mix(in srgb, var(--node-color) 30%, #0d1a12), #06100b 72%);
+}
+
 .visualTreeSkin :global(.tech-node-button .tech-orb::before),
 .visualTreeSkin :global(.tech-node-button .tech-orb::after) {
   content: "";
@@ -171,6 +237,35 @@
     radial-gradient(circle at 50% 48%, transparent 0 42%, color-mix(in srgb, var(--node-color) 18%, transparent) 43% 45%, transparent 46%),
     conic-gradient(from 0deg, transparent 0 24deg, color-mix(in srgb, var(--node-color) 20%, transparent) 25deg 27deg, transparent 28deg 84deg, rgba(255, 255, 255, 0.12) 85deg 86deg, transparent 87deg 360deg);
   opacity: 0.95;
+}
+
+.visualTreeSkin[data-tree-theme="mirage-atlas"] :global(.tech-node-button .tech-orb::before) {
+  clip-path: circle(48% at 50% 50%);
+  background:
+    repeating-conic-gradient(from -8deg, transparent 0 12deg, rgba(214, 168, 79, 0.18) 12deg 13deg, transparent 13deg 30deg),
+    radial-gradient(circle at center, transparent 0 50%, rgba(214, 168, 79, 0.12) 51% 54%, transparent 55%);
+}
+
+.visualTreeSkin[data-tree-theme="arcade-codex"] :global(.tech-node-button .tech-orb::before) {
+  clip-path: polygon(16% 0, 84% 0, 100% 16%, 100% 84%, 84% 100%, 16% 100%, 0 84%, 0 16%);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+
+.visualTreeSkin[data-tree-theme="neon-synapse"] :global(.tech-node-button .tech-orb::before) {
+  clip-path: polygon(50% 0, 86% 16%, 100% 50%, 86% 84%, 50% 100%, 14% 84%, 0 50%, 14% 16%);
+  background:
+    linear-gradient(90deg, transparent 0 46%, color-mix(in srgb, var(--node-color) 30%, transparent) 47% 49%, transparent 50%),
+    linear-gradient(0deg, transparent 0 46%, color-mix(in srgb, var(--node-color) 24%, transparent) 47% 49%, transparent 50%);
+}
+
+.visualTreeSkin[data-tree-theme="verdant-relic"] :global(.tech-node-button .tech-orb::before) {
+  clip-path: ellipse(44% 48% at 50% 52%);
+  background:
+    radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--node-color) 14%, transparent), transparent 52%),
+    linear-gradient(90deg, transparent 0 47%, rgba(245, 158, 11, 0.15) 48% 50%, transparent 51%);
 }
 
 .visualTreeSkin :global(.tech-node-button .tech-orb::after) {
@@ -222,6 +317,25 @@
     0 0 0 1px rgba(255, 255, 255, 0.025),
     0 14px 38px rgba(0, 0, 0, 0.34),
     inset 0 0 22px rgba(255, 255, 255, 0.035);
+}
+
+.visualTreeSkin[data-tree-theme="mirage-atlas"] :global(.branch-label) {
+  border-radius: 999px;
+  text-shadow: 0 0 18px rgba(214, 168, 79, 0.2);
+}
+
+.visualTreeSkin[data-tree-theme="arcade-codex"] :global(.branch-label) {
+  border-radius: 0.2rem;
+  box-shadow: 0 0 0 1px rgba(255, 79, 216, 0.08), 0 12px 30px rgba(0, 0, 0, 0.32);
+}
+
+.visualTreeSkin[data-tree-theme="neon-synapse"] :global(.branch-label) {
+  border-radius: 0.25rem;
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.visualTreeSkin[data-tree-theme="verdant-relic"] :global(.branch-label) {
+  border-radius: 999px 999px 0.35rem 0.35rem;
 }
 
 .visualTreeSkin :global(.mission-panel) {
