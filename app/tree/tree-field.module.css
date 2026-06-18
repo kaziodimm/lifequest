@@ -99,11 +99,14 @@
 }
 
 .fullscreenField :global(.mission-panel) {
+  position: fixed;
   z-index: 82;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: calc(5.6rem + env(safe-area-inset-bottom));
-  max-height: min(430px, 46dvh);
+  left: calc(0.75rem + env(safe-area-inset-left));
+  right: calc(0.75rem + env(safe-area-inset-right));
+  top: auto;
+  bottom: calc(6.2rem + env(safe-area-inset-bottom));
+  max-height: min(520px, calc(100dvh - 7.8rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  overflow: auto;
   border-radius: 0.75rem;
 }
 
@@ -247,6 +250,11 @@
     height: 1.85rem;
     width: 1.85rem;
   }
+
+  .fullscreenField :global(.mission-panel) {
+    bottom: calc(6.05rem + env(safe-area-inset-bottom));
+    max-height: min(500px, calc(100dvh - 7.3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  }
 }
 
 @media (min-width: 768px) {
@@ -265,12 +273,12 @@
   }
 
   .fullscreenField :global(.mission-panel) {
-    left: var(--panel-left);
-    right: auto;
-    top: var(--panel-top);
-    bottom: auto;
-    width: 382px;
-    max-height: min(520px, calc(100dvh - 7.5rem));
+    left: auto;
+    right: calc(1.2rem + env(safe-area-inset-right));
+    top: calc(5.55rem + env(safe-area-inset-top));
+    bottom: calc(1.2rem + env(safe-area-inset-bottom));
+    width: min(392px, calc(100vw - 2.4rem));
+    max-height: none;
   }
 
   .cameraDock {
