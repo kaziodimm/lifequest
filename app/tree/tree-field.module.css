@@ -1,0 +1,113 @@
+.fullscreenField {
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #050711;
+}
+
+.fullscreenField :global(.immersive-tree-shell) {
+  background: #050711;
+}
+
+.fullscreenField :global(.life-tree-toolbar) {
+  position: absolute;
+  top: calc(0.55rem + env(safe-area-inset-top));
+  left: calc(0.55rem + env(safe-area-inset-left));
+  right: calc(0.55rem + env(safe-area-inset-right));
+  z-index: 80;
+  height: 58px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 0.65rem;
+  padding: 0.45rem 0.55rem;
+  pointer-events: auto;
+}
+
+.fullscreenField :global(.life-tree-stage) {
+  height: 100dvh;
+  min-height: 100dvh;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: none;
+}
+
+.fullscreenField :global(.life-tree-stage::after) {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 12;
+  height: 8.5rem;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(3, 5, 12, 0.78));
+}
+
+.fullscreenField :global(.life-tree-canvas) {
+  will-change: transform;
+}
+
+.fullscreenField :global(.epoch-strip) {
+  mask-image: linear-gradient(90deg, transparent, black 0.8rem, black calc(100% - 1.2rem), transparent);
+}
+
+.fullscreenField :global(.epoch-chip) {
+  min-width: 78px;
+  padding: 0.36rem 0.55rem;
+  background: rgba(8, 12, 24, 0.7);
+}
+
+.fullscreenField :global(.epoch-chip span) {
+  font-size: 10px;
+}
+
+.fullscreenField :global(.epoch-chip small) {
+  font-size: 8px;
+}
+
+.fullscreenField :global(.branch-label) {
+  letter-spacing: 0.16em;
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+.fullscreenField :global(.tech-node-button) {
+  filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.42));
+}
+
+.fullscreenField :global(.tech-node-button.locked) {
+  filter: grayscale(0.8) drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
+}
+
+.fullscreenField :global(.mission-panel) {
+  z-index: 82;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: calc(5.6rem + env(safe-area-inset-bottom));
+  max-height: min(430px, 46dvh);
+  border-radius: 0.75rem;
+}
+
+.fullscreenField :global(.tree-close-button) {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+@media (min-width: 768px) {
+  .fullscreenField :global(.life-tree-toolbar) {
+    left: 50%;
+    right: auto;
+    width: min(980px, calc(100vw - 2rem));
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 1024px) {
+  .fullscreenField :global(.life-tree-toolbar) {
+    height: 64px;
+    padding: 0.55rem 0.7rem;
+  }
+
+  .fullscreenField :global(.mission-panel) {
+    left: var(--panel-left);
+    right: auto;
+    top: var(--panel-top);
+    bottom: auto;
+    width: 382px;
+    max-height: min(520px, calc(100dvh - 7.5rem));
+  }
+}
