@@ -272,3 +272,97 @@
     transform: translateY(-2px);
   }
 }
+
+
+/* Generated theme artwork lives inside the camera so the map feels spatial. */
+.generatedTreeAssets {
+  --tree-art-image: url("/art/themes/animus-dark-map.png");
+  --tree-art-opacity: 0.94;
+  --tree-art-filter: saturate(1.12) contrast(1.06);
+  --tree-art-overlay:
+    radial-gradient(circle at 50% 48%, transparent 0 18%, rgba(3, 5, 12, 0.12) 48%, rgba(3, 5, 12, 0.62) 100%),
+    linear-gradient(180deg, rgba(3, 5, 12, 0.08), rgba(3, 5, 12, 0.42));
+}
+
+.generatedTreeAssets[data-tree-theme="mirage-atlas"] {
+  --tree-art-image: url("/art/themes/mirage-atlas-map.png");
+  --tree-art-opacity: 0.96;
+  --tree-art-filter: saturate(0.9) contrast(1.04);
+  --tree-art-overlay:
+    radial-gradient(circle at 50% 48%, transparent 0 20%, rgba(24, 17, 9, 0.08) 50%, rgba(18, 12, 6, 0.52) 100%),
+    linear-gradient(180deg, rgba(32, 22, 11, 0.06), rgba(18, 12, 6, 0.34));
+}
+
+.generatedTreeAssets[data-tree-theme="arcade-codex"] {
+  --tree-art-image: url("/art/themes/arcade-codex-map.png");
+  --tree-art-opacity: 0.94;
+  --tree-art-filter: saturate(1.18) contrast(1.08);
+  --tree-art-overlay:
+    radial-gradient(circle at 50% 48%, transparent 0 17%, rgba(6, 7, 13, 0.08) 48%, rgba(4, 5, 10, 0.58) 100%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 4px);
+}
+
+.generatedTreeAssets[data-tree-theme="neon-synapse"] {
+  --tree-art-image: url("/art/themes/neon-synapse-map.png");
+  --tree-art-opacity: 0.95;
+  --tree-art-filter: saturate(1.24) contrast(1.08);
+  --tree-art-overlay:
+    radial-gradient(circle at 50% 48%, transparent 0 18%, rgba(2, 7, 17, 0.08) 48%, rgba(2, 5, 13, 0.62) 100%),
+    linear-gradient(135deg, rgba(0, 240, 255, 0.035), transparent 42%, rgba(168, 85, 247, 0.045));
+}
+
+.generatedTreeAssets[data-tree-theme="verdant-relic"] {
+  --tree-art-image: url("/art/themes/verdant-relic-map.png");
+  --tree-art-opacity: 0.96;
+  --tree-art-filter: saturate(1.08) contrast(1.05);
+  --tree-art-overlay:
+    radial-gradient(circle at 50% 48%, transparent 0 20%, rgba(3, 12, 7, 0.08) 50%, rgba(3, 10, 6, 0.58) 100%),
+    linear-gradient(150deg, rgba(74, 222, 128, 0.025), transparent 48%, rgba(245, 158, 11, 0.045));
+}
+
+.generatedTreeAssets[data-tree-theme] :global(.life-tree-stage) {
+  background-image: none;
+  filter: none;
+}
+
+.generatedTreeAssets :global(.life-tree-art-layer) {
+  position: absolute;
+  inset: -24%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-art-layer) {
+  transition: none;
+}
+
+.generatedTreeAssets :global(.life-tree-art-image),
+.generatedTreeAssets :global(.life-tree-art-atmosphere) {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.generatedTreeAssets :global(.life-tree-art-image) {
+  background-image: var(--tree-art-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: var(--tree-art-opacity);
+  filter: var(--tree-art-filter);
+  transform: scale(1.04);
+}
+
+.generatedTreeAssets :global(.life-tree-art-atmosphere) {
+  background: var(--tree-art-overlay);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generatedTreeAssets :global(.life-tree-art-layer) {
+    transition: none;
+  }
+}
