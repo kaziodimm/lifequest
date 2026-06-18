@@ -1,11 +1,149 @@
 .generatedTreeAssets {
-  --generated-map-opacity: 0.74;
-  --generated-map-blend: screen;
   --generated-map-vignette: rgba(3, 5, 12, 0.64);
+  --theme-map-a: rgba(76, 224, 210, 0.13);
+  --theme-map-b: rgba(155, 124, 255, 0.12);
+  --theme-map-c: rgba(246, 196, 83, 0.1);
+  --theme-line-a: rgba(76, 224, 210, 0.13);
+  --theme-line-b: rgba(246, 196, 83, 0.12);
+  --theme-hud: rgba(5, 8, 18, 0.68);
+  --theme-hud-border: rgba(76, 224, 210, 0.2);
+  --theme-node-shell: rgba(5, 8, 18, 0.88);
+}
+
+.generatedTreeAssets[data-tree-theme="mirage-atlas"] {
+  --generated-map-vignette: rgba(12, 8, 3, 0.72);
+  --theme-map-a: rgba(214, 168, 79, 0.16);
+  --theme-map-b: rgba(47, 159, 187, 0.12);
+  --theme-map-c: rgba(116, 75, 32, 0.16);
+  --theme-line-a: rgba(214, 168, 79, 0.16);
+  --theme-line-b: rgba(47, 159, 187, 0.12);
+  --theme-hud: rgba(22, 16, 8, 0.72);
+  --theme-hud-border: rgba(214, 168, 79, 0.22);
+  --theme-node-shell: rgba(19, 12, 6, 0.9);
+}
+
+.generatedTreeAssets[data-tree-theme="arcade-codex"] {
+  --generated-map-vignette: rgba(4, 5, 12, 0.7);
+  --theme-map-a: rgba(60, 255, 154, 0.14);
+  --theme-map-b: rgba(255, 79, 216, 0.13);
+  --theme-map-c: rgba(255, 211, 77, 0.12);
+  --theme-line-a: rgba(60, 255, 154, 0.14);
+  --theme-line-b: rgba(255, 79, 216, 0.12);
+  --theme-hud: rgba(6, 7, 14, 0.74);
+  --theme-hud-border: rgba(255, 79, 216, 0.22);
+  --theme-node-shell: rgba(4, 5, 12, 0.9);
+}
+
+.generatedTreeAssets[data-tree-theme="neon-synapse"] {
+  --generated-map-vignette: rgba(2, 6, 16, 0.72);
+  --theme-map-a: rgba(0, 240, 255, 0.15);
+  --theme-map-b: rgba(86, 117, 255, 0.13);
+  --theme-map-c: rgba(168, 85, 247, 0.12);
+  --theme-line-a: rgba(0, 240, 255, 0.15);
+  --theme-line-b: rgba(168, 85, 247, 0.12);
+  --theme-hud: rgba(3, 10, 24, 0.74);
+  --theme-hud-border: rgba(0, 240, 255, 0.24);
+  --theme-node-shell: rgba(2, 7, 17, 0.91);
+}
+
+.generatedTreeAssets[data-tree-theme="verdant-relic"] {
+  --generated-map-vignette: rgba(3, 10, 5, 0.75);
+  --theme-map-a: rgba(74, 222, 128, 0.13);
+  --theme-map-b: rgba(245, 158, 11, 0.12);
+  --theme-map-c: rgba(18, 92, 54, 0.16);
+  --theme-line-a: rgba(74, 222, 128, 0.14);
+  --theme-line-b: rgba(245, 158, 11, 0.12);
+  --theme-hud: rgba(3, 14, 8, 0.74);
+  --theme-hud-border: rgba(74, 222, 128, 0.2);
+  --theme-node-shell: rgba(3, 12, 7, 0.91);
 }
 
 .generatedTreeAssets :global(.life-tree-stage) {
   background-attachment: fixed;
+  background-color: #03050c;
+  background-image:
+    radial-gradient(circle at 50% 45%, transparent 0 12rem, rgba(0, 0, 0, 0.1) 25rem, rgba(0, 0, 0, 0.56) 52rem),
+    radial-gradient(circle at 18% 18%, var(--theme-map-a), transparent 30rem),
+    radial-gradient(circle at 82% 24%, var(--theme-map-b), transparent 28rem),
+    radial-gradient(circle at 48% 82%, var(--theme-map-c), transparent 34rem),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 7.8rem, var(--theme-line-a) 7.88rem 7.94rem, transparent 8rem 15.5rem),
+    conic-gradient(from 12deg at 50% 50%, transparent 0 12deg, var(--theme-line-b) 12.25deg 12.75deg, transparent 13deg 46deg, var(--theme-line-a) 46.25deg 46.75deg, transparent 47deg 92deg, var(--theme-line-b) 92.25deg 92.75deg, transparent 93deg 360deg),
+    linear-gradient(180deg, rgba(5, 7, 17, 0.04), rgba(5, 7, 17, 0.38));
+}
+
+.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 45%, transparent 0 12rem, rgba(0, 0, 0, 0.1) 25rem, rgba(0, 0, 0, 0.56) 52rem),
+    radial-gradient(circle at 22% 16%, rgba(76, 224, 210, 0.14), transparent 30rem),
+    radial-gradient(circle at 82% 20%, rgba(155, 124, 255, 0.13), transparent 28rem),
+    radial-gradient(circle at 52% 82%, rgba(246, 196, 83, 0.09), transparent 34rem),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 7.8rem, rgba(76, 224, 210, 0.08) 7.88rem 7.94rem, transparent 8rem 15.5rem),
+    conic-gradient(from 12deg at 50% 50%, transparent 0 12deg, rgba(246, 196, 83, 0.11) 12.25deg 12.75deg, transparent 13deg 46deg, rgba(76, 224, 210, 0.1) 46.25deg 46.75deg, transparent 47deg 92deg, rgba(155, 124, 255, 0.09) 92.25deg 92.75deg, transparent 93deg 360deg),
+    linear-gradient(180deg, rgba(5, 7, 17, 0.04), rgba(5, 7, 17, 0.36)),
+    url("/art/themes/animus-dark-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="mirage-atlas"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 44%, rgba(214, 168, 79, 0.07), transparent 22rem),
+    radial-gradient(circle at 16% 18%, rgba(47, 159, 187, 0.1), transparent 26rem),
+    radial-gradient(circle at 84% 30%, rgba(214, 168, 79, 0.13), transparent 30rem),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 6.5rem, rgba(214, 168, 79, 0.09) 6.58rem 6.64rem, transparent 6.7rem 13.2rem),
+    repeating-linear-gradient(28deg, transparent 0 68px, rgba(214, 168, 79, 0.045) 69px 70px, transparent 71px 138px),
+    conic-gradient(from -18deg at 50% 50%, transparent 0 18deg, rgba(47, 159, 187, 0.11) 18.2deg 18.8deg, transparent 19deg 64deg, rgba(214, 168, 79, 0.12) 64.2deg 64.8deg, transparent 65deg 360deg),
+    linear-gradient(180deg, rgba(18, 15, 10, 0.04), rgba(18, 15, 10, 0.38)),
+    url("/art/themes/mirage-atlas-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="arcade-codex"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 211, 77, 0.08), transparent 18rem),
+    radial-gradient(circle at 18% 20%, rgba(60, 255, 154, 0.12), transparent 24rem),
+    radial-gradient(circle at 84% 20%, rgba(255, 79, 216, 0.13), transparent 26rem),
+    linear-gradient(rgba(60, 255, 154, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 79, 216, 0.032) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(255, 211, 77, 0.14) 1px, transparent 2px),
+    linear-gradient(180deg, rgba(7, 9, 15, 0.04), rgba(7, 9, 15, 0.36)),
+    url("/art/themes/arcade-codex-map.png");
+  background-position: center, center, center, center, center, center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, no-repeat, no-repeat;
+  background-size: auto, auto, auto, 52px 52px, 52px 52px, 104px 104px, cover, cover;
+}
+
+.generatedTreeAssets[data-tree-theme="neon-synapse"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08), transparent 19rem),
+    radial-gradient(circle at 20% 16%, rgba(0, 240, 255, 0.14), transparent 28rem),
+    radial-gradient(circle at 78% 24%, rgba(168, 85, 247, 0.13), transparent 28rem),
+    repeating-radial-gradient(circle at 54% 48%, transparent 0 5rem, rgba(0, 240, 255, 0.07) 5.08rem 5.13rem, transparent 5.2rem 10.2rem),
+    linear-gradient(38deg, transparent 0 48%, rgba(0, 240, 255, 0.05) 48.2% 48.5%, transparent 48.7%),
+    linear-gradient(128deg, transparent 0 50%, rgba(168, 85, 247, 0.05) 50.2% 50.5%, transparent 50.7%),
+    linear-gradient(180deg, rgba(3, 7, 17, 0.04), rgba(3, 7, 17, 0.38)),
+    url("/art/themes/neon-synapse-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="verdant-relic"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.07), transparent 19rem),
+    radial-gradient(circle at 18% 18%, rgba(74, 222, 128, 0.12), transparent 25rem),
+    radial-gradient(circle at 82% 76%, rgba(245, 158, 11, 0.11), transparent 27rem),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 7rem, rgba(245, 158, 11, 0.07) 7.08rem 7.16rem, transparent 7.22rem 14.5rem),
+    linear-gradient(28deg, transparent 0 46%, rgba(74, 222, 128, 0.045) 46.2% 46.5%, transparent 46.7%),
+    linear-gradient(152deg, transparent 0 52%, rgba(245, 158, 11, 0.045) 52.2% 52.5%, transparent 52.7%),
+    linear-gradient(180deg, rgba(6, 16, 11, 0.04), rgba(3, 8, 5, 0.42)),
+    url("/art/themes/verdant-relic-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .generatedTreeAssets :global(.life-tree-stage::before) {
@@ -21,60 +159,6 @@
     radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.72), transparent 58%);
 }
 
-.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.life-tree-stage) {
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(76, 224, 210, 0.11), transparent 18rem),
-    linear-gradient(180deg, rgba(5, 7, 17, 0.06), rgba(5, 7, 17, 0.36)),
-    url("/art/themes/animus-dark-map.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.generatedTreeAssets[data-tree-theme="mirage-atlas"] :global(.life-tree-stage) {
-  --generated-map-vignette: rgba(12, 8, 3, 0.72);
-  background-image:
-    radial-gradient(circle at 50% 46%, rgba(214, 168, 79, 0.08), transparent 20rem),
-    linear-gradient(180deg, rgba(18, 15, 10, 0.04), rgba(18, 15, 10, 0.38)),
-    url("/art/themes/mirage-atlas-map.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.generatedTreeAssets[data-tree-theme="arcade-codex"] :global(.life-tree-stage) {
-  --generated-map-vignette: rgba(4, 5, 12, 0.7);
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(255, 211, 77, 0.08), transparent 18rem),
-    linear-gradient(180deg, rgba(7, 9, 15, 0.04), rgba(7, 9, 15, 0.36)),
-    url("/art/themes/arcade-codex-map.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.generatedTreeAssets[data-tree-theme="neon-synapse"] :global(.life-tree-stage) {
-  --generated-map-vignette: rgba(2, 6, 16, 0.72);
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08), transparent 19rem),
-    linear-gradient(180deg, rgba(3, 7, 17, 0.04), rgba(3, 7, 17, 0.38)),
-    url("/art/themes/neon-synapse-map.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.generatedTreeAssets[data-tree-theme="verdant-relic"] :global(.life-tree-stage) {
-  --generated-map-vignette: rgba(3, 10, 5, 0.75);
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.07), transparent 19rem),
-    linear-gradient(180deg, rgba(6, 16, 11, 0.04), rgba(3, 8, 5, 0.42)),
-    url("/art/themes/verdant-relic-map.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
 .generatedTreeAssets :global(.life-tree-vignette) {
   background:
     radial-gradient(circle at center, transparent 0%, transparent 46%, rgba(2, 4, 10, 0.48) 100%),
@@ -87,16 +171,68 @@
 }
 
 .generatedTreeAssets :global(.life-tree-rune-grid) {
-  opacity: 0.22;
+  opacity: 0.3;
   mix-blend-mode: screen;
 }
 
+.generatedTreeAssets :global(.life-tree-canvas svg path) {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--theme-line-a) 60%, transparent));
+}
+
+.generatedTreeAssets :global(.tech-node-button) {
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
 .generatedTreeAssets :global(.tech-node-button .tech-orb) {
+  background:
+    radial-gradient(circle at 50% 32%, color-mix(in srgb, var(--node-color) 38%, rgba(255, 255, 255, 0.06)), transparent 34%),
+    radial-gradient(circle at 50% 56%, color-mix(in srgb, var(--node-color) 22%, var(--theme-node-shell)), var(--theme-node-shell) 70%) !important;
   backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--node-color) 58%, rgba(255, 255, 255, 0.08)),
+    0 0 0 7px rgba(0, 0, 0, 0.34),
+    0 0 34px color-mix(in srgb, var(--node-color) 26%, transparent),
+    0 18px 44px rgba(0, 0, 0, 0.52),
+    inset 0 0 30px color-mix(in srgb, var(--node-color) 18%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
 .generatedTreeAssets :global(.tech-node-button.selected .tech-orb) {
   transform: translateY(-2px) scale(1.12);
+}
+
+.generatedTreeAssets :global(.tech-node-button.available .tech-orb),
+.generatedTreeAssets :global(.tech-node-button.in_progress .tech-orb) {
+  animation: nodePulse 2.2s ease-in-out infinite, nodeFloat 4.8s ease-in-out infinite;
+}
+
+.generatedTreeAssets :global(.tech-node-button.locked .tech-orb) {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 32%),
+    radial-gradient(circle at 50% 44%, rgba(91, 101, 124, 0.28), rgba(4, 7, 16, 0.9) 72%) !important;
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.14),
+    0 0 0 7px rgba(0, 0, 0, 0.38),
+    0 18px 44px rgba(0, 0, 0, 0.48),
+    inset 0 0 26px rgba(15, 23, 42, 0.68) !important;
+}
+
+.generatedTreeAssets[data-tree-theme="mirage-atlas"] :global(.tech-node-button .tech-orb) {
+  clip-path: polygon(50% 0, 90% 14%, 100% 50%, 90% 86%, 50% 100%, 10% 86%, 0 50%, 10% 14%);
+}
+
+.generatedTreeAssets[data-tree-theme="arcade-codex"] :global(.tech-node-button .tech-orb) {
+  border-radius: 0.32rem;
+  clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
+}
+
+.generatedTreeAssets[data-tree-theme="neon-synapse"] :global(.tech-node-button .tech-orb) {
+  clip-path: polygon(50% 0, 88% 18%, 100% 50%, 88% 82%, 50% 100%, 12% 82%, 0 50%, 12% 18%);
+}
+
+.generatedTreeAssets[data-tree-theme="verdant-relic"] :global(.tech-node-button .tech-orb) {
+  border-radius: 999px 999px 1rem 1rem;
+  clip-path: polygon(50% 0, 82% 12%, 100% 44%, 78% 100%, 22% 100%, 0 44%, 18% 12%);
 }
 
 .generatedTreeAssets :global(.life-core-node) {
@@ -104,4 +240,35 @@
     radial-gradient(circle at 50% 34%, rgba(246, 196, 83, 0.24), transparent 36%),
     radial-gradient(circle, rgba(76, 224, 210, 0.16), rgba(4, 7, 16, 0.94) 66%);
   backdrop-filter: blur(18px) saturate(1.18);
+}
+
+.generatedTreeAssets :global(.life-tree-toolbar),
+.generatedTreeAssets :global(.mission-panel),
+.generatedTreeAssets :global(nav),
+.generatedTreeAssets :global(.cameraDock),
+.generatedTreeAssets :global(.themeDock) {
+  background-color: var(--theme-hud);
+  border-color: var(--theme-hud-border);
+}
+
+.generatedTreeAssets :global(.epoch-chip) {
+  border-color: var(--theme-hud-border);
+  background:
+    radial-gradient(circle at 24% 0%, color-mix(in srgb, var(--theme-line-a) 34%, transparent), transparent 42%),
+    rgba(5, 8, 18, 0.58);
+}
+
+.generatedTreeAssets :global(.epoch-chip.active) {
+  box-shadow:
+    inset 0 0 22px color-mix(in srgb, var(--theme-line-a) 18%, transparent),
+    0 0 30px color-mix(in srgb, var(--theme-line-a) 18%, transparent);
+}
+
+@keyframes nodeFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
