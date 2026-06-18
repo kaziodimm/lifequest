@@ -87,6 +87,43 @@
   background: rgba(15, 23, 42, 0.55);
 }
 
+.cameraDock {
+  position: fixed;
+  left: calc(0.8rem + env(safe-area-inset-left));
+  bottom: calc(5.8rem + env(safe-area-inset-bottom));
+  z-index: 86;
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.42rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 999px;
+  background: rgba(5, 8, 18, 0.7);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.cameraDock button {
+  display: grid;
+  height: 2.05rem;
+  width: 2.05rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: rgba(226, 232, 240, 0.9);
+  background:
+    radial-gradient(circle at 34% 22%, rgba(255, 255, 255, 0.16), transparent 30%),
+    linear-gradient(145deg, rgba(76, 224, 210, 0.16), rgba(15, 23, 42, 0.72));
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.3), 0 10px 26px rgba(0, 0, 0, 0.28);
+  transition: transform 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.cameraDock button:hover {
+  color: white;
+  border-color: rgba(76, 224, 210, 0.44);
+  transform: scale(1.08);
+  box-shadow: 0 0 26px rgba(76, 224, 210, 0.18), inset 0 0 18px rgba(0, 0, 0, 0.3), 0 10px 26px rgba(0, 0, 0, 0.28);
+}
+
 .themeDock {
   position: fixed;
   right: calc(0.8rem + env(safe-area-inset-right));
@@ -176,6 +213,13 @@
     bottom: auto;
     width: 382px;
     max-height: min(520px, calc(100dvh - 7.5rem));
+  }
+
+  .cameraDock {
+    left: calc(1.2rem + env(safe-area-inset-left));
+    bottom: calc(1.2rem + env(safe-area-inset-bottom));
+    grid-template-columns: repeat(3, 1fr);
+    border-radius: 999px;
   }
 
   .themeDock {
