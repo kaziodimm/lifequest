@@ -665,3 +665,90 @@
   .generatedTreeAssets :global(.life-tree-art-image) { background-size: cover !important; }
   .generatedTreeAssets :global(.tech-node-label) { font-size: 17px !important; }
 }
+
+/* Tree state language: quiet before work, luminous after completion. */
+.generatedTreeAssets :global(.tech-pending-core),
+.generatedTreeAssets :global(.node-mini-pending) {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid color-mix(in srgb, var(--node-color, currentColor) 68%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--node-color, currentColor) 22%, transparent);
+}
+.generatedTreeAssets :global(.tech-node-button.available .tech-pending-core)::after,
+.generatedTreeAssets :global(.tech-node-button.in_progress .tech-pending-core)::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--node-color);
+  animation: pendingBreath 1.8s ease-in-out infinite;
+}
+.generatedTreeAssets :global(.mission-panel[data-status="unlocked"] .node-mini-emblem) {
+  box-shadow: 0 0 24px color-mix(in srgb, var(--node-color) 36%, transparent), inset 0 0 18px rgba(255,255,255,.08);
+}
+
+.generatedTreeAssets :global(.tree-connection) {
+  transition: stroke .25s ease, stroke-width .25s ease, opacity .25s ease;
+}
+.generatedTreeAssets :global(.tree-connection-locked) {
+  opacity: .42;
+  stroke-dasharray: 2 18;
+}
+.generatedTreeAssets :global(.tree-connection-available) {
+  opacity: .72;
+  stroke-dasharray: 5 14;
+  animation: routeFlow 5s linear infinite;
+}
+.generatedTreeAssets :global(.tree-connection-in_progress) {
+  opacity: .9;
+  stroke-dasharray: 18 8;
+  animation: routeFlow 2.1s linear infinite;
+}
+.generatedTreeAssets :global(.tree-connection-unlocked) {
+  opacity: 1;
+  stroke-width: 6px;
+  filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 13px currentColor);
+  animation: completedRouteGlow 3.2s ease-in-out infinite;
+}
+.generatedTreeAssets :global(.tree-joint-unlocked) {
+  filter: drop-shadow(0 0 7px currentColor);
+  animation: completedJointGlow 2.4s ease-in-out infinite;
+}
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.tree-connection-available) { stroke-dasharray: 1 13; }
+.generatedTreeAssets[data-tree-theme="nexus"] :global(.tree-connection-available) { stroke-dasharray: 13 8 3 8; }
+.generatedTreeAssets[data-tree-theme="blueprint"] :global(.tree-connection-available) { stroke-dasharray: 17 9; }
+.generatedTreeAssets[data-tree-theme="pulse"] :global(.tree-connection-available) { stroke-dasharray: 3 16; stroke-linecap: round; }
+
+.generatedTreeAssets :global(.branch-label) {
+  min-width: 0;
+  width: max-content;
+  max-width: 190px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.08);
+}
+.generatedTreeAssets :global(.branch-label strong) { font-size: 16px; letter-spacing: .08em; white-space: nowrap; }
+
+.generatedTreeAssets :global(.life-tree-art-image) {
+  transition: filter .3s ease, opacity .3s ease, background-position .5s ease;
+}
+.generatedTreeAssets :global(.life-tree-stage.is-focused .life-tree-art-image) {
+  filter: blur(4px) brightness(.76) saturate(.88) !important;
+  opacity: .86;
+}
+.generatedTreeAssets :global(.life-tree-stage.is-focused .life-tree-art-atmosphere) { opacity: .72; }
+.generatedTreeAssets :global(.life-tree-stage.is-focused .tree-connection:not(.tree-connection-unlocked)) { opacity: .3; }
+
+@media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+  .generatedTreeAssets :global(.life-tree-art-image) { animation: ambientMapDrift 22s ease-in-out infinite alternate; }
+}
+
+@keyframes routeFlow { to { stroke-dashoffset: -42; } }
+@keyframes completedRouteGlow { 0%,100% { opacity: .88; } 50% { opacity: 1; } }
+@keyframes completedJointGlow { 0%,100% { opacity: .72; } 50% { opacity: 1; } }
+@keyframes pendingBreath { 0%,100% { opacity: .35; transform: scale(.72); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes ambientMapDrift { from { background-position: 49.2% 50.5%; } to { background-position: 50.8% 49.5%; } }

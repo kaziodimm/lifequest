@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { AppShell } from "@/components/app-shell";
 import { LifeTree } from "@/components/life-tree";
 import { TreeCameraController } from "@/components/tree-camera-controller";
@@ -28,24 +29,33 @@ export default function TreePage() {
     <AppShell immersive>
       <div className={`${fieldStyles.fullscreenField} ${styles.visualTreeSkin} ${assetStyles.generatedTreeAssets}`} data-tree-theme={themeId}>
         <TreeCameraController className={fieldStyles.cameraDock} />
-        <div className={fieldStyles.themeDock} aria-label="Visual themes">
-          {treeThemes.map((theme) => (
-            <button
-              key={theme.id}
-              type="button"
-              className={theme.id === themeId ? fieldStyles.themeSwatchActive : fieldStyles.themeSwatch}
-              style={{
-                ["--theme-primary" as string]: theme.palette.primary,
-                ["--theme-secondary" as string]: theme.palette.secondary,
-                ["--theme-accent" as string]: theme.palette.accent
-              }}
-              aria-label={`Switch to ${theme.title}`}
-              title={theme.title}
-              onClick={() => selectTheme(theme.id)}
-            >
-              <span />
-            </button>
-          ))}
+        <div className={fieldStyles.themeDock} aria-label="Choose interface theme">
+          <div className={fieldStyles.themeDockTitle}>
+            <span>Theme</span>
+            <strong>{treeThemes.find((theme) => theme.id === themeId)?.title}</strong>
+          </div>
+          <div className={fieldStyles.themeSwatches}>
+            {treeThemes.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                className={theme.id === themeId ? fieldStyles.themeSwatchActive : fieldStyles.themeSwatch}
+                style={{
+                  ["--theme-primary" as string]: theme.palette.primary,
+                  ["--theme-secondary" as string]: theme.palette.secondary,
+                  ["--theme-accent" as string]: theme.palette.accent
+                }}
+                aria-label={`Use ${theme.title} theme`}
+                aria-pressed={theme.id === themeId}
+                title={`${theme.title}: ${theme.mood}`}
+                onClick={() => selectTheme(theme.id)}
+              >
+                <Image src={`/art/themes-v4/${theme.id}/emblem-base.webp`} alt="" width={42} height={42} />
+                <span className={fieldStyles.themeInitial}>{theme.shortTitle.slice(0, 2)}</span>
+                <span className={fieldStyles.themeName}>{theme.shortTitle}</span>
+              </button>
+            ))}
+          </div>
         </div>
         <LifeTree />
       </div>

@@ -175,6 +175,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
     <aside
       className="mission-panel life-tree-panel border border-border bg-card/95 p-4 backdrop-blur"
       data-category={technology.category}
+      data-status={status}
       style={{ ["--panel-left" as string]: `${anchor.x}px`, ["--panel-top" as string]: `${anchor.y}px` }}
       onPointerDown={(event) => event.stopPropagation()}
     >
@@ -184,8 +185,8 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
           <h2 className="mt-1 text-xl font-black text-foreground">{technology.title}</h2>
         </div>
         <div className="flex items-center gap-2">
-          <div className="node-mini-emblem" style={{ color, borderColor: `${color}66` }}>
-            <Icon size={21} />
+          <div className="node-mini-emblem" style={{ color, borderColor: `${color}66`, ["--node-color" as string]: color }}>
+            {status === "unlocked" ? <Icon size={21} /> : <span className="node-mini-pending" />}
           </div>
           <button type="button" className="tree-close-button" aria-label="Close mission panel" onClick={onClose}>
             <CloseIcon size={16} />
@@ -394,13 +395,12 @@ export function LifeTree() {
             const category = id as LifeCategory;
             const color = categoryColors[category];
             const angle = branch.angle * (Math.PI / 180);
-            const x = corePoint.x + Math.cos(angle) * 610;
-            const y = corePoint.y + Math.sin(angle) * 610;
+            const x = corePoint.x + Math.cos(angle) * 250;
+            const y = corePoint.y + Math.sin(angle) * 250;
 
             return (
-              <div key={id} className="branch-label" style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
+              <div key={id} className="branch-label" title={branch.description} style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
                 <strong>{branch.label}</strong>
-                <small>{branch.description}</small>
               </div>
             );
           })}
@@ -432,8 +432,9 @@ export function LifeTree() {
 
               return (
                 <g key={`core-${tech.id}`}>
-                  <path d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+                  <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
                   <path
+                    className={`tree-connection tree-connection-${status}`}
                     d={getBranchPath(corePoint, end)}
                     fill="none"
                     stroke={status === "locked" ? "rgba(148, 163, 184, 0.2)" : `${color}95`}
@@ -442,7 +443,7 @@ export function LifeTree() {
                     strokeLinejoin="round"
                     filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
                   />
-                  <circle cx={joint.x} cy={joint.y} r="5" fill={status === "locked" ? "rgba(148, 163, 184, 0.28)" : color} />
+                  <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="5" fill={status === "locked" ? "rgba(148, 163, 184, 0.28)" : color} />
                 </g>
               );
             })}
@@ -461,8 +462,9 @@ export function LifeTree() {
 
                 return (
                   <g key={`${parentId}-${tech.id}`}>
-                    <path d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+                    <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
                     <path
+                      className={`tree-connection tree-connection-${status}`}
                       d={getBranchPath(start, end)}
                       fill="none"
                       stroke={status === "unlocked" ? color : status === "available" || status === "in_progress" ? `${color}AA` : "rgba(148, 163, 184, 0.18)"}
@@ -471,7 +473,7 @@ export function LifeTree() {
                       strokeLinejoin="round"
                       filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
                     />
-                    <circle cx={joint.x} cy={joint.y} r="4" fill={status === "locked" ? "rgba(148, 163, 184, 0.22)" : color} />
+                    <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="4" fill={status === "locked" ? "rgba(148, 163, 184, 0.22)" : color} />
                   </g>
                 );
               })
@@ -514,7 +516,7 @@ export function LifeTree() {
               >
                 <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
                   <span className="tech-emblem-inner" />
-                  {status === "locked" ? <Lock size={23} /> : <Icon size={27} />}
+                  {status === "locked" ? <Lock size={23} /> : status === "unlocked" ? <Icon size={27} /> : <span className="tech-pending-core" />}
                   {status === "unlocked" ? <span className="tech-completion-badge" aria-label="Completed" /> : null}
                   {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                   {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}

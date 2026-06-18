@@ -57,7 +57,8 @@ function createInitialTechnologyRuntime(completedTechnologyIds: string[]): Recor
   );
 }
 
-const initialCompletedTechnologyIds = ["health-root", "business-root"];
+const legacyCompletedTechnologyIds = ["health-root", "business-root"];
+const initialCompletedTechnologyIds = ["health-root", "morning-walk", "business-root", "first-project", "finance-root"];
 
 const initialState: PlayerState = {
   avatarName: "Strategist",
@@ -93,7 +94,9 @@ function normalizeMission(mission: PartialMission): DailyMission {
 }
 
 function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined) {
-  const completedIds = persisted?.completedTechnologyIds ?? initialState.completedTechnologyIds;
+  const savedCompletedIds = persisted?.completedTechnologyIds;
+  const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
+  const completedIds = !savedCompletedIds || isLegacyDemo ? initialState.completedTechnologyIds : savedCompletedIds;
   const base = createInitialTechnologyRuntime(completedIds);
   const saved = persisted?.technologyRuntime ?? {};
 
@@ -116,10 +119,13 @@ function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined)
 
 function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerState {
   const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => normalizeMission(mission));
+  const savedCompletedIds = persisted?.completedTechnologyIds;
+  const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
 
   return {
     ...initialState,
     ...persisted,
+    completedTechnologyIds: !savedCompletedIds || isLegacyDemo ? initialState.completedTechnologyIds : savedCompletedIds,
     currentEra: persisted?.currentEra ?? initialState.currentEra,
     technologyRuntime: normalizeTechnologyRuntime(persisted),
     dailyMissions: missions,

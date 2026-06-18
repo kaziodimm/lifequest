@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Award, BarChart3, GitBranch, Radar, UserRound } from "lucide-react";
@@ -57,7 +58,7 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
           return (
             <Link key={item.href} href={item.href} className={cn("app-nav-link flex flex-col items-center gap-1 px-1 py-1 text-[11px] font-semibold transition", active && "is-active")}>
               <span className="app-nav-emblem" aria-hidden="true">
-                <img src={`/art/themes-v4/${themeId}/emblem-base.webp`} alt="" />
+                <Image src={`/art/themes-v4/${themeId}/emblem-base.webp`} alt="" width={38} height={38} />
                 <Icon size={17} />
               </span>
               {item.label}
