@@ -1,0 +1,107 @@
+.generatedTreeAssets {
+  --generated-map-opacity: 0.74;
+  --generated-map-blend: screen;
+  --generated-map-vignette: rgba(3, 5, 12, 0.64);
+}
+
+.generatedTreeAssets :global(.life-tree-stage) {
+  background-attachment: fixed;
+}
+
+.generatedTreeAssets :global(.life-tree-stage::before) {
+  background:
+    radial-gradient(circle at center, transparent 0 28%, rgba(3, 5, 12, 0.22) 58%, rgba(3, 5, 12, 0.78) 100%),
+    linear-gradient(180deg, rgba(3, 5, 12, 0.34), transparent 22%, transparent 68%, rgba(3, 5, 12, 0.78)),
+    linear-gradient(90deg, rgba(3, 5, 12, 0.8), transparent 18%, transparent 78%, rgba(3, 5, 12, 0.74));
+}
+
+.generatedTreeAssets :global(.life-tree-stage::after) {
+  background:
+    linear-gradient(180deg, transparent, var(--generated-map-vignette)),
+    radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.72), transparent 58%);
+}
+
+.generatedTreeAssets[data-tree-theme="animus-dark"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(76, 224, 210, 0.11), transparent 18rem),
+    linear-gradient(180deg, rgba(5, 7, 17, 0.06), rgba(5, 7, 17, 0.36)),
+    url("/art/themes/animus-dark-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="mirage-atlas"] :global(.life-tree-stage) {
+  --generated-map-vignette: rgba(12, 8, 3, 0.72);
+  background-image:
+    radial-gradient(circle at 50% 46%, rgba(214, 168, 79, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(18, 15, 10, 0.04), rgba(18, 15, 10, 0.38)),
+    url("/art/themes/mirage-atlas-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="arcade-codex"] :global(.life-tree-stage) {
+  --generated-map-vignette: rgba(4, 5, 12, 0.7);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 211, 77, 0.08), transparent 18rem),
+    linear-gradient(180deg, rgba(7, 9, 15, 0.04), rgba(7, 9, 15, 0.36)),
+    url("/art/themes/arcade-codex-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="neon-synapse"] :global(.life-tree-stage) {
+  --generated-map-vignette: rgba(2, 6, 16, 0.72);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08), transparent 19rem),
+    linear-gradient(180deg, rgba(3, 7, 17, 0.04), rgba(3, 7, 17, 0.38)),
+    url("/art/themes/neon-synapse-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets[data-tree-theme="verdant-relic"] :global(.life-tree-stage) {
+  --generated-map-vignette: rgba(3, 10, 5, 0.75);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.07), transparent 19rem),
+    linear-gradient(180deg, rgba(6, 16, 11, 0.04), rgba(3, 8, 5, 0.42)),
+    url("/art/themes/verdant-relic-map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.generatedTreeAssets :global(.life-tree-vignette) {
+  background:
+    radial-gradient(circle at center, transparent 0%, transparent 46%, rgba(2, 4, 10, 0.48) 100%),
+    linear-gradient(90deg, rgba(5, 7, 14, 0.72), transparent 15%, transparent 80%, rgba(5, 7, 14, 0.7)),
+    linear-gradient(180deg, rgba(5, 7, 14, 0.54), transparent 20%, transparent 72%, rgba(5, 7, 14, 0.8));
+}
+
+.generatedTreeAssets :global(.life-tree-starfield) {
+  opacity: 0.18;
+}
+
+.generatedTreeAssets :global(.life-tree-rune-grid) {
+  opacity: 0.22;
+  mix-blend-mode: screen;
+}
+
+.generatedTreeAssets :global(.tech-node-button .tech-orb) {
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.generatedTreeAssets :global(.tech-node-button.selected .tech-orb) {
+  transform: translateY(-2px) scale(1.12);
+}
+
+.generatedTreeAssets :global(.life-core-node) {
+  background:
+    radial-gradient(circle at 50% 34%, rgba(246, 196, 83, 0.24), transparent 36%),
+    radial-gradient(circle, rgba(76, 224, 210, 0.16), rgba(4, 7, 16, 0.94) 66%);
+  backdrop-filter: blur(18px) saturate(1.18);
+}
