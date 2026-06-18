@@ -174,6 +174,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   return (
     <aside
       className="mission-panel life-tree-panel border border-border bg-card/95 p-4 backdrop-blur"
+      data-category={technology.category}
       style={{ ["--panel-left" as string]: `${anchor.x}px`, ["--panel-top" as string]: `${anchor.y}px` }}
       onPointerDown={(event) => event.stopPropagation()}
     >
@@ -508,6 +509,7 @@ export function LifeTree() {
                 key={tech.id}
                 type="button"
                 className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected")}
+                data-category={tech.category}
                 style={{ left: position.x, top: position.y, ["--node-color" as string]: color }}
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => handleNodeClick(tech)}

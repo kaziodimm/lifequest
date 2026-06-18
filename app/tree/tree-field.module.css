@@ -407,3 +407,45 @@
     border-radius: 999px;
   }
 }
+
+
+/* Mission cards v2 */
+.fullscreenField::before { background: transparent; }
+.fullscreenField :global(.life-tree-stage::after) { background: transparent; }
+.fullscreenField[data-tree-theme="orbit"] {
+  --mission-frame: rgba(103,220,210,.54); --mission-frame-2: rgba(231,174,86,.4);
+  --mission-glow: rgba(103,220,210,.16); --mission-panel-bg: linear-gradient(165deg, rgba(19,29,40,.97), rgba(7,14,24,.96));
+}
+.fullscreenField[data-tree-theme="atlas"] {
+  --mission-frame: rgba(184,138,55,.58); --mission-frame-2: rgba(45,135,146,.38);
+  --mission-glow: rgba(184,138,55,.12); --mission-panel-bg: linear-gradient(165deg, rgba(250,247,238,.98), rgba(235,227,209,.97));
+}
+.fullscreenField[data-tree-theme="nexus"] {
+  --mission-frame: rgba(79,201,243,.56); --mission-frame-2: rgba(152,116,237,.4);
+  --mission-glow: rgba(79,201,243,.18); --mission-panel-bg: linear-gradient(165deg, rgba(10,29,55,.98), rgba(3,14,31,.97));
+}
+.fullscreenField[data-tree-theme="blueprint"] {
+  --mission-frame: rgba(220,236,255,.52); --mission-frame-2: rgba(242,169,59,.42);
+  --mission-glow: rgba(115,216,255,.18); --mission-panel-bg: linear-gradient(165deg, rgba(16,70,121,.98), rgba(6,42,81,.97));
+}
+.fullscreenField[data-tree-theme="pulse"] {
+  --mission-frame: rgba(49,156,148,.5); --mission-frame-2: rgba(229,141,114,.42);
+  --mission-glow: rgba(49,156,148,.12); --mission-panel-bg: linear-gradient(165deg, rgba(253,250,244,.98), rgba(236,231,222,.97));
+}
+.fullscreenField[data-tree-theme="atlas"] :global(.mission-panel),
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel) { color: #1d3033; }
+.fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .text-foreground),
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .text-foreground) { color: #182b2e !important; }
+.fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .text-muted-foreground),
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .text-muted-foreground) { color: #5c6b6d !important; }
+.fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .bg-background\/45),
+.fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .bg-muted\/35),
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .bg-background\/45),
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .bg-muted\/35) { background: rgba(255,255,255,.44) !important; }
+.fullscreenField[data-tree-theme="atlas"] :global(.mission-panel button),
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel button) { color: #153237; }
+.fullscreenField[data-tree-theme="blueprint"] :global(.mission-panel) { border-radius: .35rem; }
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel) { border-radius: 1.25rem; }
+.fullscreenField[data-tree-theme="nexus"] :global(.mission-panel) {
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
