@@ -30,6 +30,7 @@ export function TreeCameraController({ className }: CameraControlProps) {
     const stage = document.querySelector<HTMLElement>(".life-tree-stage");
     if (!stage) return;
 
+    const treeStage = stage;
     const pointers = new Map<number, PointerEvent>();
     let lastPinchDistance: number | null = null;
     let lastPinchAt = 0;
@@ -74,7 +75,7 @@ export function TreeCameraController({ className }: CameraControlProps) {
 
       if (Math.abs(distanceDelta) > 7 && now - lastPinchAt > 24) {
         const center = getPinchCenter();
-        dispatchZoom(stage, distanceDelta > 0 ? -70 : 70, center.x, center.y);
+        dispatchZoom(treeStage, distanceDelta > 0 ? -70 : 70, center.x, center.y);
         lastPinchAt = now;
       }
 
@@ -88,18 +89,18 @@ export function TreeCameraController({ className }: CameraControlProps) {
       if (pointers.size < 2) lastPinchDistance = null;
     }
 
-    stage.addEventListener("pointerdown", handlePointerDown, { capture: true, passive: false });
-    stage.addEventListener("pointermove", handlePointerMove, { capture: true, passive: false });
-    stage.addEventListener("pointerup", handlePointerEnd, { capture: true });
-    stage.addEventListener("pointercancel", handlePointerEnd, { capture: true });
-    stage.addEventListener("pointerleave", handlePointerEnd, { capture: true });
+    treeStage.addEventListener("pointerdown", handlePointerDown, { capture: true, passive: false });
+    treeStage.addEventListener("pointermove", handlePointerMove, { capture: true, passive: false });
+    treeStage.addEventListener("pointerup", handlePointerEnd, { capture: true });
+    treeStage.addEventListener("pointercancel", handlePointerEnd, { capture: true });
+    treeStage.addEventListener("pointerleave", handlePointerEnd, { capture: true });
 
     return () => {
-      stage.removeEventListener("pointerdown", handlePointerDown, { capture: true });
-      stage.removeEventListener("pointermove", handlePointerMove, { capture: true });
-      stage.removeEventListener("pointerup", handlePointerEnd, { capture: true });
-      stage.removeEventListener("pointercancel", handlePointerEnd, { capture: true });
-      stage.removeEventListener("pointerleave", handlePointerEnd, { capture: true });
+      treeStage.removeEventListener("pointerdown", handlePointerDown, { capture: true });
+      treeStage.removeEventListener("pointermove", handlePointerMove, { capture: true });
+      treeStage.removeEventListener("pointerup", handlePointerEnd, { capture: true });
+      treeStage.removeEventListener("pointercancel", handlePointerEnd, { capture: true });
+      treeStage.removeEventListener("pointerleave", handlePointerEnd, { capture: true });
     };
   }, []);
 
