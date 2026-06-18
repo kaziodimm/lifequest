@@ -106,7 +106,8 @@
   top: auto;
   bottom: calc(6.2rem + env(safe-area-inset-bottom));
   max-height: min(520px, calc(100dvh - 7.8rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   border-radius: 0.75rem;
 }
 
@@ -169,14 +170,15 @@
 
 .fullscreenField :global(.mission-panel) {
   isolation: isolate;
-  border: 1px solid var(--mission-frame, rgba(76, 224, 210, 0.4));
-  background: var(--mission-panel-bg, linear-gradient(180deg, rgba(13, 22, 39, 0.97), rgba(4, 7, 16, 0.96)));
+  border: 1px solid var(--mission-frame, rgba(76, 224, 210, 0.4)) !important;
+  background: var(--mission-panel-bg, linear-gradient(180deg, rgba(13, 22, 39, 0.97), rgba(4, 7, 16, 0.96))) !important;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.035),
     0 0 42px var(--mission-glow, rgba(76, 224, 210, 0.2)),
     0 28px 90px rgba(0, 0, 0, 0.58),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     inset 0 0 34px rgba(255, 255, 255, 0.025);
+  animation: missionPanelIn 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fullscreenField :global(.mission-panel::before),
@@ -184,7 +186,7 @@
   content: "";
   position: absolute;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 .fullscreenField :global(.mission-panel::before) {
@@ -333,6 +335,17 @@
     0 0 28px color-mix(in srgb, var(--theme-primary) 34%, transparent),
     0 12px 30px rgba(0, 0, 0, 0.32),
     inset 0 0 18px rgba(0, 0, 0, 0.34);
+}
+
+@keyframes missionPanelIn {
+  from {
+    opacity: 0;
+    transform: translateX(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 @media (max-width: 430px) {
