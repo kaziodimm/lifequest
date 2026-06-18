@@ -80,7 +80,7 @@
     repeating-radial-gradient(circle at 50% 50%, transparent 0 7.8rem, rgba(76, 224, 210, 0.08) 7.88rem 7.94rem, transparent 8rem 15.5rem),
     conic-gradient(from 12deg at 50% 50%, transparent 0 12deg, rgba(246, 196, 83, 0.11) 12.25deg 12.75deg, transparent 13deg 46deg, rgba(76, 224, 210, 0.1) 46.25deg 46.75deg, transparent 47deg 92deg, rgba(155, 124, 255, 0.09) 92.25deg 92.75deg, transparent 93deg 360deg),
     linear-gradient(180deg, rgba(5, 7, 17, 0.04), rgba(5, 7, 17, 0.36)),
-    url("/art/themes/animus-dark-map.png");
+    url("/art/animus-dark-map.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -95,7 +95,7 @@
     repeating-linear-gradient(28deg, transparent 0 68px, rgba(214, 168, 79, 0.045) 69px 70px, transparent 71px 138px),
     conic-gradient(from -18deg at 50% 50%, transparent 0 18deg, rgba(47, 159, 187, 0.11) 18.2deg 18.8deg, transparent 19deg 64deg, rgba(214, 168, 79, 0.12) 64.2deg 64.8deg, transparent 65deg 360deg),
     linear-gradient(180deg, rgba(18, 15, 10, 0.04), rgba(18, 15, 10, 0.38)),
-    url("/art/themes/mirage-atlas-map.png");
+    url("/art/mirage-atlas-map.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -110,7 +110,7 @@
     linear-gradient(90deg, rgba(255, 79, 216, 0.032) 1px, transparent 1px),
     radial-gradient(circle at center, rgba(255, 211, 77, 0.14) 1px, transparent 2px),
     linear-gradient(180deg, rgba(7, 9, 15, 0.04), rgba(7, 9, 15, 0.36)),
-    url("/art/themes/arcade-codex-map.png");
+    url("/art/arcade-codex-map.png");
   background-position: center, center, center, center, center, center, center, center;
   background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, no-repeat, no-repeat;
   background-size: auto, auto, auto, 52px 52px, 52px 52px, 104px 104px, cover, cover;
@@ -125,7 +125,7 @@
     linear-gradient(38deg, transparent 0 48%, rgba(0, 240, 255, 0.05) 48.2% 48.5%, transparent 48.7%),
     linear-gradient(128deg, transparent 0 50%, rgba(168, 85, 247, 0.05) 50.2% 50.5%, transparent 50.7%),
     linear-gradient(180deg, rgba(3, 7, 17, 0.04), rgba(3, 7, 17, 0.38)),
-    url("/art/themes/neon-synapse-map.png");
+    url("/art/neon-synapse-map.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -140,7 +140,7 @@
     linear-gradient(28deg, transparent 0 46%, rgba(74, 222, 128, 0.045) 46.2% 46.5%, transparent 46.7%),
     linear-gradient(152deg, transparent 0 52%, rgba(245, 158, 11, 0.045) 52.2% 52.5%, transparent 52.7%),
     linear-gradient(180deg, rgba(6, 16, 11, 0.04), rgba(3, 8, 5, 0.42)),
-    url("/art/themes/verdant-relic-map.png");
+    url("/art/verdant-relic-map.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -276,7 +276,7 @@
 
 /* Generated theme artwork lives inside the camera so the map feels spatial. */
 .generatedTreeAssets {
-  --tree-art-image: url("/art/themes/animus-dark-map.png");
+  --tree-art-image: url("/art/animus-dark-map.png");
   --tree-art-opacity: 0.94;
   --tree-art-filter: saturate(1.12) contrast(1.06);
   --tree-art-overlay:
@@ -285,7 +285,7 @@
 }
 
 .generatedTreeAssets[data-tree-theme="mirage-atlas"] {
-  --tree-art-image: url("/art/themes/mirage-atlas-map.png");
+  --tree-art-image: url("/art/mirage-atlas-map.png");
   --tree-art-opacity: 0.96;
   --tree-art-filter: saturate(0.9) contrast(1.04);
   --tree-art-overlay:
@@ -294,7 +294,7 @@
 }
 
 .generatedTreeAssets[data-tree-theme="arcade-codex"] {
-  --tree-art-image: url("/art/themes/arcade-codex-map.png");
+  --tree-art-image: url("/art/arcade-codex-map.png");
   --tree-art-opacity: 0.94;
   --tree-art-filter: saturate(1.18) contrast(1.08);
   --tree-art-overlay:
@@ -303,7 +303,7 @@
 }
 
 .generatedTreeAssets[data-tree-theme="neon-synapse"] {
-  --tree-art-image: url("/art/themes/neon-synapse-map.png");
+  --tree-art-image: url("/art/neon-synapse-map.png");
   --tree-art-opacity: 0.95;
   --tree-art-filter: saturate(1.24) contrast(1.08);
   --tree-art-overlay:
@@ -312,7 +312,7 @@
 }
 
 .generatedTreeAssets[data-tree-theme="verdant-relic"] {
-  --tree-art-image: url("/art/themes/verdant-relic-map.png");
+  --tree-art-image: url("/art/verdant-relic-map.png");
   --tree-art-opacity: 0.96;
   --tree-art-filter: saturate(1.08) contrast(1.05);
   --tree-art-overlay:
