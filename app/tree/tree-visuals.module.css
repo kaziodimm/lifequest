@@ -1,5 +1,65 @@
+.visualTreeSkin {
+  --tree-skin-bg: #050711;
+  --tree-skin-surface: rgba(9, 13, 26, 0.9);
+  --tree-skin-surface-soft: rgba(9, 13, 26, 0.64);
+  --tree-skin-grid-opacity: 0.34;
+  --tree-skin-stars-opacity: 0.48;
+  --tree-skin-orb-ring: rgba(7, 11, 21, 0.7);
+  --tree-skin-locked: rgba(71, 85, 105, 0.28);
+  --tree-skin-panel-start: rgba(19, 27, 46, 0.97);
+  --tree-skin-panel-end: rgba(8, 12, 24, 0.96);
+}
+
+.visualTreeSkin[data-tree-theme="mirage-atlas"] {
+  --tree-skin-bg: #120f0a;
+  --tree-skin-surface: rgba(31, 24, 15, 0.92);
+  --tree-skin-surface-soft: rgba(43, 34, 21, 0.68);
+  --tree-skin-grid-opacity: 0.28;
+  --tree-skin-stars-opacity: 0.28;
+  --tree-skin-orb-ring: rgba(30, 23, 13, 0.76);
+  --tree-skin-locked: rgba(91, 76, 56, 0.36);
+  --tree-skin-panel-start: rgba(42, 32, 20, 0.97);
+  --tree-skin-panel-end: rgba(18, 14, 9, 0.96);
+}
+
+.visualTreeSkin[data-tree-theme="arcade-codex"] {
+  --tree-skin-bg: #07090f;
+  --tree-skin-surface: rgba(17, 18, 28, 0.92);
+  --tree-skin-surface-soft: rgba(17, 18, 28, 0.68);
+  --tree-skin-grid-opacity: 0.46;
+  --tree-skin-stars-opacity: 0.34;
+  --tree-skin-orb-ring: rgba(8, 10, 18, 0.82);
+  --tree-skin-locked: rgba(64, 73, 91, 0.34);
+  --tree-skin-panel-start: rgba(25, 25, 38, 0.97);
+  --tree-skin-panel-end: rgba(8, 9, 15, 0.96);
+}
+
+.visualTreeSkin[data-tree-theme="neon-synapse"] {
+  --tree-skin-bg: #030711;
+  --tree-skin-surface: rgba(7, 15, 31, 0.92);
+  --tree-skin-surface-soft: rgba(9, 22, 43, 0.68);
+  --tree-skin-grid-opacity: 0.52;
+  --tree-skin-stars-opacity: 0.58;
+  --tree-skin-orb-ring: rgba(3, 9, 19, 0.78);
+  --tree-skin-locked: rgba(37, 57, 78, 0.34);
+  --tree-skin-panel-start: rgba(11, 25, 46, 0.97);
+  --tree-skin-panel-end: rgba(3, 7, 17, 0.96);
+}
+
+.visualTreeSkin[data-tree-theme="verdant-relic"] {
+  --tree-skin-bg: #06100b;
+  --tree-skin-surface: rgba(12, 27, 18, 0.92);
+  --tree-skin-surface-soft: rgba(14, 34, 22, 0.68);
+  --tree-skin-grid-opacity: 0.3;
+  --tree-skin-stars-opacity: 0.26;
+  --tree-skin-orb-ring: rgba(4, 14, 8, 0.78);
+  --tree-skin-locked: rgba(48, 73, 55, 0.34);
+  --tree-skin-panel-start: rgba(16, 34, 22, 0.97);
+  --tree-skin-panel-end: rgba(5, 14, 9, 0.96);
+}
+
 .visualTreeSkin :global(.life-tree-stage) {
-  background-color: #050711;
+  background-color: var(--tree-skin-bg);
   background-image:
     radial-gradient(circle at 50% 50%, rgba(246, 196, 83, 0.12), transparent 18rem),
     radial-gradient(circle at 22% 18%, rgba(76, 224, 210, 0.14), transparent 30rem),
@@ -9,6 +69,46 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.visualTreeSkin[data-tree-theme="mirage-atlas"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(214, 168, 79, 0.18), transparent 18rem),
+    radial-gradient(circle at 20% 20%, rgba(47, 159, 187, 0.12), transparent 28rem),
+    radial-gradient(circle at 84% 28%, rgba(64, 86, 161, 0.12), transparent 26rem),
+    linear-gradient(135deg, rgba(51, 38, 22, 0.44), rgba(18, 15, 10, 0.86)),
+    url("/art/animus-dark-bg.svg");
+  filter: sepia(0.22) saturate(0.9);
+}
+
+.visualTreeSkin[data-tree-theme="arcade-codex"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 211, 77, 0.13), transparent 16rem),
+    radial-gradient(circle at 16% 20%, rgba(60, 255, 154, 0.14), transparent 25rem),
+    radial-gradient(circle at 82% 22%, rgba(255, 79, 216, 0.13), transparent 25rem),
+    linear-gradient(180deg, rgba(7, 9, 15, 0.18), rgba(7, 9, 15, 0.46)),
+    url("/art/animus-dark-bg.svg");
+  image-rendering: auto;
+}
+
+.visualTreeSkin[data-tree-theme="neon-synapse"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(124, 255, 212, 0.12), transparent 17rem),
+    radial-gradient(circle at 18% 18%, rgba(0, 240, 255, 0.18), transparent 30rem),
+    radial-gradient(circle at 84% 26%, rgba(168, 85, 247, 0.18), transparent 29rem),
+    linear-gradient(180deg, rgba(3, 7, 17, 0.1), rgba(3, 7, 17, 0.44)),
+    url("/art/animus-dark-bg.svg");
+  filter: saturate(1.25);
+}
+
+.visualTreeSkin[data-tree-theme="verdant-relic"] :global(.life-tree-stage) {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.12), transparent 17rem),
+    radial-gradient(circle at 18% 18%, rgba(74, 222, 128, 0.14), transparent 29rem),
+    radial-gradient(circle at 78% 76%, rgba(22, 160, 133, 0.13), transparent 28rem),
+    linear-gradient(160deg, rgba(6, 16, 11, 0.16), rgba(3, 8, 5, 0.56)),
+    url("/art/animus-dark-bg.svg");
+  filter: saturate(0.95) hue-rotate(12deg);
 }
 
 .visualTreeSkin :global(.life-tree-stage::before) {
@@ -23,18 +123,17 @@
 }
 
 .visualTreeSkin :global(.life-tree-starfield) {
-  opacity: 0.48;
+  opacity: var(--tree-skin-stars-opacity);
   mix-blend-mode: screen;
 }
 
 .visualTreeSkin :global(.life-tree-rune-grid) {
-  opacity: 0.34;
+  opacity: var(--tree-skin-grid-opacity);
 }
 
 .visualTreeSkin :global(.life-tree-toolbar) {
   border-color: rgba(148, 163, 184, 0.18);
-  background:
-    linear-gradient(180deg, rgba(9, 13, 26, 0.9), rgba(9, 13, 26, 0.64));
+  background: linear-gradient(180deg, var(--tree-skin-surface), var(--tree-skin-surface-soft));
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
 }
 
@@ -50,7 +149,7 @@
     linear-gradient(150deg, color-mix(in srgb, var(--node-color) 34%, #0b1020), #060811);
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--node-color) 44%, rgba(255, 255, 255, 0.08)),
-    0 0 0 6px rgba(7, 11, 21, 0.7),
+    0 0 0 6px var(--tree-skin-orb-ring),
     0 18px 44px rgba(0, 0, 0, 0.45),
     inset 0 0 26px color-mix(in srgb, var(--node-color) 18%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
@@ -92,7 +191,7 @@
 .visualTreeSkin :global(.tech-node-button.locked .tech-orb) {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 32%),
-    radial-gradient(circle at 50% 34%, rgba(71, 85, 105, 0.28), #060914 70%);
+    radial-gradient(circle at 50% 34%, var(--tree-skin-locked), #060914 70%);
   box-shadow:
     0 0 0 1px rgba(148, 163, 184, 0.14),
     0 0 0 6px rgba(3, 5, 12, 0.72),
@@ -127,6 +226,5 @@
 
 .visualTreeSkin :global(.mission-panel) {
   border-color: rgba(148, 163, 184, 0.2);
-  background:
-    linear-gradient(180deg, rgba(19, 27, 46, 0.97), rgba(8, 12, 24, 0.96));
+  background: linear-gradient(180deg, var(--tree-skin-panel-start), var(--tree-skin-panel-end));
 }
