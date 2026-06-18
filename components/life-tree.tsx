@@ -486,6 +486,7 @@ export function LifeTree() {
             onClick={resetView}
           >
             <span className="life-core-art" aria-hidden="true" />
+            <Sparkles className="life-core-glyph" size={36} aria-hidden="true" />
             <span className="life-core-copy">
               <span className="text-[9px] font-black uppercase tracking-[0.24em] text-accent">Habidoo</span>
               <span className="text-sm font-black text-foreground">Life Core</span>

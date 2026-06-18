@@ -596,3 +596,72 @@
   .generatedTreeAssets :global(.tech-node-label),
   .generatedTreeAssets :global(.branch-label) { backdrop-filter: none; }
 }
+
+/* v4: independently generated, correctly framed assets. */
+.generatedTreeAssets[data-tree-theme="orbit"] { --tree-art-image: url("/art/themes-v4/orbit/background-wide.webp"); --emblem-base: url("/art/themes-v4/orbit/emblem-base.webp"); }
+.generatedTreeAssets[data-tree-theme="atlas"] { --tree-art-image: url("/art/themes-v4/atlas/background-wide.webp"); --emblem-base: url("/art/themes-v4/atlas/emblem-base.webp"); }
+.generatedTreeAssets[data-tree-theme="nexus"] { --tree-art-image: url("/art/themes-v4/nexus/background-wide.webp"); --emblem-base: url("/art/themes-v4/nexus/emblem-base.webp"); }
+.generatedTreeAssets[data-tree-theme="blueprint"] { --tree-art-image: url("/art/themes-v4/blueprint/background-wide.webp"); --emblem-base: url("/art/themes-v4/blueprint/emblem-base.webp"); }
+.generatedTreeAssets[data-tree-theme="pulse"] { --tree-art-image: url("/art/themes-v4/pulse/background-wide.webp"); --emblem-base: url("/art/themes-v4/pulse/emblem-base.webp"); }
+
+.generatedTreeAssets :global(.life-tree-art-image) {
+  background-size: cover !important;
+  background-position: center !important;
+}
+.generatedTreeAssets :global(.life-tree-art-atmosphere) {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-base) 10%, transparent), color-mix(in srgb, var(--theme-base) 22%, transparent));
+}
+.generatedTreeAssets :global(.tech-node-button .tech-orb),
+.generatedTreeAssets :global(.mission-panel .node-mini-emblem) {
+  background: var(--emblem-base) center / cover no-repeat !important;
+}
+.generatedTreeAssets :global(.tech-node-button:not(.locked) .tech-orb > svg),
+.generatedTreeAssets :global(.mission-panel .node-mini-emblem > svg) {
+  opacity: 1 !important;
+  color: var(--node-color, currentColor);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.44));
+  transform: scale(1.12);
+}
+.generatedTreeAssets :global(.tech-node-button .tech-orb::after),
+.generatedTreeAssets :global(.mission-panel .node-mini-emblem::after) { display: none !important; }
+.generatedTreeAssets :global(.tech-emblem-inner) { opacity: .15; }
+.generatedTreeAssets :global(.life-core-art) { background-image: var(--emblem-base); }
+.generatedTreeAssets :global(.life-core-glyph) {
+  position: relative;
+  z-index: 2;
+  color: var(--theme-primary);
+  filter: drop-shadow(0 3px 7px rgba(0,0,0,.5));
+}
+.generatedTreeAssets :global(.tech-completion-badge) {
+  display: grid;
+  place-items: center;
+  background-image: var(--emblem-base);
+}
+.generatedTreeAssets :global(.tech-completion-badge::after) {
+  content: "";
+  width: 13px;
+  height: 7px;
+  transform: translateY(-1px) rotate(-45deg);
+  border-bottom: 3px solid var(--theme-accent);
+  border-left: 3px solid var(--theme-accent);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
+}
+.generatedTreeAssets :global(.tech-node-label) {
+  width: max-content;
+  max-width: 176px;
+  padding: 7px 12px;
+  font-size: 18px !important;
+  line-height: 1.12;
+}
+.generatedTreeAssets :global(.branch-label) {
+  min-width: 260px;
+  padding: 10px 16px;
+  gap: 4px;
+}
+.generatedTreeAssets :global(.branch-label strong) { font-size: 18px; letter-spacing: .1em; }
+.generatedTreeAssets :global(.branch-label small) { font-size: 15px; line-height: 1.25; }
+
+@media (max-width: 768px) {
+  .generatedTreeAssets :global(.life-tree-art-image) { background-size: cover !important; }
+  .generatedTreeAssets :global(.tech-node-label) { font-size: 17px !important; }
+}
