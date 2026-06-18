@@ -5,9 +5,9 @@ import { AppShell } from "@/components/app-shell";
 import { LifeTree } from "@/components/life-tree";
 import { TreeCameraController } from "@/components/tree-camera-controller";
 import { defaultTreeThemeId, treeThemes, type TreeThemeId } from "@/lib/tree-themes";
-import assetStyles from "./tree-generated-assets.module.css";
 import fieldStyles from "./tree-field.module.css";
 import styles from "./tree-visuals.module.css";
+import assetStyles from "./tree-generated-assets.module.css";
 
 const themeStorageKey = "habidoo-tree-theme";
 
@@ -26,7 +26,7 @@ export default function TreePage() {
 
   return (
     <AppShell immersive>
-      <div className={`${styles.visualTreeSkin} ${assetStyles.generatedTreeAssets} ${fieldStyles.fullscreenField}`} data-tree-theme={themeId}>
+      <div className={`${fieldStyles.fullscreenField} ${styles.visualTreeSkin} ${assetStyles.generatedTreeAssets}`} data-tree-theme={themeId}>
         <TreeCameraController className={fieldStyles.cameraDock} />
         <div className={fieldStyles.themeDock} aria-label="Visual themes">
           {treeThemes.map((theme) => (
