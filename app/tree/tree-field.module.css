@@ -669,4 +669,3 @@
 .fullscreenField[data-tree-theme="nexus"] :global(.mission-panel) {
   clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
 }
-
