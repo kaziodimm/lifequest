@@ -859,14 +859,19 @@
   width: 300px;
   height: 300px;
   isolation: isolate;
-  background: var(--awakening-star) center / contain no-repeat;
-  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--theme-accent) 86%, transparent)) drop-shadow(0 0 54px color-mix(in srgb, var(--theme-primary) 54%, transparent)) drop-shadow(0 22px 38px rgba(0,0,0,.42));
   transform-origin: center;
+}
+.generatedTreeAssets :global(.polar-star-face) {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: var(--awakening-star) center / contain no-repeat;
+  filter: drop-shadow(0 0 10px rgba(255,245,190,.92)) drop-shadow(0 0 24px color-mix(in srgb, var(--theme-accent, #e7ae56) 82%, transparent)) drop-shadow(0 18px 30px rgba(0,0,0,.42));
 }
 .generatedTreeAssets :global(.polar-star-art::before) {
   content: "";
   position: absolute;
-  z-index: -1;
+  z-index: 0;
   inset: -22%;
   border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--theme-node-shell, #07111d) 88%, transparent) 0 32%, color-mix(in srgb, var(--theme-accent, #e7ae56) 48%, transparent) 48%, color-mix(in srgb, var(--theme-primary, #67dcd2) 22%, transparent) 60%, transparent 72%);
@@ -876,7 +881,7 @@
 .generatedTreeAssets :global(.polar-star-art::after) {
   content: "";
   position: absolute;
-  z-index: -1;
+  z-index: 1;
   inset: -5%;
   background: var(--awakening-star) center / contain no-repeat;
   opacity: .92;
@@ -890,8 +895,8 @@
   .generatedTreeAssets :global(.polar-star-node .polar-star-art) { animation: polarStarArtSignal 3.8s ease-in-out infinite; }
 }
 @keyframes polarStarArtSignal {
-  0%, 100% { transform: scale(.98); filter: drop-shadow(0 0 24px color-mix(in srgb, var(--theme-accent) 78%, transparent)) drop-shadow(0 0 52px color-mix(in srgb, var(--theme-primary) 48%, transparent)) drop-shadow(0 22px 38px rgba(0,0,0,.42)); }
-  50% { transform: scale(1.045); filter: drop-shadow(0 0 42px color-mix(in srgb, var(--theme-accent) 96%, transparent)) drop-shadow(0 0 82px color-mix(in srgb, var(--theme-primary) 68%, transparent)) drop-shadow(0 24px 42px rgba(0,0,0,.34)); }
+  0%, 100% { transform: scale(.98); }
+  50% { transform: scale(1.045); }
 }
 
 /* A compact green achievement seal reads as completed at a glance. */

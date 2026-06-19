@@ -617,6 +617,7 @@ export function LifeTree() {
               >
                 {isPolarStar ? (
                   <span className="polar-star-art">
+                    <span className="polar-star-face" aria-hidden="true" />
                     {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
                   </span>
                 ) : (
