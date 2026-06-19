@@ -772,6 +772,10 @@
   background: radial-gradient(circle at 50% 40%, rgba(255,255,235,.34), rgba(246,196,83,.2) 34%, var(--theme-node-shell) 72%) !important;
   box-shadow: 0 0 0 7px rgba(246,196,83,.12), 0 0 42px rgba(255,239,150,.72), 0 0 90px rgba(246,196,83,.34), inset 0 0 32px rgba(255,250,210,.25) !important;
 }
+.generatedTreeAssets :global(.polar-star-node),
+.generatedTreeAssets :global(.polar-star-node.locked),
+.generatedTreeAssets :global(.polar-star-node.locked .tech-orb) { opacity: 1 !important; }
+.generatedTreeAssets :global(.polar-star-node.locked .tech-orb) { filter: brightness(1.08) saturate(1.12); }
 .generatedTreeAssets :global(.polar-star-node .tech-orb > svg) { color: #fffbdc !important; filter: drop-shadow(0 0 9px rgba(255,245,170,.95)); }
 @media (prefers-reduced-motion: no-preference) {
   .generatedTreeAssets :global(.polar-star-node .tech-orb) { animation: polarStarSignal 3.8s ease-in-out infinite; }
