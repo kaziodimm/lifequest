@@ -640,11 +640,11 @@
   }
 }
 .fullscreenField[data-tree-theme="atlas"] :global(.mission-panel),
-.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel) { color: #1d3033; }
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel) { color: #10262b; }
 .fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .text-foreground),
-.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .text-foreground) { color: #182b2e !important; }
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .text-foreground) { color: #0c2227 !important; }
 .fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .text-muted-foreground),
-.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .text-muted-foreground) { color: #5c6b6d !important; }
+.fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .text-muted-foreground) { color: #344d52 !important; }
 .fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .bg-background\/45),
 .fullscreenField[data-tree-theme="atlas"] :global(.mission-panel .bg-muted\/35),
 .fullscreenField[data-tree-theme="pulse"] :global(.mission-panel .bg-background\/45),
