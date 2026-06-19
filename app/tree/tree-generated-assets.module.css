@@ -430,7 +430,7 @@
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="health"]) { --branch-icon: url("/art/themes-v2/orbit/health.png"); }
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="mind"]),
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="mind"]) { --branch-icon: url("/art/themes-v2/orbit/mind.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-bu…569 tokens truncated…tlas"] :global(.tech-node-button[data-category="finance"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-bu…565 tokens truncated…-tree-theme="atlas"] :global(.tech-node-button[data-category="finance"]),
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="finance"]) { --branch-icon: url("/art/themes-v2/atlas/finance.png"); }
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="relationships"]),
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="relationships"]) { --branch-icon: url("/art/themes-v2/atlas/relationships.png"); }
@@ -729,16 +729,16 @@
   height: var(--node-size, 86px);
   transition: width .18s ease, height .18s ease, transform .18s ease, filter .18s ease;
 }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="key"] .tech-orb) {
+.generatedTreeAssets :global(.tech-node-button[data-node-role=key] .tech-orb) {
   border-width: 2px;
   filter: saturate(1.06) drop-shadow(0 12px 22px color-mix(in srgb, var(--node-color) 20%, transparent));
 }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] .tech-node-label) { font-size: 10px; }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] .tech-emblem-inner) { inset: 7px; }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] svg) { width: 21px; height: 21px; }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="key"] svg) { width: 31px; height: 31px; }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] .tech-completion-badge) { transform: scale(.82); transform-origin: center; }
-.generatedTreeAssets :global(.tech-node-button[data-node-role="key"] .tech-completion-badge) { transform: scale(1.12); transform-origin: center; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role=minor] .tech-node-label) { font-size: 10px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role=minor] .tech-emblem-inner) { inset: 7px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role=minor] svg) { width: 21px; height: 21px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role=key] svg) { width: 31px; height: 31px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role=minor] .tech-completion-badge) { transform: scale(.82); transform-origin: center; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role=key] .tech-completion-badge) { transform: scale(1.12); transform-origin: center; }
 .generatedTreeAssets :global(.tech-node-button:hover .tech-node-label),
 .generatedTreeAssets :global(.tech-node-button:focus-visible .tech-node-label),
 .generatedTreeAssets :global(.tech-node-button.selected .tech-node-label) {
