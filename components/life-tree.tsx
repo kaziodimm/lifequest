@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ComponentType, PointerEvent, WheelEvent } from "react";
+import type { PointerEvent, WheelEvent } from "react";
 import { Check, Clock3, LocateFixed, Lock, Play, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
-import { CategoryGlyph } from "@/components/tree-glyphs";
+import { TechnologyGlyph } from "@/components/technology-glyph";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { lifeEras } from "@/lib/eras";
@@ -12,28 +12,6 @@ import { getTechnologyMission, getTechnologyTarget } from "@/lib/missions";
 import { useLifeStore } from "@/lib/store";
 import type { LifeCategory, LifeTechnology, TechStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-type CategoryIconProps = { size?: number; className?: string };
-type CategoryIcon = ComponentType<CategoryIconProps>;
-
-function makeCategoryIcon(category: LifeCategory): CategoryIcon {
-  function LifeTreeCategoryIcon(props: CategoryIconProps) {
-    return <CategoryGlyph category={category} {...props} />;
-  }
-
-  LifeTreeCategoryIcon.displayName = `LifeTreeCategoryIcon.${category}`;
-  return LifeTreeCategoryIcon;
-}
-
-const categoryIcons: Record<LifeCategory, CategoryIcon> = {
-  health: makeCategoryIcon("health"),
-  mind: makeCategoryIcon("mind"),
-  career: makeCategoryIcon("career"),
-  business: makeCategoryIcon("business"),
-  finance: makeCategoryIcon("finance"),
-  relationships: makeCategoryIcon("relationships"),
-  creativity: makeCategoryIcon("creativity")
-};
 
 const treeSize = 4200;
 const corePoint = { x: treeSize / 2, y: treeSize / 2 };
@@ -46,7 +24,7 @@ const maxZoom = 1.38;
 type ViewState = { zoom: number; pan: { x: number; y: number } };
 type PanelAnchor = { x: number; y: number };
 
-const chapterNames = ["Awakening", "Inner Order", "Momentum", "Stability", "Focus", "Expansion", "Confidence", "Leverage", "Mastery", "Leadership", "Legacy", "Horizon"];
+const chapterNames = ["The Awakening", "Inner Order", "Momentum", "Stability", "Focus", "Expansion", "Control", "Confidence", "Systems", "Mastery Gate", "Ascension", "New Horizon"];
 
 const epochs = chapterNames.map((title, index) => ({
   id: index + 1,
@@ -71,7 +49,8 @@ function clamp(value: number, min: number, max: number) {
 
 function getStatus(tech: LifeTechnology, completedIds: string[], runtimeStatus?: string, runtimeProgress = 0): TechStatus {
   if (completedIds.includes(tech.id)) return "unlocked";
-  if (!tech.parents.every((parentId) => completedIds.includes(parentId))) return "locked";
+  const completedParents = tech.parents.filter((parentId) => completedIds.includes(parentId)).length;
+  if (completedParents < (tech.requiredParentCount ?? tech.parents.length)) return "locked";
   if (runtimeStatus === "active" || runtimeStatus === "cooldown" || runtimeProgress > 0) return "in_progress";
   return "available";
 }
@@ -88,6 +67,8 @@ function getTechnologyDepth(tech: LifeTechnology, byId: Map<string, LifeTechnolo
 type NodeRole = "key" | "major" | "minor";
 
 function getNodeRole(tech: LifeTechnology, depth: number): NodeRole {
+  if (tech.type === "challenge") return "key";
+  if (tech.type === "milestone") return "major";
   const isRoot = tech.parents.length === 0;
 
   if (isRoot) return "key";
@@ -98,6 +79,12 @@ function getNodeSize(role: NodeRole) {
   if (role === "key") return 98;
   if (role === "major") return 70;
   return 46;
+}
+
+function getTechnologyNodeSize(tech: LifeTechnology, role: NodeRole) {
+  if (tech.type === "challenge") return 106;
+  if (tech.type === "milestone") return 76;
+  return getNodeSize(role);
 }
 
 function roundCoordinate(value: number) {
@@ -113,6 +100,7 @@ function createRadialPositions() {
   technologies.forEach((tech) => {
     const depth = getTechnologyDepth(tech, byId);
     depthById.set(tech.id, depth);
+    if (tech.branch === "The Awakening") return;
     const key = `${tech.category}-${depth}`;
     groups.set(key, [...(groups.get(key) ?? []), tech]);
   });
@@ -120,7 +108,7 @@ function createRadialPositions() {
   const positions: Record<string, { x: number; y: number; depth: number; role: NodeRole; size: number }> = {};
 
   (Object.keys(radialBranches) as LifeCategory[]).forEach((category) => {
-    const depths = [...new Set(technologies.filter((tech) => tech.category === category).map((tech) => depthById.get(tech.id) ?? 0))].sort((a, b) => a - b);
+    const depths = [...new Set(technologies.filter((tech) => tech.category === category && tech.branch !== "The Awakening").map((tech) => depthById.get(tech.id) ?? 0))].sort((a, b) => a - b);
 
     depths.forEach((depth, depthIndex) => {
       const group = groups.get(`${category}-${depth}`) ?? [];
@@ -132,12 +120,17 @@ function createRadialPositions() {
   });
 
   technologies.forEach((tech) => {
+    if (tech.branch === "The Awakening") {
+      positions[tech.id] = { x: corePoint.x - nodeCenterOffsetX, y: corePoint.y - 650, depth: 0, role: "key", size: 114 };
+      visualParents[tech.id] = null;
+      return;
+    }
     const depth = depthById.get(tech.id) ?? 0;
     const group = groups.get(`${tech.category}-${depth}`) ?? [tech];
     const index = group.findIndex((item) => item.id === tech.id);
     const branch = radialBranches[tech.category];
     const role = getNodeRole(tech, depth);
-    const size = getNodeSize(role);
+    const size = getTechnologyNodeSize(tech, role);
     const siblingIndex = index - (group.length - 1) / 2;
     const fanAngle = siblingIndex * (9 + depth * 1.25);
     const branchCurve = depth * 1.8 * branch.labelSide;
@@ -197,6 +190,9 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const completedIds = useLifeStore((state) => state.completedTechnologyIds);
   const startTechnologyMission = useLifeStore((state) => state.startTechnologyMission);
   const completeTechnologyMission = useLifeStore((state) => state.completeTechnologyMission);
+  const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
+  const dailyMissions = useLifeStore((state) => state.dailyMissions);
+  const globalMissionCooldownUntil = useLifeStore((state) => state.globalMissionCooldownUntil);
   const mission = getTechnologyMission(technology);
   const target = getTechnologyTarget(technology);
   const progress = runtime?.progress ?? technology.requirements[0]?.current ?? 0;
@@ -205,27 +201,29 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const elapsedSeconds = runtime?.status === "active" && runtime.startedAt ? Math.max(0, Math.floor((now - runtime.startedAt) / 1000)) : 0;
   const remainingSeconds = Math.max(0, mission.minDurationSeconds - elapsedSeconds);
   const cooldownRemaining = runtime?.cooldownUntil ? Math.max(0, Math.floor((runtime.cooldownUntil - now) / 1000)) : 0;
+  const globalCooldownRemaining = globalMissionCooldownUntil ? Math.max(0, Math.floor((globalMissionCooldownUntil - now) / 1000)) : 0;
+  const anotherMissionActive = dailyMissions.some((item) => item.status === "active") || Object.entries(technologyRuntime).some(([id, item]) => id !== technology.id && item.status === "active");
   const canComplete = runtime?.status === "active" && remainingSeconds === 0;
   const nextUnlocks = technology.unlocks.map((id) => technologies.find((item) => item.id === id)?.title).filter(Boolean);
   const color = categoryColors[technology.category];
-  const Icon = categoryIcons[technology.category];
 
   return (
     <aside
       className="mission-panel life-tree-panel border border-border bg-card/95 p-4 backdrop-blur"
       data-category={technology.category}
       data-status={status}
+      data-node-type={technology.type ?? "technology"}
       style={{ ["--panel-left" as string]: `${anchor.x}px`, ["--panel-top" as string]: `${anchor.y}px` }}
       onPointerDown={(event) => event.stopPropagation()}
     >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color }}>{categoryLabels[technology.category]} / {getEraTitle(technology)}</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color }}>{categoryLabels[technology.category]} / {technology.type ?? "technology"}</p>
           <h2 className="mt-1 text-xl font-black text-foreground">{technology.title}</h2>
         </div>
         <div className="flex items-center gap-2">
           <div className="node-mini-emblem" style={{ color, borderColor: `${color}66`, ["--node-color" as string]: color }}>
-            {status === "unlocked" ? <Icon size={21} /> : <span className="node-mini-pending" />}
+            {status === "locked" ? <Lock size={18} /> : <TechnologyGlyph icon={technology.icon} size={21} />}
           </div>
           <button type="button" className="tree-close-button" aria-label="Close mission panel" onClick={onClose}>
             <CloseIcon size={16} />
@@ -247,8 +245,17 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
       <div className="mt-4 grid gap-2 text-sm">
         <div className="rounded-md border border-border bg-muted/35 p-3">
           <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-primary"><Sparkles size={14} /> What do I do now?</p>
-          <p className="text-foreground">{mission.action}</p>
+          <p className="font-black text-foreground">{mission.actionTitle ?? mission.action}</p>
+          {mission.actionDescription ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{mission.actionDescription}</p> : null}
         </div>
+        {mission.exactSteps?.length ? (
+          <div className="rounded-md border border-border bg-muted/35 p-3">
+            <p className="mb-2 text-xs font-black uppercase tracking-wide text-primary">Exact steps</p>
+            <ol className="grid list-decimal gap-1.5 pl-5 text-xs leading-5 text-foreground">
+              {mission.exactSteps.map((step) => <li key={step}>{step}</li>)}
+            </ol>
+          </div>
+        ) : null}
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-md border border-border bg-muted/35 p-3">
             <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Timer size={14} /> Duration</p>
@@ -260,6 +267,13 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
           </div>
         </div>
       </div>
+
+      {mission.whatCounts || mission.whatDoesNotCount ? (
+        <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+          {mission.whatCounts ? <div className="rounded-md border border-border bg-muted/35 p-3"><strong className="text-foreground">What counts</strong><p className="mt-1 leading-5 text-muted-foreground">{mission.whatCounts}</p></div> : null}
+          {mission.whatDoesNotCount ? <div className="rounded-md border border-border bg-muted/35 p-3"><strong className="text-foreground">Does not count</strong><p className="mt-1 leading-5 text-muted-foreground">{mission.whatDoesNotCount}</p></div> : null}
+        </div>
+      ) : null}
 
       <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
         <p className="mb-2 text-xs font-black uppercase tracking-wide text-muted-foreground">Next unlock</p>
@@ -281,6 +295,14 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
       ) : status === "unlocked" ? (
         <Button className="mt-4 w-full" disabled variant="secondary">
           <Check size={16} /> Technology completed
+        </Button>
+      ) : anotherMissionActive ? (
+        <Button className="mt-4 w-full" disabled variant="outline">
+          <ShieldAlert size={16} /> Another mission is already active.
+        </Button>
+      ) : globalCooldownRemaining > 0 ? (
+        <Button className="mt-4 w-full" disabled variant="outline">
+          <Clock3 size={16} /> Global cooldown {formatDuration(globalCooldownRemaining)}
         </Button>
       ) : (
         <Button className="mt-4 w-full" onClick={() => startTechnologyMission(technology.id)}>
@@ -424,8 +446,8 @@ export function LifeTree() {
     <div className="life-tree-shell immersive-tree-shell">
       <div className="life-tree-toolbar epoch-toolbar">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Foundation Era</p>
-          <p className="text-xs text-muted-foreground">Year 1 / 12 monthly epochs</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">The Awakening</p>
+          <p className="text-xs text-muted-foreground">Chapter 1 / 12 · about 30 days</p>
         </div>
         <div className="epoch-strip" aria-label="Era epochs">
           {epochs.map((epoch) => (
@@ -566,7 +588,6 @@ export function LifeTree() {
             const runtime = technologyRuntime[tech.id];
             const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
             const color = categoryColors[tech.category];
-            const Icon = categoryIcons[tech.category];
             const isSelected = selectedTechnology?.id === tech.id;
             const cooldownActive = runtime?.cooldownUntil ? runtime.cooldownUntil > now : false;
             const position = radialPositions[tech.id] ?? { x: tech.x, y: tech.y };
@@ -577,14 +598,16 @@ export function LifeTree() {
                 type="button"
                 className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected")}
                 data-category={tech.category}
+                data-tech-id={tech.id}
                 data-node-role={position.role}
+                data-node-type={tech.type ?? "technology"}
                 style={{ left: position.x, top: position.y, ["--node-color" as string]: color, ["--node-size" as string]: `${position.size}px` }}
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => handleNodeClick(tech)}
               >
                 <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
                   <span className="tech-emblem-inner" />
-                  {status === "locked" ? <Lock size={23} /> : status === "unlocked" ? <Icon size={27} /> : <span className="tech-pending-core" />}
+                  {status === "locked" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
                   {status === "unlocked" ? <span className="tech-completion-badge" aria-label="Completed" /> : null}
                   {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                   {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
