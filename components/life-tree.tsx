@@ -49,8 +49,8 @@ const branchLabelOffsets: Record<LifeCategory, { x: number; y: number }> = {
   business: { x: 205, y: 35 },
   career: { x: 135, y: 175 },
   finance: { x: -120, y: 185 },
-  relationships: { x: -205, y: 40 },
-  creativity: { x: -175, y: -105 }
+  relationships: { x: -170, y: 40 },
+  creativity: { x: -155, y: -105 }
 };
 
 function clamp(value: number, min: number, max: number) {
