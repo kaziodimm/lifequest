@@ -869,7 +869,7 @@
   z-index: -1;
   inset: -22%;
   border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent) 48%, transparent) 0 18%, color-mix(in srgb, var(--theme-primary) 28%, transparent) 34%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--theme-node-shell, #07111d) 88%, transparent) 0 32%, color-mix(in srgb, var(--theme-accent, #e7ae56) 48%, transparent) 48%, color-mix(in srgb, var(--theme-primary, #67dcd2) 22%, transparent) 60%, transparent 72%);
   filter: blur(16px);
   pointer-events: none;
 }
@@ -880,7 +880,7 @@
   inset: -5%;
   background: var(--awakening-star) center / contain no-repeat;
   opacity: .92;
-  filter: brightness(2.3) saturate(1.5) blur(9px) drop-shadow(0 0 26px var(--theme-accent));
+  filter: brightness(2.5) saturate(1.6) blur(7px) drop-shadow(0 0 16px rgba(255,245,180,.98)) drop-shadow(0 0 34px rgba(103,220,210,.9));
   transform: scale(1.08);
   pointer-events: none;
 }
