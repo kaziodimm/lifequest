@@ -430,7 +430,25 @@
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="health"]) { --branch-icon: url("/art/themes-v2/orbit/health.png"); }
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="mind"]),
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="mind"]) { --branch-icon: url("/art/themes-v2/orbit/mind.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-bu…565 tokens truncated…-tree-theme="atlas"] :global(.tech-node-button[data-category="finance"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="career"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="career"]) { --branch-icon: url("/art/themes-v2/orbit/career.png"); }
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="business"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="business"]) { --branch-icon: url("/art/themes-v2/orbit/business.png"); }
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="finance"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="finance"]) { --branch-icon: url("/art/themes-v2/orbit/finance.png"); }
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="relationships"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="relationships"]) { --branch-icon: url("/art/themes-v2/orbit/relationships.png"); }
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="creativity"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="creativity"]) { --branch-icon: url("/art/themes-v2/orbit/creativity.png"); }
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="health"]),
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="health"]) { --branch-icon: url("/art/themes-v2/atlas/health.png"); }
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="mind"]),
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="mind"]) { --branch-icon: url("/art/themes-v2/atlas/mind.png"); }
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="career"]),
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="career"]) { --branch-icon: url("/art/themes-v2/atlas/career.png"); }
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="business"]),
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="business"]) { --branch-icon: url("/art/themes-v2/atlas/business.png"); }
+.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="finance"]),
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="finance"]) { --branch-icon: url("/art/themes-v2/atlas/finance.png"); }
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="relationships"]),
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="relationships"]) { --branch-icon: url("/art/themes-v2/atlas/relationships.png"); }
@@ -785,4 +803,3 @@
 @keyframes atmosphereDrift { from { opacity: .52; transform: translate3d(-.35%, .2%, 0) scale(1.015); } to { opacity: .68; transform: translate3d(.45%, -.3%, 0) scale(1.025); } }
 @keyframes starfieldDrift { from { transform: translate3d(-7px, 4px, 0); } to { transform: translate3d(8px, -6px, 0); } }
 @keyframes runeDrift { from { transform: translate3d(-5px, 3px, 0) rotate(-.22deg); } to { transform: translate3d(6px, -4px, 0) rotate(.22deg); } }
-
