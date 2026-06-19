@@ -5,6 +5,8 @@ export type LifeEra = "foundation" | "discipline" | "growth" | "mastery" | "lead
 export type TechStatus = "locked" | "available" | "in_progress" | "unlocked";
 
 export type MissionStatus = "ready" | "active" | "cooldown" | "completed";
+export type TechnologyNodeType = "technology" | "milestone" | "challenge";
+export type GlobalCooldownType = "micro" | "standard" | "deep";
 
 export type Locale = "en" | "cs" | "ru" | "uk";
 
@@ -18,10 +20,20 @@ export type Requirement = {
 
 export type TechnologyMission = {
   action: string;
+  actionTitle?: string;
+  actionDescription?: string;
+  exactSteps?: string[];
+  successCriteria?: string;
+  durationMinMinutes?: number;
+  durationMaxMinutes?: number;
   durationLabel: string;
   minDurationSeconds: number;
   cooldownSeconds: number;
+  personalCooldownSeconds?: number;
+  globalCooldownType?: GlobalCooldownType;
   progressGain: number;
+  whatCounts?: string;
+  whatDoesNotCount?: string;
 };
 
 export type TechnologyRuntime = {
@@ -35,14 +47,20 @@ export type TechnologyRuntime = {
 export type LifeTechnology = {
   id: string;
   category: LifeCategory;
+  chapter?: number;
+  branch?: string;
+  type?: TechnologyNodeType;
   era?: LifeEra;
   title: string;
+  shortTitle?: string;
   description: string;
+  icon?: string;
   xpReward: number;
   requirements: Requirement[];
   mission?: TechnologyMission;
   unlocks: string[];
   parents: string[];
+  requiredParentCount?: number;
   x: number;
   y: number;
 };
@@ -85,6 +103,7 @@ export type PlayerState = {
   streak: number;
   completedTechnologyIds: string[];
   technologyRuntime: Record<string, TechnologyRuntime>;
+  globalMissionCooldownUntil?: number;
   dailyMissions: DailyMission[];
   planner: PlannerBlock[];
   achievements: Achievement[];
