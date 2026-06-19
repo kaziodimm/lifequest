@@ -869,12 +869,23 @@
   z-index: -1;
   inset: -22%;
   border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent) 32%, transparent) 0 18%, color-mix(in srgb, var(--theme-primary) 16%, transparent) 32%, transparent 68%);
-  filter: blur(13px);
+  background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent) 48%, transparent) 0 18%, color-mix(in srgb, var(--theme-primary) 28%, transparent) 34%, transparent 70%);
+  filter: blur(16px);
+  pointer-events: none;
+}
+.generatedTreeAssets :global(.polar-star-art::after) {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -5%;
+  background: var(--awakening-star) center / contain no-repeat;
+  opacity: .92;
+  filter: brightness(2.3) saturate(1.5) blur(9px) drop-shadow(0 0 26px var(--theme-accent));
+  transform: scale(1.08);
   pointer-events: none;
 }
 .generatedTreeAssets :global(.polar-star-node),
-.generatedTreeAssets :global(.polar-star-node.locked) { opacity: 1 !important; }
+.generatedTreeAssets :global(.polar-star-node.locked) { z-index: 35 !important; opacity: 1 !important; }
 @media (prefers-reduced-motion: no-preference) {
   .generatedTreeAssets :global(.polar-star-node .polar-star-art) { animation: polarStarArtSignal 3.8s ease-in-out infinite; }
 }

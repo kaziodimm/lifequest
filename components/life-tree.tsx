@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent, WheelEvent } from "react";
-import { Check, Clock3, LocateFixed, Lock, Play, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clock3, LocateFixed, Lock, Play, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
 import { TechnologyGlyph } from "@/components/technology-glyph";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -121,7 +121,7 @@ function createRadialPositions() {
 
   technologies.forEach((tech) => {
     if (tech.branch === "The Awakening") {
-      positions[tech.id] = { x: corePoint.x - 1120 - nodeCenterOffsetX, y: corePoint.y - 662 - 150, depth: 0, role: "key", size: 300 };
+      positions[tech.id] = { x: corePoint.x - 1120 - nodeCenterOffsetX, y: corePoint.y - 736 - 150, depth: 0, role: "key", size: 300 };
       visualParents[tech.id] = null;
       return;
     }
@@ -324,6 +324,7 @@ export function LifeTree() {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const artLayerRef = useRef<HTMLDivElement | null>(null);
+  const epochStripRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef(view);
   const pendingDragPanRef = useRef<ViewState["pan"] | null>(null);
   const dragFrameRef = useRef<number | null>(null);
@@ -357,6 +358,10 @@ export function LifeTree() {
     setSelectedId(null);
     setReturnView(null);
     setView({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
+  }
+
+  function scrollEpochs(direction: -1 | 1) {
+    epochStripRef.current?.scrollBy({ left: direction * 360, behavior: "smooth" });
   }
 
   function focusTechnology(tech: LifeTechnology) {
@@ -464,13 +469,17 @@ export function LifeTree() {
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">The Awakening</p>
           <p className="text-xs text-muted-foreground">Chapter 1 / 12 · about 30 days</p>
         </div>
-        <div className="epoch-strip" aria-label="Era epochs">
-          {epochs.map((epoch) => (
-            <button key={epoch.id} type="button" disabled={!epoch.unlocked} className={cn("epoch-chip", epoch.unlocked ? "active" : "locked")}> 
-              <span>{epoch.title}</span>
-              <small>{epoch.duration}</small>
-            </button>
-          ))}
+        <div className="epoch-navigation">
+          <button type="button" className="epoch-scroll-button" aria-label="Previous epochs" onClick={() => scrollEpochs(-1)}><ChevronLeft size={16} /></button>
+          <div ref={epochStripRef} className="epoch-strip" aria-label="Era epochs">
+            {epochs.map((epoch) => (
+              <button key={epoch.id} type="button" disabled={!epoch.unlocked} className={cn("epoch-chip", epoch.unlocked ? "active" : "locked")}> 
+                <span>{epoch.title}</span>
+                <small>{epoch.duration}</small>
+              </button>
+            ))}
+          </div>
+          <button type="button" className="epoch-scroll-button" aria-label="Next epochs" onClick={() => scrollEpochs(1)}><ChevronRight size={16} /></button>
         </div>
         <button type="button" className="tree-tool-button shrink-0" aria-label="Center tree" onClick={resetView}><LocateFixed size={16} /></button>
       </div>

@@ -69,6 +69,36 @@
 
 .fullscreenField :global(.epoch-strip) {
   mask-image: linear-gradient(90deg, transparent, black 0.8rem, black calc(100% - 1.2rem), transparent);
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+}
+
+.fullscreenField :global(.epoch-navigation) {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: .35rem;
+}
+
+.fullscreenField :global(.epoch-scroll-button) {
+  display: grid;
+  width: 28px;
+  height: 34px;
+  flex: 0 0 28px;
+  place-items: center;
+  border: 1px solid var(--tree-chrome-border, rgba(103,220,210,.34));
+  border-radius: calc(var(--tree-chrome-radius, 12px) * .7);
+  color: var(--tree-chrome-highlight, #67dcd2);
+  background: var(--tree-chrome-raised, rgba(15,29,42,.94));
+  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 0 18px color-mix(in srgb, var(--tree-chrome-highlight, #67dcd2) 12%, transparent);
+  transition: color .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.fullscreenField :global(.epoch-scroll-button:hover) {
+  color: var(--tree-chrome-accent, #e7ae56);
+  border-color: var(--tree-chrome-accent, #e7ae56);
+  transform: scale(1.06);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--tree-chrome-accent, #e7ae56) 24%, transparent);
 }
 
 .fullscreenField :global(.epoch-chip) {
