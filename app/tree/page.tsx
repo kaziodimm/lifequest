@@ -46,7 +46,7 @@ export default function TreePage() {
                 onClick={() => selectTheme(theme.id)}
               >
                 <Image src={`/art/themes-v4/${theme.id}/emblem-base.webp`} alt="" width={42} height={42} />
-                <span className={fieldStyles.themeName}>{theme.shortTitle}</span>
+                <small className={fieldStyles.themeName}>{theme.shortTitle}</small>
               </button>
             ))}
           </div>

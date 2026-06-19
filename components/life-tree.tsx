@@ -121,7 +121,7 @@ function createRadialPositions() {
 
   technologies.forEach((tech) => {
     if (tech.branch === "The Awakening") {
-      positions[tech.id] = { x: corePoint.x - 1020 - nodeCenterOffsetX, y: corePoint.y - 720 - 75, depth: 0, role: "key", size: 150 };
+      positions[tech.id] = { x: corePoint.x - 1020 - nodeCenterOffsetX, y: corePoint.y - 840 - 150, depth: 0, role: "key", size: 300 };
       visualParents[tech.id] = null;
       return;
     }
