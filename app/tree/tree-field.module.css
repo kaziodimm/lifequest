@@ -543,7 +543,7 @@
   z-index: 86;
   display: grid;
   gap: .45rem;
-  width: auto;
+  width: max-content;
   padding: .48rem;
   border: 1px solid var(--tree-chrome-border);
   border-radius: calc(var(--tree-chrome-radius) * 1.35);
@@ -555,7 +555,7 @@
 .themeDockTitle { display: none; }
 .themeDockTitle span { color: var(--tree-chrome-muted); font-size: 8px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
 .themeDockTitle strong { overflow: hidden; color: var(--tree-chrome-highlight); font-size: 9px; text-overflow: ellipsis; }
-.themeSwatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: .28rem; }
+.themeSwatches { display: grid; grid-template-columns: repeat(5, 36px); gap: .28rem; }
 .themeSwatch, .themeSwatchActive {
   position: relative;
   display: grid;
@@ -609,7 +609,7 @@
   .themeDockTitle { text-align: left; padding-left: .25rem; }
   .themeDockTitle span { font-size: 9px; }
   .themeDockTitle strong { font-size: 11px; }
-  .themeSwatches { grid-template-columns: repeat(5, 1fr); }
+  .themeSwatches { grid-template-columns: repeat(5, 42px); }
   .themeSwatch, .themeSwatchActive { width: 42px; height: 42px; }
 }
 
