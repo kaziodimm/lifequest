@@ -506,7 +506,6 @@
 
 .generatedTreeAssets :global(.life-tree-art-layer) {
   inset: 0 !important;
-  transform: none !important;
   contain: strict;
   isolation: isolate;
   backface-visibility: hidden;
