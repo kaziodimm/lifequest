@@ -530,18 +530,18 @@ export function LifeTree() {
 
               return (
                 <g key={`core-${tech.id}`}>
-                  <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
-                  {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(corePoint, end)} fill="none" stroke={color} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" /> : null}
+                  <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.42)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+                  {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(corePoint, end)} fill="none" stroke={color} strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" /> : null}
                   <path
                     className={`tree-connection tree-connection-${status}`}
                     d={getBranchPath(corePoint, end)}
                     fill="none"
-                    stroke={status === "locked" ? "rgba(148, 163, 184, 0.2)" : `${color}95`}
-                    strokeWidth={status === "locked" ? 3 : 5}
+                    stroke={status === "locked" ? "rgba(148, 163, 184, 0.42)" : `${color}D8`}
+                    strokeWidth={status === "locked" ? 5 : 7}
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
-                  <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="5" fill={status === "locked" ? "rgba(148, 163, 184, 0.28)" : color} />
+                  <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="7" fill={status === "locked" ? "rgba(148, 163, 184, 0.42)" : color} />
                 </g>
               );
             })}
@@ -561,18 +561,18 @@ export function LifeTree() {
 
                 return (
                   <g key={`visual-${parentId}-${tech.id}`}>
-                    <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
-                    {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" /> : null}
+                    <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.42)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+                    {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" /> : null}
                     <path
                       className={`tree-connection tree-connection-${status}`}
                       d={getBranchPath(start, end)}
                       fill="none"
-                      stroke={status === "unlocked" ? color : status === "available" || status === "in_progress" ? `${color}AA` : "rgba(148, 163, 184, 0.18)"}
-                      strokeWidth={status === "unlocked" ? 5 : status === "available" || status === "in_progress" ? 4 : 3}
+                      stroke={status === "unlocked" ? color : status === "available" || status === "in_progress" ? `${color}D8` : "rgba(148, 163, 184, 0.42)"}
+                      strokeWidth={status === "unlocked" ? 8 : status === "available" || status === "in_progress" ? 7 : 5}
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                    <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="4" fill={status === "locked" ? "rgba(148, 163, 184, 0.22)" : color} />
+                    <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="6" fill={status === "locked" ? "rgba(148, 163, 184, 0.42)" : color} />
                   </g>
                 );
               })}
