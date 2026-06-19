@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
-import { getTechnologyMission, getTechnologyTarget } from "./missions";
+import { getGlobalCooldownSeconds, getTechnologyMission, getTechnologyTarget } from "./missions";
 import { DailyMission, Locale, PlayerState, TechnologyRuntime, VisualThemeId } from "./types";
 
 const initialMissions: DailyMission[] = [
@@ -22,7 +22,7 @@ const initialMissions: DailyMission[] = [
     id: "mission-build",
     title: "Work on one project asset",
     tinyStep: "Open the project file",
-    technologyId: "first-project",
+    technologyId: "project-sprint",
     important: true,
     completed: false,
     status: "ready",
@@ -58,7 +58,7 @@ function createInitialTechnologyRuntime(completedTechnologyIds: string[]): Recor
 }
 
 const legacyCompletedTechnologyIds = ["health-root", "business-root"];
-const initialCompletedTechnologyIds = ["health-root", "morning-walk", "business-root", "first-project", "finance-root"];
+const initialCompletedTechnologyIds = ["health-root", "morning-walk", "business-root", "project-sprint", "finance-root"];
 
 const initialState: PlayerState = {
   avatarName: "Strategist",
@@ -69,6 +69,7 @@ const initialState: PlayerState = {
   streak: 3,
   completedTechnologyIds: initialCompletedTechnologyIds,
   technologyRuntime: createInitialTechnologyRuntime(initialCompletedTechnologyIds),
+  globalMissionCooldownUntil: undefined,
   dailyMissions: initialMissions,
   planner: Array.from({ length: 24 }, (_, hour) => ({ hour, plan: "", completed: false })),
   achievements: [
@@ -96,7 +97,9 @@ function normalizeMission(mission: PartialMission): DailyMission {
 function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined) {
   const savedCompletedIds = persisted?.completedTechnologyIds;
   const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
-  const completedIds = !savedCompletedIds || isLegacyDemo ? initialState.completedTechnologyIds : savedCompletedIds;
+  const validIds = new Set(technologies.map((technology) => technology.id));
+  const hasRemovedTechnology = savedCompletedIds?.some((id) => !validIds.has(id));
+  const completedIds = !savedCompletedIds || isLegacyDemo || hasRemovedTechnology ? initialState.completedTechnologyIds : savedCompletedIds;
   const base = createInitialTechnologyRuntime(completedIds);
   const saved = persisted?.technologyRuntime ?? {};
 
@@ -121,11 +124,13 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
   const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => normalizeMission(mission));
   const savedCompletedIds = persisted?.completedTechnologyIds;
   const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
+  const validIds = new Set(technologies.map((technology) => technology.id));
+  const hasRemovedTechnology = savedCompletedIds?.some((id) => !validIds.has(id));
 
   return {
     ...initialState,
     ...persisted,
-    completedTechnologyIds: !savedCompletedIds || isLegacyDemo ? initialState.completedTechnologyIds : savedCompletedIds,
+    completedTechnologyIds: !savedCompletedIds || isLegacyDemo || hasRemovedTechnology ? initialState.completedTechnologyIds : savedCompletedIds,
     currentEra: persisted?.currentEra ?? initialState.currentEra,
     technologyRuntime: normalizeTechnologyRuntime(persisted),
     dailyMissions: missions,
@@ -158,9 +163,12 @@ export const useLifeStore = create<LifeStore>()(
         set({ theme });
       },
       startMission(missionId) {
-        const mission = get().dailyMissions.find((item) => item.id === missionId);
+        const state = get();
+        const mission = state.dailyMissions.find((item) => item.id === missionId);
         if (!mission || mission.completed || mission.status === "active") return;
         if (mission.status === "cooldown" && mission.cooldownUntil && mission.cooldownUntil > Date.now()) return;
+        if (state.globalMissionCooldownUntil && state.globalMissionCooldownUntil > Date.now()) return;
+        if (state.dailyMissions.some((item) => item.status === "active") || Object.values(state.technologyRuntime).some((item) => item.status === "active")) return;
 
         set((state) => ({
           dailyMissions: state.dailyMissions.map((item) =>
@@ -178,6 +186,7 @@ export const useLifeStore = create<LifeStore>()(
 
         set((state) => ({
           totalXp: state.totalXp + mission.xpReward,
+          globalMissionCooldownUntil: now + 30 * 60 * 1000,
           dailyMissions: state.dailyMissions.map((item) =>
             item.id === missionId
               ? { ...item, completed: true, status: "completed", completedAt: now, cooldownUntil: now + 24 * 60 * 60 * 1000 }
@@ -192,11 +201,15 @@ export const useLifeStore = create<LifeStore>()(
         const tech = technologies.find((item) => item.id === technologyId);
         if (!tech) return;
 
-        const completed = get().completedTechnologyIds;
-        const canStart = tech.parents.every((parentId) => completed.includes(parentId));
-        const runtime = get().technologyRuntime[technologyId] ?? { progress: 0, status: "ready" };
+        const state = get();
+        const completed = state.completedTechnologyIds;
+        const completedParents = tech.parents.filter((parentId) => completed.includes(parentId)).length;
+        const canStart = completedParents >= (tech.requiredParentCount ?? tech.parents.length);
+        const runtime = state.technologyRuntime[technologyId] ?? { progress: 0, status: "ready" };
         if (!canStart || completed.includes(technologyId) || runtime.status === "active") return;
         if (runtime.cooldownUntil && runtime.cooldownUntil > Date.now()) return;
+        if (state.globalMissionCooldownUntil && state.globalMissionCooldownUntil > Date.now()) return;
+        if (state.dailyMissions.some((item) => item.status === "active") || Object.values(state.technologyRuntime).some((item) => item.status === "active")) return;
 
         set((state) => ({
           technologyRuntime: {
@@ -222,9 +235,11 @@ export const useLifeStore = create<LifeStore>()(
         const completedTechnology = nextProgress >= target;
         const alreadyCompleted = get().completedTechnologyIds.includes(technologyId);
         const missionXp = completedTechnology ? tech.xpReward : Math.max(5, Math.round(tech.xpReward / target));
+        const globalCooldownUntil = now + getGlobalCooldownSeconds(mission.globalCooldownType) * 1000;
 
         set((state) => ({
           totalXp: state.totalXp + missionXp,
+          globalMissionCooldownUntil: globalCooldownUntil,
           completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
           technologyRuntime: {
             ...state.technologyRuntime,
@@ -233,7 +248,7 @@ export const useLifeStore = create<LifeStore>()(
               progress: nextProgress,
               status: completedTechnology ? "completed" : "cooldown",
               completedAt: now,
-              cooldownUntil: completedTechnology ? undefined : now + mission.cooldownSeconds * 1000
+              cooldownUntil: completedTechnology ? undefined : now + (mission.personalCooldownSeconds ?? mission.cooldownSeconds) * 1000
             }
           }
         }));
