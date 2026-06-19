@@ -286,7 +286,50 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
         </div>
       ) : runtime?.status === "active" ? (
         <Button className="mt-4 w-full" disabled={!canComplete} onClick={() => completeTechnologyMission(technology.id)}>
-          ï}í¢G§²ÚîÆ­yÝo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
+          <Check size={16} /> {canComplete ? "Complete Mission" : `Keep going ${formatDuration(remainingSeconds)}`}
+        </Button>
+      ) : cooldownRemaining > 0 ? (
+        <Button className="mt-4 w-full" disabled variant="outline">
+          <Clock3 size={16} /> Cooldown {formatDuration(cooldownRemaining)}
+        </Button>
+      ) : status === "unlocked" ? (
+        <Button className="mt-4 w-full" disabled variant="secondary">
+          <Check size={16} /> Technology completed
+        </Button>
+      ) : anotherMissionActive ? (
+        <Button className="mt-4 w-full" disabled variant="outline">
+          <ShieldAlert size={16} /> Another mission is already active.
+        </Button>
+      ) : globalCooldownRemaining > 0 ? (
+        <Button className="mt-4 w-full" disabled variant="outline">
+          <Clock3 size={16} /> Global cooldown {formatDuration(globalCooldownRemaining)}
+        </Button>
+      ) : (
+        <Button className="mt-4 w-full" onClick={() => startTechnologyMission(technology.id)}>
+          <Play size={16} /> Start Mission
+        </Button>
+      )}
+    </aside>
+  );
+}
+
+export function LifeTree() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelAnchor, setPanelAnchor] = useState<PanelAnchor>({ x: 16, y: 96 });
+  const [returnView, setReturnView] = useState<ViewState | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const [view, setView] = useState<ViewState>({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
+  const [dragStart, setDragStart] = useState<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const artLayerRef = useRef<HTMLDivElement | null>(null);
+  const viewRef = useRef(view);
+  const pendingDragPanRef = useRef<ViewState["pan"] | null>(null);
+  const dragFrameRef = useRef<number | null>(null);
+  const completedIds = useLifeStore((state) => state.completedTechnologyIds);
+  const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
+  const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
   const rootTechnologies = useMemo(() => technologies.filter((tech) => tech.parents.length === 0), []);
 
   useEffect(() => {
