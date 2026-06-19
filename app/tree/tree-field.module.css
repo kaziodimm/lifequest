@@ -542,6 +542,7 @@
   bottom: calc(5.8rem + env(safe-area-inset-bottom));
   z-index: 86;
   display: grid;
+  grid-template-columns: max-content;
   gap: .45rem;
   width: max-content;
   padding: .48rem;
