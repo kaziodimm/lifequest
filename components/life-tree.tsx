@@ -89,20 +89,15 @@ type NodeRole = "key" | "major" | "minor";
 
 function getNodeRole(tech: LifeTechnology, depth: number): NodeRole {
   const isRoot = tech.parents.length === 0;
-  const isMilestone = tech.unlocks.length > 1 || tech.parents.length > 1;
 
-  if (isRoot || isMilestone) return "key";
-  return tech.unlocks.length === 0 || depth % 2 === 0 ? "major" : "minor";
+  if (isRoot) return "key";
+  return tech.unlocks.length === 0 || depth % 3 === 0 ? "major" : "minor";
 }
 
 function getNodeSize(role: NodeRole) {
-  if (role === "key") return 108;
-  if (role === "major") return 88;
-  return 70;
-}
-
-function getStableOffset(id: string) {
-  return [...id].reduce((total, character) => total + character.charCodeAt(0), 0) % 9 - 4;
+  if (role === "key") return 98;
+  if (role === "major") return 70;
+  return 46;
 }
 
 function roundCoordinate(value: number) {
@@ -113,6 +108,7 @@ function createRadialPositions() {
   const byId = new Map(technologies.map((tech) => [tech.id, tech]));
   const depthById = new Map<string, number>();
   const groups = new Map<string, LifeTechnology[]>();
+  const visualParents: Record<string, string | null> = {};
 
   technologies.forEach((tech) => {
     const depth = getTechnologyDepth(tech, byId);
@@ -123,6 +119,18 @@ function createRadialPositions() {
 
   const positions: Record<string, { x: number; y: number; depth: number; role: NodeRole; size: number }> = {};
 
+  (Object.keys(radialBranches) as LifeCategory[]).forEach((category) => {
+    const depths = [...new Set(technologies.filter((tech) => tech.category === category).map((tech) => depthById.get(tech.id) ?? 0))].sort((a, b) => a - b);
+
+    depths.forEach((depth, depthIndex) => {
+      const group = groups.get(`${category}-${depth}`) ?? [];
+      const previousGroup = depthIndex > 0 ? groups.get(`${category}-${depths[depthIndex - 1]}`) ?? [] : [];
+      group.forEach((tech, index) => {
+        visualParents[tech.id] = previousGroup.length ? previousGroup[Math.min(index, previousGroup.length - 1)].id : null;
+      });
+    });
+  });
+
   technologies.forEach((tech) => {
     const depth = depthById.get(tech.id) ?? 0;
     const group = groups.get(`${tech.category}-${depth}`) ?? [tech];
@@ -131,10 +139,10 @@ function createRadialPositions() {
     const role = getNodeRole(tech, depth);
     const size = getNodeSize(role);
     const siblingIndex = index - (group.length - 1) / 2;
-    const fanAngle = siblingIndex * (13 + depth * 1.8);
-    const branchCurve = depth * 4.25 * branch.labelSide;
-    const angle = (branch.angle + fanAngle + branchCurve + getStableOffset(tech.id)) * (Math.PI / 180);
-    const radius = 390 + depth * 350 + Math.abs(siblingIndex) * (46 + depth * 9);
+    const fanAngle = siblingIndex * (9 + depth * 1.25);
+    const branchCurve = depth * 1.8 * branch.labelSide;
+    const angle = (branch.angle + fanAngle + branchCurve) * (Math.PI / 180);
+    const radius = 340 + depth * 265 + Math.abs(siblingIndex) * 34;
 
     positions[tech.id] = {
       x: roundCoordinate(corePoint.x + Math.cos(angle) * radius - nodeCenterOffsetX),
@@ -145,10 +153,12 @@ function createRadialPositions() {
     };
   });
 
-  return positions;
+  return { positions, visualParents };
 }
 
-const radialPositions = createRadialPositions();
+const radialLayout = createRadialPositions();
+const radialPositions = radialLayout.positions;
+const visualParents = radialLayout.visualParents;
 
 function getNodePoint(tech: LifeTechnology) {
   const position = radialPositions[tech.id];
@@ -159,29 +169,14 @@ function getNodePoint(tech: LifeTechnology) {
 function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: number }) {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
-  const distance = Math.hypot(dx, dy) || 1;
-  const normalX = -dy / distance;
-  const normalY = dx / distance;
-  const direction = dx * dy >= 0 ? 1 : -1;
-  const bend = Math.min(82, Math.max(28, distance * 0.095)) * direction;
   return {
-    x: roundCoordinate(start.x + dx * 0.58 + normalX * bend),
-    y: roundCoordinate(start.y + dy * 0.58 + normalY * bend)
+    x: roundCoordinate(start.x + dx * 0.56),
+    y: roundCoordinate(start.y + dy * 0.56)
   };
 }
 
 function getBranchPath(start: { x: number; y: number }, end: { x: number; y: number }) {
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const distance = Math.hypot(dx, dy) || 1;
-  const normalX = -dy / distance;
-  const normalY = dx / distance;
-  const direction = dx * dy >= 0 ? 1 : -1;
-  const bend = Math.min(82, Math.max(28, distance * 0.095)) * direction;
-  const joint = getBranchJoint(start, end);
-  const controlA = { x: roundCoordinate(start.x + dx * 0.3 + normalX * bend * 0.45), y: roundCoordinate(start.y + dy * 0.3 + normalY * bend * 0.45) };
-  const controlB = { x: roundCoordinate(joint.x + dx * 0.18), y: roundCoordinate(joint.y + dy * 0.18) };
-  return `M ${roundCoordinate(start.x)} ${roundCoordinate(start.y)} C ${controlA.x} ${controlA.y}, ${controlB.x} ${controlB.y}, ${roundCoordinate(end.x)} ${roundCoordinate(end.y)}`;
+  return `M ${roundCoordinate(start.x)} ${roundCoordinate(start.y)} L ${roundCoordinate(end.x)} ${roundCoordinate(end.y)}`;
 }
 
 function formatDuration(totalSeconds: number) {
@@ -520,8 +515,9 @@ export function LifeTree() {
               );
             })}
 
-            {technologies.flatMap((tech) =>
-              tech.parents.map((parentId) => {
+            {technologies.map((tech) => {
+                const parentId = visualParents[tech.id];
+                if (!parentId) return null;
                 const parent = technologies.find((item) => item.id === parentId);
                 if (!parent) return null;
 
@@ -533,7 +529,7 @@ export function LifeTree() {
                 const joint = getBranchJoint(start, end);
 
                 return (
-                  <g key={`${parentId}-${tech.id}`}>
+                  <g key={`visual-${parentId}-${tech.id}`}>
                     <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
                     {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" /> : null}
                     <path
@@ -548,8 +544,7 @@ export function LifeTree() {
                     <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="4" fill={status === "locked" ? "rgba(148, 163, 184, 0.22)" : color} />
                   </g>
                 );
-              })
-            )}
+              })}
           </svg>
 
           <button
