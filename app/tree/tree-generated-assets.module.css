@@ -647,7 +647,7 @@
 .generatedTreeAssets :global(.tech-node-label) {
   width: max-content;
   max-width: 176px;
-  padding: 7px 12px;
+  padding: 6px 10px;
   font-size: 18px !important;
   line-height: 1.12;
 }
@@ -735,7 +735,7 @@
   border-radius: 999px;
   box-shadow: 0 8px 24px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.08);
 }
-.generatedTreeAssets :global(.branch-label strong) { font-size: 16px; letter-spacing: .08em; white-space: nowrap; }
+.generatedTreeAssets :global(.branch-label strong) { font-size: 14px; letter-spacing: .075em; white-space: nowrap; }
 
 .generatedTreeAssets :global(.tech-node-label) {
   opacity: 0;
