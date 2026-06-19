@@ -43,16 +43,6 @@ const radialBranches: Record<LifeCategory, { angle: number; label: string; descr
   creativity: { angle: -152, label: "Creative Practice", description: "Expression, play and craft", labelSide: 1 }
 };
 
-const branchLabelOffsets: Record<LifeCategory, { x: number; y: number }> = {
-  health: { x: -60, y: -185 },
-  mind: { x: 160, y: -125 },
-  business: { x: 205, y: 35 },
-  career: { x: 135, y: 175 },
-  finance: { x: -120, y: 185 },
-  relationships: { x: -170, y: 40 },
-  creativity: { x: -155, y: -105 }
-};
-
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -131,7 +121,7 @@ function createRadialPositions() {
 
   technologies.forEach((tech) => {
     if (tech.branch === "The Awakening") {
-      positions[tech.id] = { x: corePoint.x - 800 - nodeCenterOffsetX, y: corePoint.y - 560 - 57, depth: 0, role: "key", size: 114 };
+      positions[tech.id] = { x: corePoint.x - 1020 - nodeCenterOffsetX, y: corePoint.y - 720 - 75, depth: 0, role: "key", size: 150 };
       visualParents[tech.id] = null;
       return;
     }
@@ -333,6 +323,7 @@ export function LifeTree() {
   const [dragStart, setDragStart] = useState<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const artLayerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef(view);
   const pendingDragPanRef = useRef<ViewState["pan"] | null>(null);
   const dragFrameRef = useRef<number | null>(null);
@@ -348,6 +339,13 @@ export function LifeTree() {
 
   useEffect(() => {
     viewRef.current = view;
+    const artLayer = artLayerRef.current;
+    if (artLayer) {
+      const parallaxX = clamp(view.pan.x * 0.055, -72, 72);
+      const parallaxY = clamp(view.pan.y * 0.055, -72, 72);
+      const depthScale = 1.018 + Math.max(0, view.zoom - overviewZoom) * 0.035;
+      artLayer.style.transform = `translate3d(${parallaxX}px, ${parallaxY}px, 0) scale(${depthScale})`;
+    }
   }, [view]);
 
   useEffect(() => () => {
@@ -437,6 +435,13 @@ export function LifeTree() {
       const canvas = canvasRef.current;
       if (!pan || !canvas) return;
       canvas.style.transform = `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${viewRef.current.zoom})`;
+      const artLayer = artLayerRef.current;
+      if (artLayer) {
+        const parallaxX = clamp(pan.x * 0.055, -72, 72);
+        const parallaxY = clamp(pan.y * 0.055, -72, 72);
+        const depthScale = 1.018 + Math.max(0, viewRef.current.zoom - overviewZoom) * 0.035;
+        artLayer.style.transform = `translate3d(${parallaxX}px, ${parallaxY}px, 0) scale(${depthScale})`;
+      }
     });
   }
 
@@ -457,7 +462,7 @@ export function LifeTree() {
       <div className="life-tree-toolbar epoch-toolbar">
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">The Awakening</p>
-          <p className="text-xs text-muted-foreground">Chapter 1 / 12 · about 30 days</p>
+          <p className="text-xs text-muted-foreground">Chapter 1 / 12 Â· about 30 days</p>
         </div>
         <div className="epoch-strip" aria-label="Era epochs">
           {epochs.map((epoch) => (
@@ -479,7 +484,7 @@ export function LifeTree() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
-        <div className="life-tree-art-layer" aria-hidden="true">
+        <div ref={artLayerRef} className="life-tree-art-layer" aria-hidden="true">
           <div className="life-tree-art-image" />
           <div className="life-tree-art-atmosphere" />
         </div>
@@ -493,20 +498,6 @@ export function LifeTree() {
           className="life-tree-canvas"
           style={{ width: treeSize, height: treeSize, ["--tree-half" as string]: `-${treeSize / 2}px`, transform: `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
         >
-          {Object.entries(radialBranches).map(([id, branch]) => {
-            const category = id as LifeCategory;
-            const color = categoryColors[category];
-            const offset = branchLabelOffsets[category];
-            const x = corePoint.x + offset.x;
-            const y = corePoint.y + offset.y;
-
-            return (
-              <div key={id} className="branch-label" title={branch.description} style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
-                <strong>{branch.label}</strong>
-              </div>
-            );
-          })}
-
           <svg className="pointer-events-none absolute inset-0 size-full" viewBox={`0 0 ${treeSize} ${treeSize}`} aria-hidden="true">
             <defs>
               <radialGradient id="coreAura" cx="50%" cy="50%" r="50%">
@@ -600,12 +591,13 @@ export function LifeTree() {
             const isSelected = selectedTechnology?.id === tech.id;
             const cooldownActive = runtime?.cooldownUntil ? runtime.cooldownUntil > now : false;
             const position = radialPositions[tech.id] ?? { x: tech.x, y: tech.y };
+            const isPolarStar = tech.id === "awakening-trial";
 
             return (
               <button
                 key={tech.id}
                 type="button"
-                className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected", tech.id === "awakening-trial" && "polar-star-node")}
+                className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected", isPolarStar && "polar-star-node")}
                 data-category={tech.category}
                 data-tech-id={tech.id}
                 data-node-role={position.role}
@@ -614,13 +606,19 @@ export function LifeTree() {
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => handleNodeClick(tech)}
               >
-                <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
-                  <span className="tech-emblem-inner" />
-                  {status === "locked" && tech.id !== "awakening-trial" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
-                  {status === "unlocked" ? <span className="tech-completion-badge" aria-label="Completed" /> : null}
-                  {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
-                  {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
-                </span>
+                {isPolarStar ? (
+                  <span className="polar-star-art">
+                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
+                  </span>
+                ) : (
+                  <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
+                    <span className="tech-emblem-inner" />
+                    {status === "locked" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
+                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
+                    {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
+                    {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
+                  </span>
+                )}
                 <span className="tech-node-label line-clamp-2 text-[12px] font-black leading-tight text-foreground">{tech.title}</span>
               </button>
             );
@@ -632,3 +630,4 @@ export function LifeTree() {
     </div>
   );
 }
+
