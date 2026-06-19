@@ -44,13 +44,13 @@ const radialBranches: Record<LifeCategory, { angle: number; label: string; descr
 };
 
 const branchLabelOffsets: Record<LifeCategory, { x: number; y: number }> = {
-  health: { x: -82, y: -252 },
-  mind: { x: 214, y: -184 },
-  business: { x: 268, y: 54 },
-  career: { x: 174, y: 232 },
-  finance: { x: -154, y: 246 },
-  relationships: { x: -274, y: 66 },
-  creativity: { x: -238, y: -154 }
+  health: { x: -60, y: -185 },
+  mind: { x: 160, y: -125 },
+  business: { x: 205, y: 35 },
+  career: { x: 135, y: 175 },
+  finance: { x: -120, y: 185 },
+  relationships: { x: -205, y: 40 },
+  creativity: { x: -175, y: -105 }
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -616,7 +616,7 @@ export function LifeTree() {
               >
                 <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
                   <span className="tech-emblem-inner" />
-                  {status === "locked" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
+                  {status === "locked" && tech.id !== "awakening-trial" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
                   {status === "unlocked" ? <span className="tech-completion-badge" aria-label="Completed" /> : null}
                   {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                   {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
