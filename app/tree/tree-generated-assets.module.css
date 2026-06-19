@@ -691,28 +691,33 @@
 
 .generatedTreeAssets :global(.tree-connection) {
   transition: stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
+  stroke-dasharray: 1 17;
+  stroke-linecap: round;
 }
 .generatedTreeAssets :global(.tree-connection-locked) {
-  opacity: .32;
-  stroke-dasharray: 2 20;
+  opacity: .28;
 }
 .generatedTreeAssets :global(.tree-connection-available) {
-  opacity: .78;
-  stroke-dasharray: 6 12;
+  opacity: .76;
 }
 .generatedTreeAssets :global(.tree-connection-in_progress) {
-  opacity: .9;
-  stroke-dasharray: 18 8;
+  opacity: .92;
 }
 .generatedTreeAssets :global(.tree-connection-unlocked) {
   opacity: 1;
-  stroke-width: 6px;
+  stroke-width: 7px;
 }
 .generatedTreeAssets :global(.tree-connection-glow) {
-  opacity: .16;
+  opacity: .2;
+  stroke-dasharray: 1 17;
+  stroke-linecap: round;
   pointer-events: none;
 }
-.generatedTreeAssets :global(.tree-connection-shadow) { opacity: .62; }
+.generatedTreeAssets :global(.tree-connection-shadow) {
+  opacity: .34;
+  stroke-dasharray: 1 17;
+  stroke-linecap: round;
+}
 .generatedTreeAssets :global(.tree-joint) {
   stroke: color-mix(in srgb, currentColor 35%, transparent);
   stroke-width: 2px;
@@ -720,10 +725,7 @@
 }
 .generatedTreeAssets :global(.tree-joint-locked) { opacity: .36; }
 .generatedTreeAssets :global(.tree-joint-unlocked) { opacity: 1; }
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.tree-connection-available) { stroke-dasharray: 1 13; }
-.generatedTreeAssets[data-tree-theme="nexus"] :global(.tree-connection-available) { stroke-dasharray: 13 8 3 8; }
-.generatedTreeAssets[data-tree-theme="blueprint"] :global(.tree-connection-available) { stroke-dasharray: 17 9; }
-.generatedTreeAssets[data-tree-theme="pulse"] :global(.tree-connection-available) { stroke-dasharray: 3 16; stroke-linecap: round; }
+.generatedTreeAssets[data-tree-theme] :global(.tree-connection) { stroke-dasharray: 1 17; }
 
 .generatedTreeAssets :global(.branch-label) {
   min-width: 0;
@@ -774,11 +776,15 @@
 .generatedTreeAssets :global(.life-tree-stage.is-focused .life-tree-art-atmosphere) { opacity: .72; }
 .generatedTreeAssets :global(.life-tree-stage.is-focused .tree-connection:not(.tree-connection-unlocked)) { opacity: .3; }
 
-@media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) {
   .generatedTreeAssets :global(.life-tree-art-image) {
-    animation: ambientMapDrift 58s ease-in-out infinite alternate;
-    will-change: background-position;
+    animation: ambientMapDrift 18s ease-in-out infinite alternate;
+    will-change: transform;
   }
+  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-art-image) { animation-play-state: paused; }
+}
+
+@media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
   .generatedTreeAssets :global(.life-tree-art-atmosphere) {
     animation: atmosphereDrift 46s ease-in-out infinite alternate;
     will-change: transform, opacity;
@@ -799,7 +805,7 @@
 }
 
 @keyframes pendingBreath { 0%,100% { opacity: .35; transform: scale(.72); } 50% { opacity: 1; transform: scale(1); } }
-@keyframes ambientMapDrift { from { background-position: 49.35% 50.35%; } to { background-position: 50.65% 49.65%; } }
+@keyframes ambientMapDrift { from { transform: translate3d(-2.8%, 1.5%, 0) scale(1.04); } to { transform: translate3d(2.8%, -1.5%, 0) scale(1.1); } }
 @keyframes atmosphereDrift { from { opacity: .52; transform: translate3d(-.35%, .2%, 0) scale(1.015); } to { opacity: .68; transform: translate3d(.45%, -.3%, 0) scale(1.025); } }
 @keyframes starfieldDrift { from { transform: translate3d(-7px, 4px, 0); } to { transform: translate3d(8px, -6px, 0); } }
 @keyframes runeDrift { from { transform: translate3d(-5px, 3px, 0) rotate(-.22deg); } to { transform: translate3d(6px, -4px, 0) rotate(.22deg); } }
