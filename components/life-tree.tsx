@@ -43,6 +43,16 @@ const radialBranches: Record<LifeCategory, { angle: number; label: string; descr
   creativity: { angle: -152, label: "Creative Practice", description: "Expression, play and craft", labelSide: 1 }
 };
 
+const branchLabelOffsets: Record<LifeCategory, { x: number; y: number }> = {
+  health: { x: -82, y: -252 },
+  mind: { x: 214, y: -184 },
+  business: { x: 268, y: 54 },
+  career: { x: 174, y: 232 },
+  finance: { x: -154, y: 246 },
+  relationships: { x: -274, y: 66 },
+  creativity: { x: -238, y: -154 }
+};
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -121,7 +131,7 @@ function createRadialPositions() {
 
   technologies.forEach((tech) => {
     if (tech.branch === "The Awakening") {
-      positions[tech.id] = { x: corePoint.x - nodeCenterOffsetX, y: corePoint.y - 650, depth: 0, role: "key", size: 114 };
+      positions[tech.id] = { x: corePoint.x - 800 - nodeCenterOffsetX, y: corePoint.y - 560 - 57, depth: 0, role: "key", size: 114 };
       visualParents[tech.id] = null;
       return;
     }
@@ -132,8 +142,8 @@ function createRadialPositions() {
     const role = getNodeRole(tech, depth);
     const size = getTechnologyNodeSize(tech, role);
     const siblingIndex = index - (group.length - 1) / 2;
-    const fanAngle = siblingIndex * (9 + depth * 1.25);
-    const branchCurve = depth * 1.8 * branch.labelSide;
+    const fanAngle = clamp(siblingIndex * (8.25 + depth * 0.35), -14, 14);
+    const branchCurve = depth * 0.9 * branch.labelSide;
     const angle = (branch.angle + fanAngle + branchCurve) * (Math.PI / 180);
     const radius = 340 + depth * 265 + Math.abs(siblingIndex) * 34;
 
@@ -486,10 +496,9 @@ export function LifeTree() {
           {Object.entries(radialBranches).map(([id, branch]) => {
             const category = id as LifeCategory;
             const color = categoryColors[category];
-            const angle = branch.angle * (Math.PI / 180);
-            const perpendicular = angle + Math.PI / 2;
-            const x = corePoint.x + Math.cos(angle) * 245 + Math.cos(perpendicular) * 55 * branch.labelSide;
-            const y = corePoint.y + Math.sin(angle) * 245 + Math.sin(perpendicular) * 55 * branch.labelSide;
+            const offset = branchLabelOffsets[category];
+            const x = corePoint.x + offset.x;
+            const y = corePoint.y + offset.y;
 
             return (
               <div key={id} className="branch-label" title={branch.description} style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
@@ -596,7 +605,7 @@ export function LifeTree() {
               <button
                 key={tech.id}
                 type="button"
-                className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected")}
+                className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected", tech.id === "awakening-trial" && "polar-star-node")}
                 data-category={tech.category}
                 data-tech-id={tech.id}
                 data-node-role={position.role}
