@@ -30,10 +30,6 @@ export default function TreePage() {
       <div className={`${fieldStyles.fullscreenField} ${styles.visualTreeSkin} ${assetStyles.generatedTreeAssets}`} data-tree-theme={themeId}>
         <TreeCameraController className={fieldStyles.cameraDock} />
         <div className={fieldStyles.themeDock} aria-label="Choose interface theme">
-          <div className={fieldStyles.themeDockTitle}>
-            <span>Theme</span>
-            <strong>{treeThemes.find((theme) => theme.id === themeId)?.title}</strong>
-          </div>
           <div className={fieldStyles.themeSwatches}>
             {treeThemes.map((theme) => (
               <button
@@ -47,11 +43,9 @@ export default function TreePage() {
                 }}
                 aria-label={`Use ${theme.title} theme`}
                 aria-pressed={theme.id === themeId}
-                title={`${theme.title}: ${theme.mood}`}
                 onClick={() => selectTheme(theme.id)}
               >
                 <Image src={`/art/themes-v4/${theme.id}/emblem-base.webp`} alt="" width={42} height={42} />
-                <span className={fieldStyles.themeInitial}>{theme.shortTitle.slice(0, 2)}</span>
                 <span className={fieldStyles.themeName}>{theme.shortTitle}</span>
               </button>
             ))}
