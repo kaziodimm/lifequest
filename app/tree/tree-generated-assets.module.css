@@ -175,9 +175,7 @@
   mix-blend-mode: screen;
 }
 
-.generatedTreeAssets :global(.life-tree-canvas svg path) {
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--theme-line-a) 60%, transparent));
-}
+.generatedTreeAssets :global(.life-tree-canvas svg path) { filter: none; }
 
 .generatedTreeAssets :global(.tech-node-button) {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
@@ -701,23 +699,20 @@
 .generatedTreeAssets :global(.tree-connection-available) {
   opacity: .72;
   stroke-dasharray: 5 14;
-  animation: routeFlow 5s linear infinite;
 }
 .generatedTreeAssets :global(.tree-connection-in_progress) {
   opacity: .9;
   stroke-dasharray: 18 8;
-  animation: routeFlow 2.1s linear infinite;
 }
 .generatedTreeAssets :global(.tree-connection-unlocked) {
   opacity: 1;
   stroke-width: 6px;
-  filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 13px currentColor);
-  animation: completedRouteGlow 3.2s ease-in-out infinite;
 }
-.generatedTreeAssets :global(.tree-joint-unlocked) {
-  filter: drop-shadow(0 0 7px currentColor);
-  animation: completedJointGlow 2.4s ease-in-out infinite;
+.generatedTreeAssets :global(.tree-connection-glow) {
+  opacity: .13;
+  pointer-events: none;
 }
+.generatedTreeAssets :global(.tree-joint-unlocked) { opacity: 1; }
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.tree-connection-available) { stroke-dasharray: 1 13; }
 .generatedTreeAssets[data-tree-theme="nexus"] :global(.tree-connection-available) { stroke-dasharray: 13 8 3 8; }
 .generatedTreeAssets[data-tree-theme="blueprint"] :global(.tree-connection-available) { stroke-dasharray: 17 9; }
@@ -726,12 +721,25 @@
 .generatedTreeAssets :global(.branch-label) {
   min-width: 0;
   width: max-content;
-  max-width: 190px;
+  max-width: 260px;
   padding: 7px 12px;
   border-radius: 999px;
   box-shadow: 0 8px 24px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.08);
 }
 .generatedTreeAssets :global(.branch-label strong) { font-size: 16px; letter-spacing: .08em; white-space: nowrap; }
+
+.generatedTreeAssets :global(.tech-node-label) {
+  opacity: 0;
+  transform: translateY(-4px) scale(.96);
+  pointer-events: none;
+  transition: opacity .14s ease, transform .14s ease;
+}
+.generatedTreeAssets :global(.tech-node-button:hover .tech-node-label),
+.generatedTreeAssets :global(.tech-node-button:focus-visible .tech-node-label),
+.generatedTreeAssets :global(.tech-node-button.selected .tech-node-label) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
 
 .generatedTreeAssets :global(.life-tree-art-image) {
   transition: filter .3s ease, opacity .3s ease, background-position .5s ease;
@@ -745,10 +753,8 @@
 
 @media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
   .generatedTreeAssets :global(.life-tree-art-image) { animation: ambientMapDrift 22s ease-in-out infinite alternate; }
+  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-art-image) { animation-play-state: paused; }
 }
 
-@keyframes routeFlow { to { stroke-dashoffset: -42; } }
-@keyframes completedRouteGlow { 0%,100% { opacity: .88; } 50% { opacity: 1; } }
-@keyframes completedJointGlow { 0%,100% { opacity: .72; } 50% { opacity: 1; } }
 @keyframes pendingBreath { 0%,100% { opacity: .35; transform: scale(.72); } 50% { opacity: 1; transform: scale(1); } }
 @keyframes ambientMapDrift { from { background-position: 49.2% 50.5%; } to { background-position: 50.8% 49.5%; } }

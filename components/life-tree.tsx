@@ -46,21 +46,23 @@ const maxZoom = 1.38;
 type ViewState = { zoom: number; pan: { x: number; y: number } };
 type PanelAnchor = { x: number; y: number };
 
-const epochs = Array.from({ length: 12 }, (_, index) => ({
+const chapterNames = ["Awakening", "Inner Order", "Momentum", "Stability", "Focus", "Expansion", "Confidence", "Leverage", "Mastery", "Leadership", "Legacy", "Horizon"];
+
+const epochs = chapterNames.map((title, index) => ({
   id: index + 1,
-  title: `Epoch ${String(index + 1).padStart(2, "0")}`,
+  title,
   duration: "1 month",
   unlocked: index === 0
 }));
 
-const radialBranches: Record<LifeCategory, { angle: number; label: string; description: string }> = {
-  health: { angle: -92, label: "Body & Energy", description: "Strength, sleep and recovery" },
-  mind: { angle: -42, label: "Focus & Mind", description: "Clarity, learning and resilience" },
-  business: { angle: 8, label: "Build & Create", description: "Turn ideas into useful systems" },
-  career: { angle: 58, label: "Direction & Career", description: "Skills, contribution and growth" },
-  finance: { angle: 118, label: "Money & Freedom", description: "Stability, choice and resources" },
-  relationships: { angle: 178, label: "People & Connection", description: "Trust, community and support" },
-  creativity: { angle: -152, label: "Creative Practice", description: "Expression, play and craft" }
+const radialBranches: Record<LifeCategory, { angle: number; label: string; description: string; labelSide: -1 | 1 }> = {
+  health: { angle: -92, label: "Body & Energy", description: "Strength, sleep and recovery", labelSide: 1 },
+  mind: { angle: -42, label: "Focus & Mind", description: "Clarity, learning and resilience", labelSide: -1 },
+  business: { angle: 8, label: "Build & Create", description: "Turn ideas into useful systems", labelSide: 1 },
+  career: { angle: 58, label: "Direction & Career", description: "Skills, contribution and growth", labelSide: -1 },
+  finance: { angle: 118, label: "Money & Freedom", description: "Stability, choice and resources", labelSide: 1 },
+  relationships: { angle: 178, label: "People & Connection", description: "Trust, community and support", labelSide: -1 },
+  creativity: { angle: -152, label: "Creative Practice", description: "Expression, play and craft", labelSide: 1 }
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -261,6 +263,10 @@ export function LifeTree() {
   const [view, setView] = useState<ViewState>({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
   const [dragStart, setDragStart] = useState<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const viewRef = useRef(view);
+  const pendingDragPanRef = useRef<ViewState["pan"] | null>(null);
+  const dragFrameRef = useRef<number | null>(null);
   const completedIds = useLifeStore((state) => state.completedTechnologyIds);
   const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
   const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
@@ -269,6 +275,14 @@ export function LifeTree() {
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+
+  useEffect(() => () => {
+    if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
   }, []);
 
   function resetView() {
@@ -344,11 +358,29 @@ export function LifeTree() {
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     if (!dragStart || dragStart.pointerId !== event.pointerId) return;
-    setView((current) => ({ ...current, pan: { x: dragStart.panX + event.clientX - dragStart.x, y: dragStart.panY + event.clientY - dragStart.y } }));
+    const nextPan = { x: dragStart.panX + event.clientX - dragStart.x, y: dragStart.panY + event.clientY - dragStart.y };
+    pendingDragPanRef.current = nextPan;
+    if (dragFrameRef.current !== null) return;
+
+    dragFrameRef.current = window.requestAnimationFrame(() => {
+      dragFrameRef.current = null;
+      const pan = pendingDragPanRef.current;
+      const canvas = canvasRef.current;
+      if (!pan || !canvas) return;
+      canvas.style.transform = `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${viewRef.current.zoom})`;
+    });
   }
 
   function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
-    if (dragStart?.pointerId === event.pointerId) setDragStart(null);
+    if (dragStart?.pointerId !== event.pointerId) return;
+    if (dragFrameRef.current !== null) {
+      window.cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+    const finalPan = pendingDragPanRef.current;
+    pendingDragPanRef.current = null;
+    if (finalPan) setView((current) => ({ ...current, pan: finalPan }));
+    setDragStart(null);
   }
 
   return (
@@ -388,6 +420,7 @@ export function LifeTree() {
         <div className="life-tree-rune-grid" />
 
         <div
+          ref={canvasRef}
           className="life-tree-canvas"
           style={{ width: treeSize, height: treeSize, ["--tree-half" as string]: `-${treeSize / 2}px`, transform: `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
         >
@@ -395,8 +428,9 @@ export function LifeTree() {
             const category = id as LifeCategory;
             const color = categoryColors[category];
             const angle = branch.angle * (Math.PI / 180);
-            const x = corePoint.x + Math.cos(angle) * 250;
-            const y = corePoint.y + Math.sin(angle) * 250;
+            const perpendicular = angle + Math.PI / 2;
+            const x = corePoint.x + Math.cos(angle) * 245 + Math.cos(perpendicular) * 55 * branch.labelSide;
+            const y = corePoint.y + Math.sin(angle) * 245 + Math.sin(perpendicular) * 55 * branch.labelSide;
 
             return (
               <div key={id} className="branch-label" title={branch.description} style={{ left: x, top: y, color, borderColor: `${color}30`, background: `${color}0f` }}>
@@ -407,10 +441,6 @@ export function LifeTree() {
 
           <svg className="pointer-events-none absolute inset-0 size-full" viewBox={`0 0 ${treeSize} ${treeSize}`} aria-hidden="true">
             <defs>
-              <filter id="connectionGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="4" result="blur" />
-                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
               <radialGradient id="coreAura" cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stopColor="rgba(246, 196, 83, 0.34)" />
                 <stop offset="45%" stopColor="rgba(76, 224, 210, 0.13)" />
@@ -433,6 +463,7 @@ export function LifeTree() {
               return (
                 <g key={`core-${tech.id}`}>
                   <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+                  {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(corePoint, end)} fill="none" stroke={color} strokeWidth="15" strokeLinecap="round" strokeLinejoin="round" /> : null}
                   <path
                     className={`tree-connection tree-connection-${status}`}
                     d={getBranchPath(corePoint, end)}
@@ -441,7 +472,6 @@ export function LifeTree() {
                     strokeWidth={status === "locked" ? 3 : 5}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
                   />
                   <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="5" fill={status === "locked" ? "rgba(148, 163, 184, 0.28)" : color} />
                 </g>
@@ -463,6 +493,7 @@ export function LifeTree() {
                 return (
                   <g key={`${parentId}-${tech.id}`}>
                     <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+                    {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="15" strokeLinecap="round" strokeLinejoin="round" /> : null}
                     <path
                       className={`tree-connection tree-connection-${status}`}
                       d={getBranchPath(start, end)}
@@ -471,7 +502,6 @@ export function LifeTree() {
                       strokeWidth={status === "unlocked" ? 5 : status === "available" || status === "in_progress" ? 4 : 3}
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      filter={status !== "locked" ? "url(#connectionGlow)" : undefined}
                     />
                     <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="4" fill={status === "locked" ? "rgba(148, 163, 184, 0.22)" : color} />
                   </g>
