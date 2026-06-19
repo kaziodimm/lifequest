@@ -569,7 +569,33 @@
 }
 .themeSwatch img, .themeSwatchActive img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
 .themeInitial { position: relative; z-index: 2; color: var(--theme-primary); font-size: 11px; font-weight: 950; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
-.themeName { display: none; }
+.themeName {
+  position: absolute;
+  z-index: 6;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  width: max-content;
+  max-width: 150px;
+  padding: 5px 9px;
+  border: 1px solid var(--tree-chrome-border);
+  border-radius: 999px;
+  color: var(--tree-chrome-text);
+  background: var(--tree-chrome-bg);
+  box-shadow: 0 10px 28px var(--tree-chrome-shadow);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 5px) scale(.96);
+  transition: opacity .14s ease, transform .14s ease;
+}
+.themeSwatch:hover .themeName,
+.themeSwatch:focus-visible .themeName,
+.themeSwatchActive .themeName {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
 .themeSwatch:hover, .themeSwatchActive {
   opacity: 1;
   transform: scale(1.1);
@@ -583,7 +609,34 @@
   .themeDockTitle strong { font-size: 11px; }
   .themeSwatches { grid-template-columns: repeat(5, 1fr); }
   .themeSwatch, .themeSwatchActive { width: 42px; height: 42px; }
-  .themeSwatchActive .themeName { position: absolute; display: block; bottom: 48px; left: 50%; transform: translateX(-50%); width: max-content; border: 1px solid var(--tree-chrome-border); border-radius: 999px; color: var(--tree-chrome-text); background: var(--tree-chrome-bg); padding: 4px 8px; font-size: 9px; font-weight: 800; }
+}
+
+/* The Life Tree uses the same product navigation as every other Habidoo page. */
+.fullscreenField ~ :global(nav.app-bottom-nav) {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  transform: none;
+  border-color: hsl(var(--border)) !important;
+  border-radius: var(--theme-radius) var(--theme-radius) 0 0 !important;
+  background: color-mix(in srgb, hsl(var(--card)) 90%, transparent) !important;
+  box-shadow: 0 18px 55px color-mix(in srgb, var(--theme-bg) 60%, transparent), inset 0 1px rgba(255,255,255,.08) !important;
+  backdrop-filter: blur(18px) saturate(1.12);
+}
+.fullscreenField ~ :global(nav.app-bottom-nav .app-nav-link) {
+  border-radius: calc(var(--theme-radius) * .75);
+}
+@media (min-width: 768px) {
+  .fullscreenField ~ :global(nav.app-bottom-nav) {
+    left: 50%;
+    right: auto;
+    width: 100%;
+    max-width: 36rem;
+    transform: translateX(-50%);
+  }
 }
 .fullscreenField[data-tree-theme="atlas"] :global(.mission-panel),
 .fullscreenField[data-tree-theme="pulse"] :global(.mission-panel) { color: #1d3033; }
@@ -602,3 +655,4 @@
 .fullscreenField[data-tree-theme="nexus"] :global(.mission-panel) {
   clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
 }
+
