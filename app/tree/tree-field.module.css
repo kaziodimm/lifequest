@@ -591,8 +591,9 @@
   transition: opacity .14s ease, transform .14s ease;
 }
 .themeSwatch:hover .themeName,
+.themeSwatchActive:hover .themeName,
 .themeSwatch:focus-visible .themeName,
-.themeSwatchActive .themeName {
+.themeSwatchActive:focus-visible .themeName {
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
