@@ -37,7 +37,7 @@ const categoryIcons: Record<LifeCategory, CategoryIcon> = {
 
 const treeSize = 4200;
 const corePoint = { x: treeSize / 2, y: treeSize / 2 };
-const nodeCenterOffset = { x: 64, y: 46 };
+const nodeCenterOffsetX = 64;
 const overviewZoom = 0.54;
 const focusZoom = 1.06;
 const minZoom = 0.34;
@@ -85,6 +85,30 @@ function getTechnologyDepth(tech: LifeTechnology, byId: Map<string, LifeTechnolo
   }));
 }
 
+type NodeRole = "key" | "major" | "minor";
+
+function getNodeRole(tech: LifeTechnology, depth: number): NodeRole {
+  const isRoot = tech.parents.length === 0;
+  const isMilestone = tech.unlocks.length > 1 || tech.parents.length > 1;
+
+  if (isRoot || isMilestone) return "key";
+  return tech.unlocks.length === 0 || depth % 2 === 0 ? "major" : "minor";
+}
+
+function getNodeSize(role: NodeRole) {
+  if (role === "key") return 108;
+  if (role === "major") return 88;
+  return 70;
+}
+
+function getStableOffset(id: string) {
+  return [...id].reduce((total, character) => total + character.charCodeAt(0), 0) % 9 - 4;
+}
+
+function roundCoordinate(value: number) {
+  return Math.round(value * 1000) / 1000;
+}
+
 function createRadialPositions() {
   const byId = new Map(technologies.map((tech) => [tech.id, tech]));
   const depthById = new Map<string, number>();
@@ -97,23 +121,27 @@ function createRadialPositions() {
     groups.set(key, [...(groups.get(key) ?? []), tech]);
   });
 
-  const positions: Record<string, { x: number; y: number; depth: number }> = {};
+  const positions: Record<string, { x: number; y: number; depth: number; role: NodeRole; size: number }> = {};
 
   technologies.forEach((tech) => {
     const depth = depthById.get(tech.id) ?? 0;
     const group = groups.get(`${tech.category}-${depth}`) ?? [tech];
     const index = group.findIndex((item) => item.id === tech.id);
     const branch = radialBranches[tech.category];
-    const angle = (branch.angle + depth * 2) * (Math.PI / 180);
-    const radius = 380 + depth * 390;
-    const spread = Math.min(250, 110 + depth * 48);
-    const siblingOffset = (index - (group.length - 1) / 2) * spread;
-    const perpendicular = angle + Math.PI / 2;
+    const role = getNodeRole(tech, depth);
+    const size = getNodeSize(role);
+    const siblingIndex = index - (group.length - 1) / 2;
+    const fanAngle = siblingIndex * (13 + depth * 1.8);
+    const branchCurve = depth * 4.25 * branch.labelSide;
+    const angle = (branch.angle + fanAngle + branchCurve + getStableOffset(tech.id)) * (Math.PI / 180);
+    const radius = 390 + depth * 350 + Math.abs(siblingIndex) * (46 + depth * 9);
 
     positions[tech.id] = {
-      x: corePoint.x + Math.cos(angle) * radius + Math.cos(perpendicular) * siblingOffset - nodeCenterOffset.x,
-      y: corePoint.y + Math.sin(angle) * radius + Math.sin(perpendicular) * siblingOffset - nodeCenterOffset.y,
-      depth
+      x: roundCoordinate(corePoint.x + Math.cos(angle) * radius - nodeCenterOffsetX),
+      y: roundCoordinate(corePoint.y + Math.sin(angle) * radius - size / 2),
+      depth,
+      role,
+      size
     };
   });
 
@@ -123,8 +151,9 @@ function createRadialPositions() {
 const radialPositions = createRadialPositions();
 
 function getNodePoint(tech: LifeTechnology) {
-  const position = radialPositions[tech.id] ?? { x: tech.x, y: tech.y };
-  return { x: position.x + nodeCenterOffset.x, y: position.y + nodeCenterOffset.y };
+  const position = radialPositions[tech.id];
+  if (!position) return { x: tech.x + nodeCenterOffsetX, y: tech.y + 46 };
+  return { x: position.x + nodeCenterOffsetX, y: position.y + position.size / 2 };
 }
 
 function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: number }) {
@@ -133,13 +162,26 @@ function getBranchJoint(start: { x: number; y: number }, end: { x: number; y: nu
   const distance = Math.hypot(dx, dy) || 1;
   const normalX = -dy / distance;
   const normalY = dx / distance;
-  const bend = Math.min(56, Math.max(22, distance * 0.07));
-  return { x: start.x + dx * 0.56 + normalX * bend, y: start.y + dy * 0.56 + normalY * bend };
+  const direction = dx * dy >= 0 ? 1 : -1;
+  const bend = Math.min(82, Math.max(28, distance * 0.095)) * direction;
+  return {
+    x: roundCoordinate(start.x + dx * 0.58 + normalX * bend),
+    y: roundCoordinate(start.y + dy * 0.58 + normalY * bend)
+  };
 }
 
 function getBranchPath(start: { x: number; y: number }, end: { x: number; y: number }) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const normalX = -dy / distance;
+  const normalY = dx / distance;
+  const direction = dx * dy >= 0 ? 1 : -1;
+  const bend = Math.min(82, Math.max(28, distance * 0.095)) * direction;
   const joint = getBranchJoint(start, end);
-  return `M ${start.x} ${start.y} L ${joint.x} ${joint.y} L ${end.x} ${end.y}`;
+  const controlA = { x: roundCoordinate(start.x + dx * 0.3 + normalX * bend * 0.45), y: roundCoordinate(start.y + dy * 0.3 + normalY * bend * 0.45) };
+  const controlB = { x: roundCoordinate(joint.x + dx * 0.18), y: roundCoordinate(joint.y + dy * 0.18) };
+  return `M ${roundCoordinate(start.x)} ${roundCoordinate(start.y)} C ${controlA.x} ${controlA.y}, ${controlB.x} ${controlB.y}, ${roundCoordinate(end.x)} ${roundCoordinate(end.y)}`;
 }
 
 function formatDuration(totalSeconds: number) {
@@ -462,8 +504,8 @@ export function LifeTree() {
 
               return (
                 <g key={`core-${tech.id}`}>
-                  <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-                  {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(corePoint, end)} fill="none" stroke={color} strokeWidth="15" strokeLinecap="round" strokeLinejoin="round" /> : null}
+                  <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+                  {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(corePoint, end)} fill="none" stroke={color} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" /> : null}
                   <path
                     className={`tree-connection tree-connection-${status}`}
                     d={getBranchPath(corePoint, end)}
@@ -492,8 +534,8 @@ export function LifeTree() {
 
                 return (
                   <g key={`${parentId}-${tech.id}`}>
-                    <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-                    {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="15" strokeLinecap="round" strokeLinejoin="round" /> : null}
+                    <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+                    {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" /> : null}
                     <path
                       className={`tree-connection tree-connection-${status}`}
                       d={getBranchPath(start, end)}
@@ -540,7 +582,8 @@ export function LifeTree() {
                 type="button"
                 className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected")}
                 data-category={tech.category}
-                style={{ left: position.x, top: position.y, ["--node-color" as string]: color }}
+                data-node-role={position.role}
+                style={{ left: position.x, top: position.y, ["--node-color" as string]: color, ["--node-size" as string]: `${position.size}px` }}
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => handleNodeClick(tech)}
               >
@@ -562,3 +605,4 @@ export function LifeTree() {
     </div>
   );
 }
+
