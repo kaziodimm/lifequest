@@ -430,25 +430,7 @@
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="health"]) { --branch-icon: url("/art/themes-v2/orbit/health.png"); }
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="mind"]),
 .generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="mind"]) { --branch-icon: url("/art/themes-v2/orbit/mind.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="career"]),
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="career"]) { --branch-icon: url("/art/themes-v2/orbit/career.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="business"]),
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="business"]) { --branch-icon: url("/art/themes-v2/orbit/business.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="finance"]),
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="finance"]) { --branch-icon: url("/art/themes-v2/orbit/finance.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="relationships"]),
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="relationships"]) { --branch-icon: url("/art/themes-v2/orbit/relationships.png"); }
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-button[data-category="creativity"]),
-.generatedTreeAssets[data-tree-theme="orbit"] :global(.mission-panel[data-category="creativity"]) { --branch-icon: url("/art/themes-v2/orbit/creativity.png"); }
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="health"]),
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="health"]) { --branch-icon: url("/art/themes-v2/atlas/health.png"); }
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="mind"]),
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="mind"]) { --branch-icon: url("/art/themes-v2/atlas/mind.png"); }
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="career"]),
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="career"]) { --branch-icon: url("/art/themes-v2/atlas/career.png"); }
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="business"]),
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="business"]) { --branch-icon: url("/art/themes-v2/atlas/business.png"); }
-.generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="finance"]),
+.generatedTreeAssets[data-tree-theme="orbit"] :global(.tech-node-bu…569 tokens truncated…tlas"] :global(.tech-node-button[data-category="finance"]),
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="finance"]) { --branch-icon: url("/art/themes-v2/atlas/finance.png"); }
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.tech-node-button[data-category="relationships"]),
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.mission-panel[data-category="relationships"]) { --branch-icon: url("/art/themes-v2/atlas/relationships.png"); }
@@ -690,15 +672,15 @@
 }
 
 .generatedTreeAssets :global(.tree-connection) {
-  transition: stroke .25s ease, stroke-width .25s ease, opacity .25s ease;
+  transition: stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
 }
 .generatedTreeAssets :global(.tree-connection-locked) {
-  opacity: .42;
-  stroke-dasharray: 2 18;
+  opacity: .32;
+  stroke-dasharray: 2 20;
 }
 .generatedTreeAssets :global(.tree-connection-available) {
-  opacity: .72;
-  stroke-dasharray: 5 14;
+  opacity: .78;
+  stroke-dasharray: 6 12;
 }
 .generatedTreeAssets :global(.tree-connection-in_progress) {
   opacity: .9;
@@ -709,9 +691,16 @@
   stroke-width: 6px;
 }
 .generatedTreeAssets :global(.tree-connection-glow) {
-  opacity: .13;
+  opacity: .16;
   pointer-events: none;
 }
+.generatedTreeAssets :global(.tree-connection-shadow) { opacity: .62; }
+.generatedTreeAssets :global(.tree-joint) {
+  stroke: color-mix(in srgb, currentColor 35%, transparent);
+  stroke-width: 2px;
+  paint-order: stroke fill;
+}
+.generatedTreeAssets :global(.tree-joint-locked) { opacity: .36; }
 .generatedTreeAssets :global(.tree-joint-unlocked) { opacity: 1; }
 .generatedTreeAssets[data-tree-theme="atlas"] :global(.tree-connection-available) { stroke-dasharray: 1 13; }
 .generatedTreeAssets[data-tree-theme="nexus"] :global(.tree-connection-available) { stroke-dasharray: 13 8 3 8; }
@@ -734,6 +723,22 @@
   pointer-events: none;
   transition: opacity .14s ease, transform .14s ease;
 }
+
+.generatedTreeAssets :global(.tech-node-button .tech-orb) {
+  width: var(--node-size, 86px);
+  height: var(--node-size, 86px);
+  transition: width .18s ease, height .18s ease, transform .18s ease, filter .18s ease;
+}
+.generatedTreeAssets :global(.tech-node-button[data-node-role="key"] .tech-orb) {
+  border-width: 2px;
+  filter: saturate(1.06) drop-shadow(0 12px 22px color-mix(in srgb, var(--node-color) 20%, transparent));
+}
+.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] .tech-node-label) { font-size: 10px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] .tech-emblem-inner) { inset: 7px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] svg) { width: 21px; height: 21px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role="key"] svg) { width: 31px; height: 31px; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role="minor"] .tech-completion-badge) { transform: scale(.82); transform-origin: center; }
+.generatedTreeAssets :global(.tech-node-button[data-node-role="key"] .tech-completion-badge) { transform: scale(1.12); transform-origin: center; }
 .generatedTreeAssets :global(.tech-node-button:hover .tech-node-label),
 .generatedTreeAssets :global(.tech-node-button:focus-visible .tech-node-label),
 .generatedTreeAssets :global(.tech-node-button.selected .tech-node-label) {
@@ -752,9 +757,32 @@
 .generatedTreeAssets :global(.life-tree-stage.is-focused .tree-connection:not(.tree-connection-unlocked)) { opacity: .3; }
 
 @media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
-  .generatedTreeAssets :global(.life-tree-art-image) { animation: ambientMapDrift 22s ease-in-out infinite alternate; }
-  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-art-image) { animation-play-state: paused; }
+  .generatedTreeAssets :global(.life-tree-art-image) {
+    animation: ambientMapDrift 58s ease-in-out infinite alternate;
+    will-change: background-position;
+  }
+  .generatedTreeAssets :global(.life-tree-art-atmosphere) {
+    animation: atmosphereDrift 46s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+  }
+  .generatedTreeAssets :global(.life-tree-starfield) {
+    animation: starfieldDrift 78s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .generatedTreeAssets :global(.life-tree-rune-grid) {
+    animation: runeDrift 96s ease-in-out infinite alternate;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-art-image),
+  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-art-atmosphere),
+  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-starfield),
+  .generatedTreeAssets :global(.life-tree-stage.is-dragging .life-tree-rune-grid) { animation-play-state: paused; }
 }
 
 @keyframes pendingBreath { 0%,100% { opacity: .35; transform: scale(.72); } 50% { opacity: 1; transform: scale(1); } }
-@keyframes ambientMapDrift { from { background-position: 49.2% 50.5%; } to { background-position: 50.8% 49.5%; } }
+@keyframes ambientMapDrift { from { background-position: 49.35% 50.35%; } to { background-position: 50.65% 49.65%; } }
+@keyframes atmosphereDrift { from { opacity: .52; transform: translate3d(-.35%, .2%, 0) scale(1.015); } to { opacity: .68; transform: translate3d(.45%, -.3%, 0) scale(1.025); } }
+@keyframes starfieldDrift { from { transform: translate3d(-7px, 4px, 0); } to { transform: translate3d(8px, -6px, 0); } }
+@keyframes runeDrift { from { transform: translate3d(-5px, 3px, 0) rotate(-.22deg); } to { transform: translate3d(6px, -4px, 0) rotate(.22deg); } }
+
