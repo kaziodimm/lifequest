@@ -753,12 +753,38 @@
   border-width: 2px;
   filter: saturate(1.06) drop-shadow(0 12px 22px color-mix(in srgb, var(--node-color) 20%, transparent));
 }
+.generatedTreeAssets :global(.tech-node-button[data-node-type=milestone] .tech-orb) {
+  border-width: 2px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--node-color) 9%, transparent), 0 0 28px color-mix(in srgb, var(--node-color) 28%, transparent), inset 0 0 24px color-mix(in srgb, var(--node-color) 16%, transparent) !important;
+}
+.generatedTreeAssets :global(.tech-node-button[data-node-type=milestone] .tech-orb::before) {
+  border-style: dashed;
+  border-width: 2px;
+}
+.generatedTreeAssets :global(.tech-node-button[data-node-type=challenge] .tech-orb) {
+  border: 3px double color-mix(in srgb, #f6c453 78%, var(--node-color)) !important;
+  box-shadow: 0 0 0 6px rgba(246,196,83,.1), 0 0 38px rgba(246,196,83,.34), inset 0 0 28px rgba(246,196,83,.18) !important;
+}
+.generatedTreeAssets :global(.tech-node-button[data-node-type=challenge] .tech-orb > svg) { color: #f3c75f !important; }
+.generatedTreeAssets :global(.mission-panel[data-node-type=challenge]) { border-width: 2px; box-shadow: 0 24px 75px rgba(0,0,0,.42), 0 0 34px rgba(246,196,83,.16); }
 .generatedTreeAssets :global(.tech-node-button[data-node-role=minor] .tech-node-label) { font-size: 10px; }
 .generatedTreeAssets :global(.tech-node-button[data-node-role=minor] .tech-emblem-inner) { inset: 7px; }
 .generatedTreeAssets :global(.tech-node-button[data-node-role=minor] svg) { width: 21px; height: 21px; }
 .generatedTreeAssets :global(.tech-node-button[data-node-role=key] svg) { width: 31px; height: 31px; }
 .generatedTreeAssets :global(.tech-node-button[data-node-role=minor] .tech-completion-badge) { transform: scale(.82); transform-origin: center; }
 .generatedTreeAssets :global(.tech-node-button[data-node-role=key] .tech-completion-badge) { transform: scale(1.12); transform-origin: center; }
+
+.generatedTreeAssets[data-tree-theme=atlas] :global(.tech-node-button:not(.locked) .tech-orb > svg),
+.generatedTreeAssets[data-tree-theme=pulse] :global(.tech-node-button:not(.locked) .tech-orb > svg),
+.generatedTreeAssets[data-tree-theme=atlas] :global(.tech-node-label),
+.generatedTreeAssets[data-tree-theme=pulse] :global(.tech-node-label),
+.generatedTreeAssets[data-tree-theme=atlas] :global(.branch-label),
+.generatedTreeAssets[data-tree-theme=pulse] :global(.branch-label) {
+  color: #0d2930 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.75) !important;
+}
+.generatedTreeAssets[data-tree-theme=atlas] :global(.tech-node-button.locked .tech-orb > svg),
+.generatedTreeAssets[data-tree-theme=pulse] :global(.tech-node-button.locked .tech-orb > svg) { color: #30484d !important; }
 .generatedTreeAssets :global(.tech-node-button:hover .tech-node-label),
 .generatedTreeAssets :global(.tech-node-button:focus-visible .tech-node-label),
 .generatedTreeAssets :global(.tech-node-button.selected .tech-node-label) {
