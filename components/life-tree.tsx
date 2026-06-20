@@ -363,8 +363,9 @@ export function LifeTree() {
   function scrollEpochs(direction: -1 | 1) {
     const strip = epochStripRef.current;
     if (!strip) return;
-    const step = strip.clientWidth < 520 ? 112 : Math.min(360, strip.clientWidth * .72);
-    strip.scrollBy({ left: direction * step, behavior: "smooth" });
+    const isCompact = strip.clientWidth < 520;
+    const step = isCompact ? 112 : Math.min(360, strip.clientWidth * .72);
+    strip.scrollBy({ left: direction * step, behavior: isCompact ? "auto" : "smooth" });
   }
 
   function focusTechnology(tech: LifeTechnology) {

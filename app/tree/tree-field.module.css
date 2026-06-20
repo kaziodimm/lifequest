@@ -664,7 +664,8 @@
   }
   .fullscreenField:has(:global(.life-tree-stage.is-focused)) ~ :global(nav.app-bottom-nav) {
     z-index: 20;
-    opacity: .18;
+    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
   }
   .fullscreenField :global(.life-tree-stage.is-focused .mission-panel) {
