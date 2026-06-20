@@ -703,6 +703,7 @@
   .fullscreenField :global(.epoch-strip) {
     padding: 2px 0;
     mask-image: none;
+    scroll-behavior: auto;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 2px;
   }
