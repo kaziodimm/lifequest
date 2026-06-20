@@ -586,12 +586,33 @@
 }
 
 @media (max-width: 768px) {
-  .generatedTreeAssets :global(.life-tree-art-image) { filter: none !important; }
+  .generatedTreeAssets :global(.life-tree-art-layer) {
+    transition: none !important;
+    backface-visibility: hidden;
+    transform-style: flat;
+    contain: layout paint;
+  }
+  .generatedTreeAssets :global(.life-tree-art-image) {
+    animation: none !important;
+    filter: none !important;
+    transform: translate3d(0,0,0) scale(1.04) !important;
+    backface-visibility: hidden;
+    will-change: auto !important;
+  }
   .generatedTreeAssets :global(.life-tree-art-atmosphere) { display: none; }
   .generatedTreeAssets :global(.life-tree-starfield),
   .generatedTreeAssets :global(.life-tree-rune-grid) { display: none; }
   .generatedTreeAssets :global(.tech-node-label),
   .generatedTreeAssets :global(.branch-label) { backdrop-filter: none; }
+  .generatedTreeAssets :global(.life-tree-canvas),
+  .generatedTreeAssets :global(.tech-node-button),
+  .generatedTreeAssets :global(.tech-orb) {
+    backface-visibility: hidden;
+    transform-style: flat;
+  }
+  .generatedTreeAssets :global(.tech-node-button) { filter: none !important; }
+  .generatedTreeAssets :global(.tech-orb) { backdrop-filter: none !important; }
+  .generatedTreeAssets :global(.polar-star-node .polar-star-art) { animation: none !important; }
 }
 
 /* v4: independently generated, correctly framed assets. */

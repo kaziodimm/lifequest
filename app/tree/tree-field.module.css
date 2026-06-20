@@ -130,7 +130,7 @@
 
 .fullscreenField :global(.mission-panel) {
   position: fixed;
-  z-index: 82;
+  z-index: 160;
   left: calc(0.75rem + env(safe-area-inset-left));
   right: calc(0.75rem + env(safe-area-inset-right));
   top: auto;
@@ -653,6 +653,7 @@
 }
 
 @media (max-width: 1023px) {
+  .fullscreenField:has(:global(.life-tree-stage.is-focused)) :global(.life-tree-toolbar),
   .fullscreenField:has(:global(.life-tree-stage.is-focused)) .cameraDock,
   .fullscreenField:has(:global(.life-tree-stage.is-focused)) .themeDock {
     z-index: 20;
@@ -660,6 +661,61 @@
     visibility: hidden;
     pointer-events: none;
     transform: translateY(12px) scale(.96);
+  }
+  .fullscreenField:has(:global(.life-tree-stage.is-focused)) ~ :global(nav.app-bottom-nav) {
+    z-index: 20;
+    opacity: .18;
+    pointer-events: none;
+  }
+  .fullscreenField :global(.life-tree-stage.is-focused .mission-panel) {
+    z-index: 160 !important;
+    isolation: isolate;
+  }
+}
+
+@media (max-width: 767px) {
+  .fullscreenField :global(.life-tree-toolbar) {
+    display: grid;
+    height: 100px;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    grid-template-rows: 38px 44px;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 7px 8px;
+    overflow: visible;
+  }
+  .fullscreenField :global(.life-tree-toolbar > .min-w-0) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .fullscreenField :global(.life-tree-toolbar > .tree-tool-button) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .fullscreenField :global(.epoch-navigation) {
+    width: 100%;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 5px;
+  }
+  .fullscreenField :global(.epoch-strip) {
+    padding: 2px 0;
+    mask-image: none;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+  }
+  .fullscreenField :global(.epoch-chip) {
+    min-width: 108px;
+    flex: 0 0 108px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    padding: 6px 9px;
+  }
+  .fullscreenField :global(.epoch-scroll-button) {
+    width: 34px;
+    height: 38px;
+    flex-basis: 34px;
   }
 }
 

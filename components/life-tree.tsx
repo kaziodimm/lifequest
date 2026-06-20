@@ -121,7 +121,7 @@ function createRadialPositions() {
 
   technologies.forEach((tech) => {
     if (tech.branch === "The Awakening") {
-      positions[tech.id] = { x: corePoint.x - 1120 - nodeCenterOffsetX, y: corePoint.y - 896 - 150, depth: 0, role: "key", size: 300 };
+      positions[tech.id] = { x: corePoint.x - 880 - nodeCenterOffsetX, y: corePoint.y - 1056 - 150, depth: 0, role: "key", size: 300 };
       visualParents[tech.id] = null;
       return;
     }
@@ -361,7 +361,10 @@ export function LifeTree() {
   }
 
   function scrollEpochs(direction: -1 | 1) {
-    epochStripRef.current?.scrollBy({ left: direction * 360, behavior: "smooth" });
+    const strip = epochStripRef.current;
+    if (!strip) return;
+    const step = strip.clientWidth < 520 ? 112 : Math.min(360, strip.clientWidth * .72);
+    strip.scrollBy({ left: direction * step, behavior: "smooth" });
   }
 
   function focusTechnology(tech: LifeTechnology) {
