@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Award, Flame, GitBranch, Languages, Palette, Trophy } from "lucide-react";
+import { Award, Flame, GitBranch, Languages, LockKeyhole, Palette, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +25,7 @@ export default function ProfilePage() {
 
   function selectTheme(themeId: TreeThemeId) {
     setSiteTheme(themeId);
-    applySiteTheme(themeId);
+    applySiteTheme(themeId, state.unlockedTreeThemeIds.includes(themeId));
   }
 
   return (
@@ -97,13 +97,17 @@ export default function ProfilePage() {
                   key={theme.id}
                   type="button"
                   onClick={() => selectTheme(theme.id)}
-                  className={cn("theme-choice rounded-md border p-3 text-left transition hover:border-primary", siteTheme === theme.id ? "border-primary bg-primary/10" : "border-border bg-muted/30")}
+                  className={cn("theme-choice rounded-md border p-3 text-left transition hover:border-primary", siteTheme === theme.id ? "border-primary bg-primary/10" : "border-border bg-muted/30", !state.unlockedTreeThemeIds.includes(theme.id) && "opacity-70")}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-bold text-foreground">{theme.title}</p>
-                    <span className="rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">{siteTheme === theme.id ? "active" : theme.shortTitle}</span>
+                    <span className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">
+                      {!state.unlockedTreeThemeIds.includes(theme.id) ? <LockKeyhole size={11} /> : null}
+                      {siteTheme === theme.id ? (state.unlockedTreeThemeIds.includes(theme.id) ? "active" : "preview") : state.unlockedTreeThemeIds.includes(theme.id) ? theme.shortTitle : "locked"}
+                    </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{theme.description}</p>
+                  {!state.unlockedTreeThemeIds.includes(theme.id) && theme.unlock.rewardSource ? <p className="mt-2 text-[11px] font-semibold text-primary">Unlock: {theme.unlock.rewardSource}</p> : null}
                 </button>
               ))}
             </CardContent>

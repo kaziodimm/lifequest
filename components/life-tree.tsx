@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { lifeEras } from "@/lib/eras";
 import { technologies, categoryColors, categoryLabels } from "@/lib/life-tree";
 import { getTechnologyMission, getTechnologyTarget } from "@/lib/missions";
+import { getTechnologyLockReasons } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
 import type { LifeCategory, LifeTechnology, TechStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -47,8 +48,9 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function getStatus(tech: LifeTechnology, completedIds: string[], runtimeStatus?: string, runtimeProgress = 0): TechStatus {
+function getStatus(tech: LifeTechnology, completedIds: string[], runtimeStatus?: string, runtimeProgress = 0, progressionLocked = false): TechStatus {
   if (completedIds.includes(tech.id)) return "unlocked";
+  if (progressionLocked) return "locked";
   const completedParents = tech.parents.filter((parentId) => completedIds.includes(parentId)).length;
   if (completedParents < (tech.requiredParentCount ?? tech.parents.length)) return "locked";
   if (runtimeStatus === "active" || runtimeStatus === "cooldown" || runtimeProgress > 0) return "in_progress";
@@ -193,11 +195,14 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
   const dailyMissions = useLifeStore((state) => state.dailyMissions);
   const globalMissionCooldownUntil = useLifeStore((state) => state.globalMissionCooldownUntil);
+  const totalXp = useLifeStore((state) => state.totalXp);
+  const insightPoints = useLifeStore((state) => state.insightPoints);
   const mission = getTechnologyMission(technology);
   const target = getTechnologyTarget(technology);
   const progress = runtime?.progress ?? technology.requirements[0]?.current ?? 0;
   const progressPercent = Math.min(100, (progress / target) * 100);
-  const status = getStatus(technology, completedIds, runtime?.status, progress);
+  const lockReasons = getTechnologyLockReasons(technology, { completedTechnologyIds: completedIds, totalXp, insightPoints });
+  const status = getStatus(technology, completedIds, runtime?.status, progress, lockReasons.length > 0);
   const elapsedSeconds = runtime?.status === "active" && runtime.startedAt ? Math.max(0, Math.floor((now - runtime.startedAt) / 1000)) : 0;
   const remainingSeconds = Math.max(0, mission.minDurationSeconds - elapsedSeconds);
   const cooldownRemaining = runtime?.cooldownUntil ? Math.max(0, Math.floor((runtime.cooldownUntil - now) / 1000)) : 0;
@@ -206,6 +211,8 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const canComplete = runtime?.status === "active" && remainingSeconds === 0;
   const nextUnlocks = technology.unlocks.map((id) => technologies.find((item) => item.id === id)?.title).filter(Boolean);
   const color = categoryColors[technology.category];
+  const researchReward = technology.rewards.researchPoints?.[technology.category] ?? 0;
+  const futureRewards = [technology.rewards.badge && `Badge: ${technology.rewards.badge}`, technology.rewards.title && `Title: ${technology.rewards.title}`, technology.rewards.themeUnlock && `Theme: ${technology.rewards.themeUnlock}`].filter(Boolean);
 
   return (
     <aside
@@ -263,8 +270,18 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
           </div>
           <div className="rounded-md border border-border bg-muted/35 p-3">
             <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Clock3 size={14} /> Cooldown</p>
-            <p className="font-bold text-foreground">{formatDuration(mission.cooldownSeconds)}</p>
+            <p className="font-bold text-foreground">Personal {formatDuration(mission.personalCooldownSeconds ?? mission.cooldownSeconds)}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">Global {mission.globalCooldownType ?? "standard"}</p>
           </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">XP</p><p className="mt-1 font-black text-foreground">+{technology.rewards.xp}</p></div>
+          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">Research</p><p className="mt-1 font-black text-foreground">+{researchReward}</p></div>
+          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">Insight</p><p className="mt-1 font-black text-foreground">+{technology.rewards.insightPoints ?? 0}</p></div>
+        </div>
+        <div className="rounded-md border border-border bg-muted/35 p-3 text-xs">
+          <p className="font-black uppercase tracking-wide text-muted-foreground">Future reward</p>
+          <p className="mt-1 leading-5 text-foreground">{futureRewards.length ? futureRewards.join(" · ") : "Cosmetic reward slot prepared"}</p>
         </div>
       </div>
 
@@ -280,9 +297,17 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
         <p className="text-sm font-bold text-foreground">{nextUnlocks.length ? nextUnlocks.join(", ") : "Branch mastery"}</p>
       </div>
 
+      {technology.type === "challenge" ? (
+        <div className="mt-3 rounded-md border border-border bg-muted/35 p-3 text-xs">
+          <p className="font-black uppercase tracking-wide text-primary">Trial readiness</p>
+          <p className="mt-2 text-muted-foreground">Level {technology.requiredLevel ?? "future"} · Insight {technology.requiredInsightPoints ?? "future"} · Branch milestones {technology.requiredCompletedBranches ?? 1}</p>
+          {lockReasons.length ? <ul className="mt-2 grid list-disc gap-1 pl-4 text-foreground">{lockReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul> : <p className="mt-2 font-bold text-foreground">Current readiness requirements met.</p>}
+        </div>
+      ) : null}
+
       {status === "locked" ? (
         <div className="mt-4 flex items-start gap-2 rounded-md border border-border bg-muted/35 p-3 text-xs text-muted-foreground">
-          <ShieldAlert size={16} className="mt-0.5 shrink-0" /> Unlock parent technologies first.
+          <ShieldAlert size={16} className="mt-0.5 shrink-0" /> {lockReasons[0] ?? "Unlock parent technologies first."}
         </div>
       ) : runtime?.status === "active" ? (
         <Button className="mt-4 w-full" disabled={!canComplete} onClick={() => completeTechnologyMission(technology.id)}>
@@ -331,8 +356,11 @@ export function LifeTree() {
   const dragFrameRef = useRef<number | null>(null);
   const completedIds = useLifeStore((state) => state.completedTechnologyIds);
   const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
+  const totalXp = useLifeStore((state) => state.totalXp);
+  const insightPoints = useLifeStore((state) => state.insightPoints);
   const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
   const rootTechnologies = useMemo(() => technologies.filter((tech) => tech.parents.length === 0), []);
+  const progressionLockedIds = useMemo(() => new Set(technologies.filter((technology) => getTechnologyLockReasons(technology, { completedTechnologyIds: completedIds, totalXp, insightPoints }).length > 0).map((technology) => technology.id)), [completedIds, insightPoints, totalXp]);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 1000);
@@ -538,7 +566,7 @@ export function LifeTree() {
 
             {rootTechnologies.map((tech) => {
               const runtime = technologyRuntime[tech.id];
-              const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
+              const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress, progressionLockedIds.has(tech.id));
               const color = categoryColors[tech.category];
               const end = getNodePoint(tech);
               const joint = getBranchJoint(corePoint, end);
@@ -568,7 +596,7 @@ export function LifeTree() {
                 if (!parent) return null;
 
                 const runtime = technologyRuntime[tech.id];
-                const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
+                const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress, progressionLockedIds.has(tech.id));
                 const color = categoryColors[tech.category];
                 const start = getNodePoint(parent);
                 const end = getNodePoint(tech);
@@ -610,7 +638,7 @@ export function LifeTree() {
 
           {technologies.map((tech) => {
             const runtime = technologyRuntime[tech.id];
-            const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress);
+            const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress, progressionLockedIds.has(tech.id));
             const color = categoryColors[tech.category];
             const isSelected = selectedTechnology?.id === tech.id;
             const cooldownActive = runtime?.cooldownUntil ? runtime.cooldownUntil > now : false;

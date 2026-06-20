@@ -7,6 +7,7 @@ export type TechStatus = "locked" | "available" | "in_progress" | "unlocked";
 export type MissionStatus = "ready" | "active" | "cooldown" | "completed";
 export type TechnologyNodeType = "technology" | "milestone" | "challenge";
 export type GlobalCooldownType = "micro" | "standard" | "deep";
+export type MissionDepth = GlobalCooldownType | "trial";
 
 export type Locale = "en" | "cs" | "ru" | "uk";
 
@@ -16,6 +17,20 @@ export type Requirement = {
   label: string;
   current: number;
   target: number;
+};
+
+export type ResearchPointBalances = Record<LifeCategory, number>;
+
+export type ProgressionReward = {
+  xp: number;
+  researchPoints?: Partial<ResearchPointBalances>;
+  insightPoints?: number;
+  badge?: string;
+  title?: string;
+  themeUnlock?: string;
+  themeFragment?: string;
+  nodeFrame?: string;
+  backgroundEffect?: string;
 };
 
 export type TechnologyMission = {
@@ -31,6 +46,7 @@ export type TechnologyMission = {
   cooldownSeconds: number;
   personalCooldownSeconds?: number;
   globalCooldownType?: GlobalCooldownType;
+  oneTime?: boolean;
   progressGain: number;
   whatCounts?: string;
   whatDoesNotCount?: string;
@@ -56,6 +72,11 @@ export type LifeTechnology = {
   description: string;
   icon?: string;
   xpReward: number;
+  rewards: ProgressionReward;
+  requiredLevel?: number;
+  requiredInsightPoints?: number;
+  requiredCategoryProgress?: Partial<Record<LifeCategory, number>>;
+  requiredCompletedBranches?: number;
   requirements: Requirement[];
   mission?: TechnologyMission;
   unlocks: string[];
@@ -75,6 +96,9 @@ export type DailyMission = {
   status: MissionStatus;
   xpReward: number;
   minDurationSeconds: number;
+  globalCooldownType?: GlobalCooldownType;
+  personalCooldownSeconds?: number;
+  rewards?: ProgressionReward;
   startedAt?: number;
   completedAt?: number;
   cooldownUntil?: number;
@@ -100,6 +124,14 @@ export type PlayerState = {
   theme: VisualThemeId;
   currentEra: LifeEra;
   totalXp: number;
+  researchPoints: ResearchPointBalances;
+  insightPoints: number;
+  unlockedTreeThemeIds: string[];
+  themeFragments: Record<string, number>;
+  earnedBadges: string[];
+  earnedTitles: string[];
+  unlockedNodeFrames: string[];
+  unlockedBackgroundEffects: string[];
   streak: number;
   completedTechnologyIds: string[];
   technologyRuntime: Record<string, TechnologyRuntime>;

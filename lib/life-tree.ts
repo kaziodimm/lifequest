@@ -42,6 +42,13 @@ type Seed = {
   whatCounts?: string;
   whatDoesNotCount?: string;
   branch?: string;
+  requiredLevel?: number;
+  requiredInsightPoints?: number;
+  requiredCategoryProgress?: Partial<Record<LifeCategory, number>>;
+  requiredCompletedBranches?: number;
+  rewardBadge?: string;
+  rewardTitle?: string;
+  rewardThemeUnlock?: string;
 };
 
 const globalCooldownSeconds: Record<GlobalCooldownType, number> = {
@@ -55,6 +62,20 @@ function technology(seed: Seed): LifeTechnology {
   const duration = seed.duration ?? (type === "challenge" ? [30, 60] : [10, 20]);
   const globalType = seed.globalCooldownType ?? (duration[1] <= 10 ? "micro" : duration[1] <= 40 ? "standard" : "deep");
   const target = seed.target ?? 1;
+  const isFinalTrial = seed.id === "awakening-trial";
+  const xpReward = isFinalTrial
+    ? 500
+    : type === "challenge"
+      ? 250
+      : type === "milestone"
+        ? 125
+        : duration[1] <= 10
+          ? 8
+          : duration[1] <= 40
+            ? 24
+            : 48;
+  const researchReward = type === "challenge" ? 12 : type === "milestone" ? 8 : duration[1] <= 10 ? 1 : duration[1] <= 40 ? 3 : 5;
+  const insightReward = isFinalTrial ? 8 : type === "challenge" ? 4 : type === "milestone" ? 2 : 0;
 
   return {
     id: seed.id,
@@ -67,7 +88,19 @@ function technology(seed: Seed): LifeTechnology {
     shortTitle: seed.title,
     description: seed.description,
     icon: seed.icon,
-    xpReward: type === "challenge" ? 220 : type === "milestone" ? 140 : 50 + Math.min(target, 10) * 8,
+    xpReward,
+    rewards: {
+      xp: xpReward,
+      researchPoints: { [seed.category]: researchReward },
+      insightPoints: insightReward || undefined,
+      badge: seed.rewardBadge,
+      title: seed.rewardTitle,
+      themeUnlock: seed.rewardThemeUnlock
+    },
+    requiredLevel: seed.requiredLevel,
+    requiredInsightPoints: seed.requiredInsightPoints,
+    requiredCategoryProgress: seed.requiredCategoryProgress,
+    requiredCompletedBranches: seed.requiredCompletedBranches,
     requirements: [{ label: seed.requirement ?? `Complete ${target} time${target === 1 ? "" : "s"}`, current: 0, target }],
     parents: seed.parents ?? [],
     requiredParentCount: seed.requiredParentCount,
@@ -87,6 +120,7 @@ function technology(seed: Seed): LifeTechnology {
       cooldownSeconds: (seed.personalCooldownHours ?? 2) * 60 * 60,
       personalCooldownSeconds: (seed.personalCooldownHours ?? 2) * 60 * 60,
       globalCooldownType: globalType,
+      oneTime: type === "challenge",
       progressGain: 1,
       whatCounts: seed.whatCounts,
       whatDoesNotCount: seed.whatDoesNotCount
@@ -105,7 +139,7 @@ const health: Seed[] = [
   { id: "simple-nutrition", category: "health", title: "Simple Nutrition", icon: "apple", description: "Make one meal easier to understand.", parents: ["hydration"], unlocks: ["movement-established"], target: 5, requirement: "Complete 5 simple meals", actionTitle: "Build One Simple Meal", steps: ["Choose one protein source.", "Add one fruit or vegetable.", "Add one practical carbohydrate.", "Eat without phone scrolling."], duration: [10, 25], personalCooldownHours: 8, whatCounts: "A deliberately assembled meal.", whatDoesNotCount: "Logging a meal you did not choose intentionally." },
   { id: "sleep-anchor", category: "health", title: "Sleep Anchor", icon: "bed", description: "Give sleep one repeatable anchor.", parents: ["evening-shutdown"], unlocks: ["movement-established"], target: 5, requirement: "Keep the anchor for 5 nights", actionTitle: "Set a Sleep Anchor", steps: ["Choose a realistic lights-out time.", "Set an alarm 15 minutes before it.", "Begin the evening shutdown at the alarm.", "Record the actual lights-out time."], duration: [10, 15], personalCooldownHours: 12 },
   { id: "movement-established", category: "health", title: "Movement Established", icon: "star", type: "milestone", description: "You have created your first body rhythm.", parents: ["health-root", "morning-walk", "daily-movement", "light-cardio", "mobility-primer", "simple-nutrition", "sleep-anchor"], requiredParentCount: 3, unlocks: ["first-endurance-trial"], actionTitle: "Confirm Your Body Rhythm", steps: ["Review the body missions you completed.", "Write one rhythm you can keep next month."], duration: [3, 5], globalCooldownType: "micro" },
-  { id: "first-endurance-trial", category: "health", title: "First Endurance Trial", icon: "trophy", type: "challenge", description: "Prove that movement can repeat across different days.", parents: ["movement-established", "light-cardio", "morning-walk"], requiredParentCount: 3, target: 3, requirement: "Complete 3 sessions on different days within 7 days", actionTitle: "7 Day Endurance Trial", steps: ["Complete 3 intentional movement sessions.", "Make each session at least 20 minutes.", "Use three different days."], duration: [20, 40], personalCooldownHours: 20, whatCounts: "Walking, cardio, cycling, mobility flow or an easy workout.", whatDoesNotCount: "Multiple sessions on one day, work activity or fake short sessions." }
+  { id: "first-endurance-trial", category: "health", title: "First Endurance Trial", icon: "trophy", type: "challenge", description: "A one-time mastery check for the body system you built.", parents: ["movement-established"], target: 1, requirement: "Complete the Body & Energy mastery check", actionTitle: "Body Standard Mastery Check", steps: ["Review the Body & Energy missions and milestone you completed.", "Complete one intentional 30 minute movement session.", "Write your minimum movement standard for the next chapter.", "Write one sleep anchor and one hydration rule.", "Confirm that these three rules are realistic enough to carry forward."], duration: [30, 60], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { health: 4 }, requiredCompletedBranches: 1, rewardBadge: "endurance-mastered", whatCounts: "A full 30 minute intentional session plus written movement, sleep and hydration standards.", whatDoesNotCount: "A normal daily session without reviewing progress and writing the next-chapter rules." }
 ];
 
 const mind: Seed[] = [
@@ -117,7 +151,7 @@ const mind: Seed[] = [
   { id: "deep-work-gate", category: "mind", title: "Deep Work Gate", icon: "lock", description: "Hold attention on one meaningful task.", parents: ["focus-sprint"], unlocks: ["mind-awake"], target: 3, requirement: "Complete 3 sessions", actionTitle: "45 Minute Protected Session", steps: ["Choose one meaningful task.", "Set a 45 minute timer.", "No phone, chat or switching.", "Work until the timer ends.", "Write the outcome in one sentence."], duration: [45, 60], personalCooldownHours: 4, globalCooldownType: "deep" },
   { id: "self-awareness", category: "mind", title: "Self Awareness", icon: "eye", description: "Notice one repeated mental pattern.", parents: ["reflection-note"], unlocks: ["mind-awake"], target: 3, requirement: "Record 3 recurring patterns", actionTitle: "Name One Pattern", steps: ["Review your reflection notes.", "Circle one repeated drain or trigger.", "Write one response you want to test."], duration: [10, 15] },
   { id: "mind-awake", category: "mind", title: "Mind Awake", icon: "star", type: "milestone", description: "Your attention now has a basic operating rhythm.", parents: ["mind-root", "reading-ritual", "focus-sprint", "reflection-note", "knowledge-seed", "deep-work-gate", "self-awareness"], requiredParentCount: 3, unlocks: ["attention-trial"], actionTitle: "Confirm Your Attention Rhythm", steps: ["Review your completed focus missions.", "Write the practice you will continue."], duration: [3, 5], globalCooldownType: "micro" },
-  { id: "attention-trial", category: "mind", title: "Attention Trial", icon: "trophy", type: "challenge", description: "Prove that protected attention can repeat across a week.", parents: ["mind-awake", "focus-sprint"], requiredParentCount: 2, target: 4, requirement: "Complete 4 focus sessions on different days within 7 days", actionTitle: "7 Day Attention Trial", steps: ["Complete 4 focus sessions.", "Keep each session at least 25 minutes.", "Count no more than one session per day."], duration: [25, 45], personalCooldownHours: 20 }
+  { id: "attention-trial", category: "mind", title: "Attention Trial", icon: "trophy", type: "challenge", description: "A one-time examination of protected attention and reflection.", parents: ["mind-awake"], target: 1, requirement: "Complete the Focus & Mind mastery check", actionTitle: "Protected Attention Mastery Check", steps: ["Review your reading, reflection and focus progress.", "Choose one meaningful task.", "Complete one protected 45 minute focus session without switching.", "Write what helped and what tried to break your attention.", "Write one personal focus rule for the next chapter."], duration: [45, 75], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { mind: 4 }, requiredCompletedBranches: 1, rewardBadge: "attention-mastered", whatCounts: "A timed 45 minute focus session plus a written review and next-chapter focus rule.", whatDoesNotCount: "Several short sessions, passive reading or a session interrupted by unrelated switching." }
 ];
 
 const finance: Seed[] = [
@@ -129,7 +163,7 @@ const finance: Seed[] = [
   { id: "budget-snapshot", category: "finance", title: "Budget Snapshot", icon: "chart", description: "Create a simple monthly view.", parents: ["spending-categories"], unlocks: ["financial-visibility"], actionTitle: "Build a Monthly Budget View", steps: ["List monthly income.", "List fixed costs.", "Estimate variable costs.", "Write the amount available after costs."], duration: [20, 30] },
   { id: "emergency-buffer", category: "finance", title: "Emergency Buffer", icon: "shield", description: "Define a small first safety target.", parents: ["savings-seed"], unlocks: ["financial-visibility"], actionTitle: "Define Your First Buffer", steps: ["Choose a small first target.", "Write where the money will stay.", "Write what counts as an emergency."], duration: [10, 15] },
   { id: "financial-visibility", category: "finance", title: "Financial Visibility", icon: "star", type: "milestone", description: "You can now see your basic money system.", parents: ["finance-root", "expense-tracking", "spending-pattern", "budget-snapshot", "emergency-buffer"], requiredParentCount: 3, unlocks: ["money-clarity-trial"], actionTitle: "Confirm Financial Visibility", steps: ["Review your snapshot and tracking.", "Write the one number you will review weekly."], duration: [5, 10], globalCooldownType: "micro" },
-  { id: "money-clarity-trial", category: "finance", title: "Money Clarity Trial", icon: "trophy", type: "challenge", description: "Keep money visible for a full week.", parents: ["financial-visibility"], target: 7, requirement: "Track 7 consecutive days and review once", actionTitle: "7 Day Money Clarity Trial", steps: ["Track spending for 7 consecutive days.", "Review it once at the end.", "Write one rule for next week."], duration: [5, 20], personalCooldownHours: 20 }
+  { id: "money-clarity-trial", category: "finance", title: "Money Clarity Trial", icon: "trophy", type: "challenge", description: "A one-time review of your first practical money system.", parents: ["financial-visibility"], target: 1, requirement: "Complete the Money & Freedom mastery check", actionTitle: "Money Clarity Mastery Check", steps: ["Review your expense tracking and current budget snapshot.", "Write your top three spending patterns.", "Identify the pattern with the highest cost or stress.", "Create one clear money rule for the next chapter.", "Confirm when and how you will review that rule."], duration: [30, 60], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { finance: 4 }, requiredCompletedBranches: 1, rewardBadge: "money-clarity-mastered", whatCounts: "A reviewed snapshot, three written patterns and one specific money rule.", whatDoesNotCount: "Only checking an account balance or writing a vague intention to spend less." }
 ];
 
 const business: Seed[] = [
@@ -141,7 +175,7 @@ const business: Seed[] = [
   { id: "first-asset", category: "business", title: "First Asset", icon: "box", description: "Create something another person can see.", parents: ["project-sprint", "idea-filter"], requiredParentCount: 1, unlocks: ["ship-tiny"], target: 2, requirement: "Create 2 visible assets", actionTitle: "Create One Visible Asset", steps: ["Create a document, prototype, spreadsheet, mockup, demo, landing section or public note.", "Save a visible version."], duration: [30, 60], personalCooldownHours: 4, globalCooldownType: "deep" },
   { id: "ship-tiny", category: "business", title: "Ship Tiny", icon: "rocket", description: "Get feedback before polishing forever.", parents: ["business-root", "first-asset"], requiredParentCount: 1, unlocks: ["creator-started"], actionTitle: "Show Work to One Person", steps: ["Choose one asset.", "Send it to one person.", "Ask: What is unclear?", "Save the feedback."], duration: [15, 30] },
   { id: "creator-started", category: "business", title: "Creator Started", icon: "star", type: "milestone", description: "You now turn ideas into visible artifacts.", parents: ["business-root", "project-sprint", "first-asset", "ship-tiny"], requiredParentCount: 3, unlocks: ["tiny-launch-trial"], actionTitle: "Confirm Your Builder Rhythm", steps: ["Review what you built.", "Write the next smallest output."], duration: [5, 10], globalCooldownType: "micro" },
-  { id: "tiny-launch-trial", category: "business", title: "Tiny Launch Trial", icon: "trophy", type: "challenge", description: "Build, finish and show one small result.", parents: ["creator-started"], target: 3, requirement: "Complete 3 sprints, create 1 asset and show it within 10 days", actionTitle: "10 Day Tiny Launch", steps: ["Complete 3 project sprints.", "Create one visible asset.", "Show it to one person."], duration: [30, 60], personalCooldownHours: 20, globalCooldownType: "deep" }
+  { id: "tiny-launch-trial", category: "business", title: "Tiny Launch Trial", icon: "trophy", type: "challenge", description: "A one-time shipping check for your first builder system.", parents: ["creator-started"], target: 1, requirement: "Complete the Build & Create mastery check", actionTitle: "Tiny Launch Mastery Check", steps: ["Review the project work and visible assets you completed.", "Choose one useful asset that can be finished or clearly improved today.", "Complete and save a visible version.", "Show, publish or deliberately archive that version.", "Write your smallest repeatable shipping rule for the next chapter."], duration: [45, 75], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { business: 4 }, requiredCompletedBranches: 1, rewardBadge: "tiny-launch-mastered", whatCounts: "A visible finished version and a written rule describing the next smallest shippable step.", whatDoesNotCount: "Planning, researching or polishing without producing a visible version." }
 ];
 
 const career: Seed[] = [
@@ -153,7 +187,7 @@ const career: Seed[] = [
   { id: "skill-gap", category: "career", title: "Skill Gap", icon: "map-pin", description: "Choose one useful gap to close.", parents: ["skill-inventory", "learning-block"], requiredParentCount: 1, unlocks: ["career-signal"], actionTitle: "Choose One Skill Gap", steps: ["Review your inventory.", "Choose one missing skill.", "Define the first learning step.", "Schedule one learning block."], duration: [10, 15] },
   { id: "career-signal", category: "career", title: "Career Signal", icon: "radio", description: "Update one professional surface people can see.", parents: ["proof-item", "skill-gap"], requiredParentCount: 1, unlocks: ["direction-found"], actionTitle: "Update One Professional Signal", steps: ["Choose a CV, LinkedIn, portfolio, GitHub README or website section.", "Update it with one clear proof or direction statement."], duration: [20, 40] },
   { id: "direction-found", category: "career", title: "Direction Found", icon: "star", type: "milestone", description: "You have a direction and the first evidence behind it.", parents: ["career-root", "skill-inventory", "proof-item", "learning-block", "career-signal"], requiredParentCount: 3, unlocks: ["professional-signal-trial"], actionTitle: "Confirm Your Direction", steps: ["Review your skills and evidence.", "Write the next professional move in one sentence."], duration: [5, 10], globalCooldownType: "micro" },
-  { id: "professional-signal-trial", category: "career", title: "Professional Signal Trial", icon: "trophy", type: "challenge", description: "Connect learning, proof and visible direction.", parents: ["direction-found"], target: 2, requirement: "Complete 2 learning blocks, 1 proof item and 1 signal within 10 days", actionTitle: "10 Day Professional Signal Trial", steps: ["Complete 2 learning blocks.", "Create 1 proof item.", "Update 1 visible professional signal."], duration: [30, 60], personalCooldownHours: 20, globalCooldownType: "deep" }
+  { id: "professional-signal-trial", category: "career", title: "Professional Signal Trial", icon: "trophy", type: "challenge", description: "A one-time readiness check for professional direction and evidence.", parents: ["direction-found"], target: 1, requirement: "Complete the Direction & Career mastery check", actionTitle: "Professional Direction Mastery Check", steps: ["Review your skills, proof items and completed learning blocks.", "Choose the professional signal that most needs improvement.", "Update one CV, profile, portfolio, README or case-study surface.", "Write one sentence describing the direction this signal supports.", "Write the next proof item you will create in the next chapter."], duration: [45, 75], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { career: 4 }, requiredCompletedBranches: 1, rewardBadge: "professional-signal-mastered", whatCounts: "A saved visible professional update plus a specific direction statement.", whatDoesNotCount: "Private notes with no updated professional surface or a generic career goal." }
 ];
 
 const relationships: Seed[] = [
@@ -165,7 +199,7 @@ const relationships: Seed[] = [
   { id: "shared-time", category: "relationships", title: "Shared Time", icon: "calendar", description: "Turn good intentions into time on the calendar.", parents: ["weekly-check-in"], unlocks: ["trusted-circle"], actionTitle: "Arrange One Shared Moment", steps: ["Choose one person.", "Offer a concrete day and activity.", "Keep the plan small and low-pressure."], duration: [5, 15] },
   { id: "boundary-check", category: "relationships", title: "Boundary Check", icon: "shield", description: "Protect connection from resentment and overload.", parents: ["relationships-root"], unlocks: ["trusted-circle"], actionTitle: "Write One Clear Boundary", steps: ["Name one interaction that drains you.", "Write what you can realistically offer.", "Write one respectful sentence you could use."], duration: [10, 15] },
   { id: "trusted-circle", category: "relationships", title: "Trusted Circle", icon: "star", type: "milestone", description: "You have created an intentional connection rhythm.", parents: ["relationships-root", "weekly-check-in", "meaningful-conversation", "help-offered", "gratitude-note", "shared-time", "boundary-check"], requiredParentCount: 3, unlocks: ["connection-trial"], actionTitle: "Confirm Your Connection Rhythm", steps: ["Review your recent intentional contacts.", "Choose one relationship to keep nurturing."], duration: [5, 10], globalCooldownType: "micro" },
-  { id: "connection-trial", category: "relationships", title: "Connection Trial", icon: "trophy", type: "challenge", description: "Create several kinds of intentional contact.", parents: ["trusted-circle"], target: 5, requirement: "Send 5 messages, have 1 conversation and offer help within 14 days", actionTitle: "14 Day Connection Trial", steps: ["Send 5 intentional messages.", "Have 1 meaningful conversation.", "Offer useful help once."], duration: [5, 30], personalCooldownHours: 20 }
+  { id: "connection-trial", category: "relationships", title: "Connection Trial", icon: "trophy", type: "challenge", description: "A one-time review of the relationships you choose to maintain intentionally.", parents: ["trusted-circle"], target: 1, requirement: "Complete the People & Connection mastery check", actionTitle: "Intentional Connection Mastery Check", steps: ["Review the intentional contacts and conversations you completed.", "Choose one relationship that deserves a real next action.", "Send one meaningful message or schedule one real conversation.", "Write one relationship rule for the next chapter.", "Confirm the boundary that keeps this rule sustainable."], duration: [30, 60], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { relationships: 4 }, requiredCompletedBranches: 1, rewardBadge: "connection-mastered", whatCounts: "A meaningful message or scheduled conversation plus a written relationship rule and boundary.", whatDoesNotCount: "An emoji, passive social browsing or a vague intention to contact someone later." }
 ];
 
 const creativity: Seed[] = [
@@ -176,7 +210,7 @@ const creativity: Seed[] = [
   { id: "publish-small", category: "creativity", title: "Publish Small", icon: "send", description: "Give a small output a clear destination.", parents: ["creativity-root"], unlocks: ["creative-artifact"], target: 2, requirement: "Complete 2 times", actionTitle: "Share One Small Output", steps: ["Send it to a friend, post privately, save to a portfolio, publish a draft or archive it in a project folder."], duration: [10, 20] },
   { id: "creative-artifact", category: "creativity", title: "Creative Artifact", icon: "gem", description: "Finish one small creative object.", parents: ["creative-session", "publish-small"], requiredParentCount: 1, unlocks: ["creative-flame"], target: 2, requirement: "Finish 2 artifacts", actionTitle: "Finish One Small Artifact", steps: ["Choose an image, text, video draft, design, music loop, concept board or article draft.", "Finish a version you can save or share."], duration: [30, 60], personalCooldownHours: 4, globalCooldownType: "deep" },
   { id: "creative-flame", category: "creativity", title: "Creative Flame", icon: "star", type: "milestone", description: "You now create visible work repeatedly.", parents: ["creativity-root", "idea-sketch", "creative-session", "publish-small", "creative-artifact"], requiredParentCount: 3, unlocks: ["creation-trial"], actionTitle: "Confirm Your Creative Rhythm", steps: ["Review your saved outputs.", "Choose one practice to continue."], duration: [5, 10], globalCooldownType: "micro" },
-  { id: "creation-trial", category: "creativity", title: "Creation Trial", icon: "trophy", type: "challenge", description: "Create, finish and clearly archive or share a result.", parents: ["creative-flame"], target: 3, requirement: "Complete 3 sessions, finish 1 artifact and share or archive it within 10 days", actionTitle: "10 Day Creation Trial", steps: ["Complete 3 creative sessions.", "Finish 1 artifact.", "Share or archive it clearly."], duration: [30, 60], personalCooldownHours: 20, globalCooldownType: "deep" }
+  { id: "creation-trial", category: "creativity", title: "Creation Trial", icon: "trophy", type: "challenge", description: "A one-time mastery check for turning practice into a finished artifact.", parents: ["creative-flame"], target: 1, requirement: "Complete the Creative Practice mastery check", actionTitle: "Creative Artifact Mastery Check", steps: ["Review the creative outputs you completed.", "Choose one artifact that can reach a clear finished version.", "Finish or meaningfully polish that artifact.", "Save, archive or share the final version.", "Write one creative practice rule for the next chapter."], duration: [45, 75], personalCooldownHours: 24, globalCooldownType: "deep", requiredLevel: 2, requiredCategoryProgress: { creativity: 4 }, requiredCompletedBranches: 1, rewardBadge: "creation-mastered", whatCounts: "A finished saved artifact plus a written creative practice rule.", whatDoesNotCount: "Starting another draft, collecting references or stopping without a clear final version." }
 ];
 
 const branchMilestones = ["movement-established", "mind-awake", "financial-visibility", "creator-started", "direction-found", "trusted-circle", "creative-flame"];
@@ -187,16 +221,25 @@ const awakeningTrial: Seed = {
   title: "The Awakening Trial",
   icon: "crown",
   type: "challenge",
-  description: "Prove that your life system is not one-dimensional.",
+  description: "The final one-time mastery check before entering Inner Order.",
   parents: branchMilestones,
   requiredParentCount: 4,
-  target: 5,
-  requirement: "Complete actions from 3 branches on at least 5 of 7 days",
-  actionTitle: "7 Day Awakening Trial",
-  steps: ["Complete actions from at least 3 different branches.", "Only one action per branch counts each day.", "Complete at least 5 days out of 7.", "All active mission and cooldown rules apply."],
-  duration: [10, 60],
-  personalCooldownHours: 20,
-  globalCooldownType: "deep"
+  target: 1,
+  requirement: "Complete the chapter mastery check across at least 4 branches",
+  actionTitle: "The Awakening Mastery Check",
+  actionDescription: "Review the chapter, prove balanced action and write the personal system you will carry into Inner Order.",
+  steps: ["Review at least four completed branch milestones.", "Choose three practices you will carry into Inner Order.", "Complete one concrete action from three different branches during this Trial.", "Write the minimum rule for each chosen practice.", "Combine those rules into one personal system for the next chapter.", "Confirm what will make you pause and revise the system instead of abandoning it."],
+  duration: [60, 90],
+  personalCooldownHours: 24,
+  globalCooldownType: "deep",
+  requiredLevel: 4,
+  requiredInsightPoints: 0,
+  requiredCompletedBranches: 4,
+  rewardBadge: "awakening-mastered",
+  rewardTitle: "Awakened Strategist",
+  rewardThemeUnlock: "atlas",
+  whatCounts: "Four reviewed milestones, actions from three distinct branches, three carry-forward practices and one written Inner Order system.",
+  whatDoesNotCount: "Repeating one easy branch, listing vague habits or completing without a written next-chapter system."
 };
 
 export const technologies: LifeTechnology[] = [...health, ...mind, ...finance, ...business, ...career, ...relationships, ...creativity, awakeningTrial].map(technology);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Clock, Play, Target } from "lucide-react";
+import { CheckCircle2, Clock, Play, ShieldAlert, Target } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,8 @@ export default function CommandPage() {
   const missions = useLifeStore((state) => state.dailyMissions);
   const startMission = useLifeStore((state) => state.startMission);
   const completeMission = useLifeStore((state) => state.completeMission);
+  const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
+  const globalMissionCooldownUntil = useLifeStore((state) => state.globalMissionCooldownUntil);
   const planner = useLifeStore((state) => state.planner);
   const updatePlannerBlock = useLifeStore((state) => state.updatePlannerBlock);
   const togglePlannerBlock = useLifeStore((state) => state.togglePlannerBlock);
@@ -28,6 +30,10 @@ export default function CommandPage() {
     const interval = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(interval);
   }, []);
+
+  const activeDailyMission = missions.find((mission) => mission.status === "active");
+  const technologyMissionActive = Object.values(technologyRuntime).some((runtime) => runtime.status === "active");
+  const globalCooldownRemaining = globalMissionCooldownUntil ? Math.max(0, Math.floor((globalMissionCooldownUntil - now) / 1000)) : 0;
 
   return (
     <AppShell>
@@ -47,6 +53,7 @@ export default function CommandPage() {
               const elapsedSeconds = status === "active" && mission.startedAt ? Math.max(0, Math.floor((now - mission.startedAt) / 1000)) : 0;
               const remainingSeconds = Math.max(0, mission.minDurationSeconds - elapsedSeconds);
               const canComplete = status === "active" && remainingSeconds === 0;
+              const anotherMissionActive = Boolean((activeDailyMission && activeDailyMission.id !== mission.id) || technologyMissionActive);
 
               return (
                 <div key={mission.id} className={cn("rounded-lg border p-3 transition", status === "active" ? "border-primary/70 bg-primary/10 shadow-[0_0_24px_rgba(132,255,170,0.12)]" : "border-border bg-muted/40")}> 
@@ -70,12 +77,15 @@ export default function CommandPage() {
                       <Button size="sm" onClick={() => completeMission(mission.id)} disabled={!canComplete}>
                         <CheckCircle2 size={16} />{canComplete ? "Complete" : formatDuration(remainingSeconds)}
                       </Button>
+                    ) : anotherMissionActive ? (
+                      <Button size="sm" disabled variant="outline" title="Another mission is already active."><ShieldAlert size={16} />Active mission</Button>
+                    ) : globalCooldownRemaining > 0 ? (
+                      <Button size="sm" disabled variant="outline"><Clock size={16} />{formatDuration(globalCooldownRemaining)}</Button>
                     ) : (
-                      <Button size="sm" onClick={() => startMission(mission.id)}>
-                        <Play size={16} />Start
-                      </Button>
+                      <Button size="sm" onClick={() => startMission(mission.id)}><Play size={16} />Start</Button>
                     )}
                   </div>
+                  {anotherMissionActive && status !== "active" && status !== "completed" ? <p className="mt-2 text-xs font-semibold text-muted-foreground">Another mission is already active.</p> : null}
                 </div>
               );
             })}

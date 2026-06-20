@@ -4,7 +4,30 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
 import { getGlobalCooldownSeconds, getTechnologyMission, getTechnologyTarget } from "./missions";
-import { DailyMission, Locale, PlayerState, TechnologyRuntime, VisualThemeId } from "./types";
+import { getTechnologyLockReasons } from "./progression";
+import { DailyMission, LifeCategory, Locale, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, VisualThemeId } from "./types";
+
+const emptyResearchPoints: ResearchPointBalances = {
+  health: 0,
+  mind: 0,
+  career: 0,
+  business: 0,
+  finance: 0,
+  relationships: 0,
+  creativity: 0
+};
+
+function addResearchPoints(current: ResearchPointBalances, reward?: ProgressionReward["researchPoints"]) {
+  const next = { ...current };
+  Object.entries(reward ?? {}).forEach(([category, amount]) => {
+    next[category as LifeCategory] += amount ?? 0;
+  });
+  return next;
+}
+
+function addUnique(current: string[], value?: string) {
+  return value && !current.includes(value) ? [...current, value] : current;
+}
 
 const initialMissions: DailyMission[] = [
   {
@@ -16,7 +39,9 @@ const initialMissions: DailyMission[] = [
     completed: false,
     status: "ready",
     xpReward: 20,
-    minDurationSeconds: 600
+    minDurationSeconds: 600,
+    globalCooldownType: "standard",
+    personalCooldownSeconds: 12 * 60 * 60
   },
   {
     id: "mission-build",
@@ -27,7 +52,9 @@ const initialMissions: DailyMission[] = [
     completed: false,
     status: "ready",
     xpReward: 30,
-    minDurationSeconds: 900
+    minDurationSeconds: 900,
+    globalCooldownType: "standard",
+    personalCooldownSeconds: 4 * 60 * 60
   },
   {
     id: "mission-water",
@@ -38,7 +65,9 @@ const initialMissions: DailyMission[] = [
     completed: false,
     status: "ready",
     xpReward: 10,
-    minDurationSeconds: 60
+    minDurationSeconds: 60,
+    globalCooldownType: "micro",
+    personalCooldownSeconds: 8 * 60 * 60
   }
 ];
 
@@ -66,6 +95,14 @@ const initialState: PlayerState = {
   theme: "focus-dark",
   currentEra: "foundation",
   totalXp: 80,
+  researchPoints: { ...emptyResearchPoints },
+  insightPoints: 0,
+  unlockedTreeThemeIds: ["orbit"],
+  themeFragments: {},
+  earnedBadges: [],
+  earnedTitles: [],
+  unlockedNodeFrames: [],
+  unlockedBackgroundEffects: [],
   streak: 3,
   completedTechnologyIds: initialCompletedTechnologyIds,
   technologyRuntime: createInitialTechnologyRuntime(initialCompletedTechnologyIds),
@@ -121,18 +158,40 @@ function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined)
 }
 
 function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerState {
-  const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => normalizeMission(mission));
+  let activeMissionClaimed = false;
+  const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => {
+    const normalized = normalizeMission(mission);
+    if (normalized.status !== "active") return normalized;
+    if (activeMissionClaimed) return { ...normalized, status: "ready" as const, startedAt: undefined };
+    activeMissionClaimed = true;
+    return normalized;
+  });
   const savedCompletedIds = persisted?.completedTechnologyIds;
   const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
   const validIds = new Set(technologies.map((technology) => technology.id));
   const hasRemovedTechnology = savedCompletedIds?.some((id) => !validIds.has(id));
+
+  const technologyRuntime = normalizeTechnologyRuntime(persisted);
+  Object.keys(technologyRuntime).forEach((technologyId) => {
+    if (technologyRuntime[technologyId].status !== "active") return;
+    if (activeMissionClaimed) technologyRuntime[technologyId] = { ...technologyRuntime[technologyId], status: "ready", startedAt: undefined };
+    else activeMissionClaimed = true;
+  });
 
   return {
     ...initialState,
     ...persisted,
     completedTechnologyIds: !savedCompletedIds || isLegacyDemo || hasRemovedTechnology ? initialState.completedTechnologyIds : savedCompletedIds,
     currentEra: persisted?.currentEra ?? initialState.currentEra,
-    technologyRuntime: normalizeTechnologyRuntime(persisted),
+    researchPoints: { ...emptyResearchPoints, ...(persisted?.researchPoints ?? {}) },
+    insightPoints: persisted?.insightPoints ?? 0,
+    unlockedTreeThemeIds: persisted?.unlockedTreeThemeIds ?? initialState.unlockedTreeThemeIds,
+    themeFragments: persisted?.themeFragments ?? {},
+    earnedBadges: persisted?.earnedBadges ?? [],
+    earnedTitles: persisted?.earnedTitles ?? [],
+    unlockedNodeFrames: persisted?.unlockedNodeFrames ?? [],
+    unlockedBackgroundEffects: persisted?.unlockedBackgroundEffects ?? [],
+    technologyRuntime,
     dailyMissions: missions,
     planner: persisted?.planner ?? initialState.planner,
     achievements: persisted?.achievements ?? initialState.achievements,
@@ -143,6 +202,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
 type LifeStore = PlayerState & {
   setLocale: (locale: Locale) => void;
   setTheme: (theme: VisualThemeId) => void;
+  unlockTreeTheme: (themeId: string) => void;
   startMission: (missionId: string) => void;
   completeMission: (missionId: string) => void;
   startTechnologyMission: (technologyId: string) => void;
@@ -161,6 +221,9 @@ export const useLifeStore = create<LifeStore>()(
       },
       setTheme(theme) {
         set({ theme });
+      },
+      unlockTreeTheme(themeId) {
+        set((state) => ({ unlockedTreeThemeIds: state.unlockedTreeThemeIds.includes(themeId) ? state.unlockedTreeThemeIds : [...state.unlockedTreeThemeIds, themeId] }));
       },
       startMission(missionId) {
         const state = get();
@@ -184,12 +247,26 @@ export const useLifeStore = create<LifeStore>()(
         const elapsedSeconds = Math.floor((now - mission.startedAt) / 1000);
         if (elapsedSeconds < mission.minDurationSeconds) return;
 
+        const technology = technologies.find((item) => item.id === mission.technologyId);
+        const reward: ProgressionReward = mission.rewards ?? {
+          xp: mission.xpReward,
+          researchPoints: technology ? { [technology.category]: 1 } : undefined
+        };
+
         set((state) => ({
-          totalXp: state.totalXp + mission.xpReward,
-          globalMissionCooldownUntil: now + 30 * 60 * 1000,
+          totalXp: state.totalXp + reward.xp,
+          researchPoints: addResearchPoints(state.researchPoints, reward.researchPoints),
+          insightPoints: state.insightPoints + (reward.insightPoints ?? 0),
+          unlockedTreeThemeIds: reward.themeUnlock && !state.unlockedTreeThemeIds.includes(reward.themeUnlock) ? [...state.unlockedTreeThemeIds, reward.themeUnlock] : state.unlockedTreeThemeIds,
+          themeFragments: reward.themeFragment ? { ...state.themeFragments, [reward.themeFragment]: (state.themeFragments[reward.themeFragment] ?? 0) + 1 } : state.themeFragments,
+          earnedBadges: addUnique(state.earnedBadges, reward.badge),
+          earnedTitles: addUnique(state.earnedTitles, reward.title),
+          unlockedNodeFrames: addUnique(state.unlockedNodeFrames, reward.nodeFrame),
+          unlockedBackgroundEffects: addUnique(state.unlockedBackgroundEffects, reward.backgroundEffect),
+          globalMissionCooldownUntil: now + getGlobalCooldownSeconds(mission.globalCooldownType) * 1000,
           dailyMissions: state.dailyMissions.map((item) =>
             item.id === missionId
-              ? { ...item, completed: true, status: "completed", completedAt: now, cooldownUntil: now + 24 * 60 * 60 * 1000 }
+              ? { ...item, completed: true, status: "completed", completedAt: now, cooldownUntil: now + (mission.personalCooldownSeconds ?? 24 * 60 * 60) * 1000 }
               : item
           ),
           achievements: state.achievements.map((achievement) =>
@@ -203,8 +280,7 @@ export const useLifeStore = create<LifeStore>()(
 
         const state = get();
         const completed = state.completedTechnologyIds;
-        const completedParents = tech.parents.filter((parentId) => completed.includes(parentId)).length;
-        const canStart = completedParents >= (tech.requiredParentCount ?? tech.parents.length);
+        const canStart = getTechnologyLockReasons(tech, state).length === 0;
         const runtime = state.technologyRuntime[technologyId] ?? { progress: 0, status: "ready" };
         if (!canStart || completed.includes(technologyId) || runtime.status === "active") return;
         if (runtime.cooldownUntil && runtime.cooldownUntil > Date.now()) return;
@@ -236,9 +312,20 @@ export const useLifeStore = create<LifeStore>()(
         const alreadyCompleted = get().completedTechnologyIds.includes(technologyId);
         const missionXp = completedTechnology ? tech.xpReward : Math.max(5, Math.round(tech.xpReward / target));
         const globalCooldownUntil = now + getGlobalCooldownSeconds(mission.globalCooldownType) * 1000;
+        const categoryReward = tech.rewards.researchPoints?.[tech.category] ?? 0;
+        const researchGain = completedTechnology ? categoryReward : Math.max(1, Math.round(categoryReward / target));
+        const completionInsight = completedTechnology && !alreadyCompleted ? tech.rewards.insightPoints ?? 0 : 0;
 
         set((state) => ({
           totalXp: state.totalXp + missionXp,
+          researchPoints: addResearchPoints(state.researchPoints, { [tech.category]: researchGain }),
+          insightPoints: state.insightPoints + completionInsight,
+          unlockedTreeThemeIds: completedTechnology && tech.rewards.themeUnlock && !state.unlockedTreeThemeIds.includes(tech.rewards.themeUnlock) ? [...state.unlockedTreeThemeIds, tech.rewards.themeUnlock] : state.unlockedTreeThemeIds,
+          themeFragments: completedTechnology && tech.rewards.themeFragment ? { ...state.themeFragments, [tech.rewards.themeFragment]: (state.themeFragments[tech.rewards.themeFragment] ?? 0) + 1 } : state.themeFragments,
+          earnedBadges: completedTechnology ? addUnique(state.earnedBadges, tech.rewards.badge) : state.earnedBadges,
+          earnedTitles: completedTechnology ? addUnique(state.earnedTitles, tech.rewards.title) : state.earnedTitles,
+          unlockedNodeFrames: completedTechnology ? addUnique(state.unlockedNodeFrames, tech.rewards.nodeFrame) : state.unlockedNodeFrames,
+          unlockedBackgroundEffects: completedTechnology ? addUnique(state.unlockedBackgroundEffects, tech.rewards.backgroundEffect) : state.unlockedBackgroundEffects,
           globalMissionCooldownUntil: globalCooldownUntil,
           completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
           technologyRuntime: {

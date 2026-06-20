@@ -20,6 +20,18 @@
 - Epoch navigation has previous/next controls and mobile snapping for all 12 epochs.
 - The mission card is the highest interactive layer. Other controls disappear while it is open.
 
+## Progression foundation
+
+- All eight Trial nodes are one-time 30–90 minute mastery checks, not multi-day habit loops.
+- Only one daily or Tree mission can be active; persisted duplicate active states are normalized safely.
+- Every mission enforces minimum duration, a global cooldown tier and a personal cooldown.
+- XP is balanced by mission depth. Normal nodes award modest XP, milestones award 125, Trials 250 and The Awakening Trial 500.
+- Player state supports category Research Points and rare Insight Points.
+- Reward bundles support XP, Research, Insight, badges, titles, theme unlocks, theme fragments, node frames and background effects.
+- Trial readiness supports `requiredLevel`, `requiredInsightPoints`, `requiredCategoryProgress` and `requiredCompletedBranches`.
+- Orbit is the default unlocked theme. Locked themes remain previewable and can be unlocked by rewards; Atlas is tied to The Awakening Trial.
+- The mission panel displays action, steps, duration, personal/global cooldowns, rewards, counting rules and Trial lock reasons.
+
 ## Mobile stability work
 
 - Coarse-pointer devices use a stable 2D canvas transform instead of `translate3d`.
@@ -38,9 +50,10 @@
 
 ## Next product steps after visual polish
 
-1. Rework mission content and progression balance for the remaining chapters.
-2. Validate real-device performance on iOS Safari and Android Chrome.
-3. Add automated visual regression tests for desktop and mobile Tree layouts.
-4. Continue accessibility and keyboard-navigation review.
+1. Add backend persistence and server-authoritative mission timestamps before public leaderboards.
+2. Build Inner Order chapter content using the new progression and reward fields.
+3. Add a dedicated wallet/reward inventory UI for Research, Insight and cosmetics.
+4. Validate real-device performance on iOS Safari and Android Chrome.
+5. Add automated progression and visual regression tests.
 
 Read this file first when continuing in a new Codex thread.
