@@ -321,6 +321,7 @@ export function LifeTree() {
   const [now, setNow] = useState(() => Date.now());
   const [view, setView] = useState<ViewState>({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
   const [dragStart, setDragStart] = useState<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
+  const [stableMobileRendering, setStableMobileRendering] = useState(false);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const artLayerRef = useRef<HTMLDivElement | null>(null);
@@ -339,15 +340,23 @@ export function LifeTree() {
   }, []);
 
   useEffect(() => {
+    setStableMobileRendering(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  useEffect(() => {
     viewRef.current = view;
     const artLayer = artLayerRef.current;
     if (artLayer) {
-      const parallaxX = clamp(view.pan.x * 0.055, -72, 72);
-      const parallaxY = clamp(view.pan.y * 0.055, -72, 72);
-      const depthScale = 1.018 + Math.max(0, view.zoom - overviewZoom) * 0.035;
-      artLayer.style.transform = `translate3d(${parallaxX}px, ${parallaxY}px, 0) scale(${depthScale})`;
+      if (stableMobileRendering) {
+        artLayer.style.transform = "translate(0, 0) scale(1.08)";
+      } else {
+        const parallaxX = clamp(view.pan.x * 0.055, -72, 72);
+        const parallaxY = clamp(view.pan.y * 0.055, -72, 72);
+        const depthScale = 1.018 + Math.max(0, view.zoom - overviewZoom) * 0.035;
+        artLayer.style.transform = `translate3d(${parallaxX}px, ${parallaxY}px, 0) scale(${depthScale})`;
+      }
     }
-  }, [view]);
+  }, [stableMobileRendering, view]);
 
   useEffect(() => () => {
     if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
@@ -443,9 +452,11 @@ export function LifeTree() {
       const pan = pendingDragPanRef.current;
       const canvas = canvasRef.current;
       if (!pan || !canvas) return;
-      canvas.style.transform = `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${viewRef.current.zoom})`;
+      canvas.style.transform = stableMobileRendering
+        ? `translate(${pan.x}px, ${pan.y}px) scale(${viewRef.current.zoom})`
+        : `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${viewRef.current.zoom})`;
       const artLayer = artLayerRef.current;
-      if (artLayer) {
+      if (artLayer && !stableMobileRendering) {
         const parallaxX = clamp(pan.x * 0.055, -72, 72);
         const parallaxY = clamp(pan.y * 0.055, -72, 72);
         const depthScale = 1.018 + Math.max(0, viewRef.current.zoom - overviewZoom) * 0.035;
@@ -509,7 +520,7 @@ export function LifeTree() {
         <div
           ref={canvasRef}
           className="life-tree-canvas"
-          style={{ width: treeSize, height: treeSize, ["--tree-half" as string]: `-${treeSize / 2}px`, transform: `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
+          style={{ width: treeSize, height: treeSize, ["--tree-half" as string]: `-${treeSize / 2}px`, transform: stableMobileRendering ? `translate(${view.pan.x}px, ${view.pan.y}px) scale(${view.zoom})` : `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
         >
           <svg className="pointer-events-none absolute inset-0 size-full" viewBox={`0 0 ${treeSize} ${treeSize}`} aria-hidden="true">
             <defs>

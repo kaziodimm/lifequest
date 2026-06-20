@@ -652,6 +652,15 @@
   .themeSwatch, .themeSwatchActive { width: 42px; height: 42px; }
 }
 
+.fullscreenField:has(:global(.life-tree-stage.is-focused)) .cameraDock,
+.fullscreenField:has(:global(.life-tree-stage.is-focused)) .themeDock {
+  z-index: 20;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(12px) scale(.96);
+}
+
 @media (max-width: 1023px) {
   .fullscreenField:has(:global(.life-tree-stage.is-focused)) :global(.life-tree-toolbar),
   .fullscreenField:has(:global(.life-tree-stage.is-focused)) .cameraDock,

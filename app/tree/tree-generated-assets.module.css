@@ -505,7 +505,7 @@
 .generatedTreeAssets[data-tree-theme="pulse"] { --core-art: url("/art/themes-v3/pulse/core.webp"); --check-art: url("/art/themes-v3/pulse/check.webp"); }
 
 .generatedTreeAssets :global(.life-tree-art-layer) {
-  inset: 0 !important;
+  inset: -8% !important;
   contain: strict;
   isolation: isolate;
   backface-visibility: hidden;
@@ -587,8 +587,8 @@
 
 @media (max-width: 768px) {
   .generatedTreeAssets :global(.life-tree-art-layer) {
+    inset: -20% !important;
     transition: none !important;
-    backface-visibility: hidden;
     transform-style: flat;
     contain: layout paint;
   }
@@ -596,7 +596,6 @@
     animation: none !important;
     filter: none !important;
     transform: translate3d(0,0,0) scale(1.04) !important;
-    backface-visibility: hidden;
     will-change: auto !important;
   }
   .generatedTreeAssets :global(.life-tree-art-atmosphere) { display: none; }
@@ -607,7 +606,6 @@
   .generatedTreeAssets :global(.life-tree-canvas),
   .generatedTreeAssets :global(.tech-node-button),
   .generatedTreeAssets :global(.tech-orb) {
-    backface-visibility: hidden;
     transform-style: flat;
   }
   .generatedTreeAssets :global(.tech-node-button) { filter: none !important; }
