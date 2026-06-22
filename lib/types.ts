@@ -8,6 +8,8 @@ export type MissionStatus = "ready" | "active" | "cooldown" | "completed";
 export type TechnologyNodeType = "technology" | "milestone" | "challenge";
 export type GlobalCooldownType = "micro" | "standard" | "deep";
 export type MissionDepth = GlobalCooldownType | "trial";
+export type MissionInputType = "singleChoice" | "multiChoice" | "shortText" | "number" | "rating" | "checklist" | "dateOrTime" | "link" | "confirmation";
+export type FocusObjectType = "project" | "careerSkill" | "financialGoal" | "relationship" | "creativeMedium" | "learningTopic" | "healthRoutine";
 
 export type Locale = "en" | "ru";
 
@@ -31,6 +33,84 @@ export type ProgressionReward = {
   themeFragment?: string;
   nodeFrame?: string;
   backgroundEffect?: string;
+};
+
+export type MissionChoice = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export type MissionInput = {
+  id: string;
+  type: MissionInputType;
+  label: string;
+  helpText?: string;
+  placeholder?: string;
+  example?: string;
+  required: boolean;
+  choices?: MissionChoice[];
+  allowCustomChoice?: boolean;
+  min?: number;
+  max?: number;
+};
+
+export type MissionStep = {
+  id: string;
+  instruction: string;
+  optional?: boolean;
+};
+
+export type UserFocusObject = {
+  id: string;
+  type: FocusObjectType;
+  category: LifeCategory;
+  name: string;
+  desiredOutcome: string;
+  createdAt: number;
+  updatedAt?: number;
+};
+
+export type MissionCompletionEvidence = {
+  summary: string;
+  note?: string;
+  link?: string;
+  confirmedAt: number;
+};
+
+export type MissionAnswer = string | number | boolean | string[];
+
+export type MissionAttempt = {
+  id: string;
+  missionId: string;
+  technologyId: string;
+  startedAt: number;
+  completedAt?: number;
+  elapsedSeconds?: number;
+  answers: Record<string, MissionAnswer>;
+  selectedFocusObject?: string;
+  evidence?: MissionCompletionEvidence;
+  earnedRewards?: ProgressionReward;
+};
+
+export type MissionDefinition = {
+  id: string;
+  technologyId: string;
+  actionTitle: string;
+  concreteOutcome: string;
+  whyItMatters: string;
+  duration: { minMinutes: number; maxMinutes: number; label: string };
+  minimumDurationSeconds: number;
+  cooldown: { personalSeconds: number; globalType: GlobalCooldownType };
+  exactSteps: MissionStep[];
+  completionCriteria: string;
+  inputSchema: MissionInput[];
+  recommendedChoice?: string;
+  optionalChoices?: MissionChoice[];
+  exampleResult?: string;
+  whatCounts?: string;
+  whatDoesNotCount?: string;
+  rewards: ProgressionReward;
 };
 
 export type TechnologyMission = {
@@ -136,6 +216,9 @@ export type PlayerState = {
   completedTechnologyIds: string[];
   technologyRuntime: Record<string, TechnologyRuntime>;
   globalMissionCooldownUntil?: number;
+  activeMissionAttemptId?: string;
+  missionAttempts: MissionAttempt[];
+  focusObjects: UserFocusObject[];
   dailyMissions: DailyMission[];
   planner: PlannerBlock[];
   achievements: Achievement[];
