@@ -9,6 +9,7 @@ import { technologies } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { translate } from "@/lib/i18n";
+import { localizeTechnology } from "@/lib/technology-i18n";
 
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -62,11 +63,11 @@ export default function CommandPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <p className="font-bold text-foreground">{mission.title}</p>
+                        <p className="font-bold text-foreground">{translate(locale, mission.title)}</p>
                         <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide", status === "active" ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>{translate(locale, status)}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{translate(locale, "Tiny start:")} {mission.tinyStep}</p>
-                      <p className="mt-2 text-xs font-semibold text-primary">{translate(locale, "Progresses:")} {tech?.title ?? translate(locale, "Life Tree")}</p>
+                      <p className="text-xs text-muted-foreground">{translate(locale, "Tiny start:")} {translate(locale, mission.tinyStep)}</p>
+                      <p className="mt-2 text-xs font-semibold text-primary">{translate(locale, "Progresses:")} {tech ? localizeTechnology(tech, locale).title : translate(locale, "Life Tree")}</p>
                       {status === "active" ? (
                         <p className="mt-2 text-xs font-bold text-strategy-gold">{translate(locale, "Research timer:")} {formatDuration(elapsedSeconds)} / {formatDuration(mission.minDurationSeconds)}</p>
                       ) : null}
@@ -113,7 +114,7 @@ export default function CommandPage() {
                 >
                   <option value="">{translate(locale, "No technology")}</option>
                   {technologies.map((tech) => (
-                    <option key={tech.id} value={tech.id}>{tech.title}</option>
+                    <option key={tech.id} value={tech.id}>{localizeTechnology(tech, locale).title}</option>
                   ))}
                 </select>
                 <Button size="icon" variant={block.completed ? "default" : "outline"} onClick={() => togglePlannerBlock(block.hour)}>

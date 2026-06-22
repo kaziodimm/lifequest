@@ -48,7 +48,7 @@ export default function StatsPage() {
             {categories.map((item) => (
               <div key={item.category}>
                 <div className="mb-1 flex justify-between text-xs">
-                  <span className="font-bold" style={{ color: categoryColors[item.category as keyof typeof categoryColors] }}>{item.label}</span>
+                  <span className="font-bold" style={{ color: categoryColors[item.category as keyof typeof categoryColors] }}>{translate(state.locale, item.label)}</span>
                   <span className="text-muted-foreground">{item.percent}%</span>
                 </div>
                 <Progress value={item.percent} />

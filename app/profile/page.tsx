@@ -32,7 +32,7 @@ export default function ProfilePage() {
     <AppShell>
       <div className="mb-4">
         <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">{translate(state.locale, "Commander Profile")}</p>
-        <h1 className="text-2xl font-black text-foreground">{state.avatarName}</h1>
+        <h1 className="text-2xl font-black text-foreground">{translate(state.locale, state.avatarName)}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{translate(state.locale, "Your profile represents real-life strategic development.")}</p>
       </div>
 
@@ -56,8 +56,8 @@ export default function ProfilePage() {
             <CardContent className="grid gap-2">
               {state.achievements.map((achievement) => (
                 <div key={achievement.id} className="rounded-md border border-border bg-muted/40 p-3">
-                  <p className="font-bold text-foreground">{achievement.title}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{achievement.description}</p>
+                  <p className="font-bold text-foreground">{translate(state.locale, achievement.title)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, achievement.description)}</p>
                 </div>
               ))}
             </CardContent>
@@ -70,10 +70,10 @@ export default function ProfilePage() {
                 return (
                   <div key={milestone.days} className={cn("rounded-md border p-3", unlocked ? "border-strategy-red/60 bg-strategy-red/10" : "border-border bg-muted/30") }>
                     <div className="flex items-center justify-between gap-3">
-                      <p className="font-bold text-foreground">{milestone.title}</p>
+                      <p className="font-bold text-foreground">{translate(state.locale, milestone.title)}</p>
                       <span className="text-xs font-black text-muted-foreground">{milestone.days}d</span>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{milestone.description}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, milestone.description)}</p>
                   </div>
                 );
               })}
@@ -100,14 +100,14 @@ export default function ProfilePage() {
                   className={cn("theme-choice rounded-md border p-3 text-left transition hover:border-primary", siteTheme === theme.id ? "border-primary bg-primary/10" : "border-border bg-muted/30", !state.unlockedTreeThemeIds.includes(theme.id) && "opacity-70")}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-bold text-foreground">{theme.title}</p>
+                    <p className="font-bold text-foreground">{translate(state.locale, theme.title)}</p>
                     <span className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">
                       {!state.unlockedTreeThemeIds.includes(theme.id) ? <LockKeyhole size={11} /> : null}
-                      {siteTheme === theme.id ? translate(state.locale, state.unlockedTreeThemeIds.includes(theme.id) ? "active" : "preview") : state.unlockedTreeThemeIds.includes(theme.id) ? theme.shortTitle : translate(state.locale, "locked")}
+                      {siteTheme === theme.id ? translate(state.locale, state.unlockedTreeThemeIds.includes(theme.id) ? "active" : "preview") : state.unlockedTreeThemeIds.includes(theme.id) ? translate(state.locale, theme.shortTitle) : translate(state.locale, "locked")}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{theme.description}</p>
-                  {!state.unlockedTreeThemeIds.includes(theme.id) && theme.unlock.rewardSource ? <p className="mt-2 text-[11px] font-semibold text-primary">{translate(state.locale, "Unlock:")} {theme.unlock.rewardSource}</p> : null}
+                  <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, theme.description)}</p>
+                  {!state.unlockedTreeThemeIds.includes(theme.id) && theme.unlock.rewardSource ? <p className="mt-2 text-[11px] font-semibold text-primary">{translate(state.locale, "Unlock:")} {translate(state.locale, theme.unlock.rewardSource)}</p> : null}
                 </button>
               ))}
             </CardContent>

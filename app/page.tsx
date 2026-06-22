@@ -12,6 +12,7 @@ import { categoryColors, technologies } from "@/lib/life-tree";
 import { dailyCompletionPercent, levelFromXp } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
 import { translate } from "@/lib/i18n";
+import { localizeTechnology } from "@/lib/technology-i18n";
 
 export default function HomePage() {
   const state = useLifeStore();
@@ -23,6 +24,7 @@ export default function HomePage() {
   const treeCompletion = Math.round((state.completedTechnologyIds.length / technologies.length) * 100);
   const activeMissions = Object.entries(state.technologyRuntime).filter(([, runtime]) => runtime.status === "active");
   const nextUnlock = technologies.find((tech) => !state.completedTechnologyIds.includes(tech.id) && tech.parents.every((parentId) => state.completedTechnologyIds.includes(parentId)));
+  const localizedNextUnlock = nextUnlock ? localizeTechnology(nextUnlock, state.locale) : null;
 
   return (
     <AppShell>
@@ -58,12 +60,12 @@ export default function HomePage() {
         <Card className="border-primary/25 bg-primary/5">
           <CardHeader><CardTitle className="flex items-center gap-2"><Zap size={17} className="text-strategy-gold" />{translate(state.locale, "Current Era")}</CardTitle></CardHeader>
           <CardContent>
-            <p className="text-2xl font-black text-foreground">{currentEra.title}</p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{currentEra.description}</p>
+            <p className="text-2xl font-black text-foreground">{translate(state.locale, currentEra.title)}</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{translate(state.locale, currentEra.description)}</p>
             <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
               <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">{translate(state.locale, "Next unlockable technology")}</p>
-              <p className="mt-1 font-bold text-foreground">{nextUnlock?.title ?? translate(state.locale, "Era mastery")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{nextUnlock?.description ?? translate(state.locale, "Complete the remaining available branches.")}</p>
+              <p className="mt-1 font-bold text-foreground">{localizedNextUnlock?.title ?? translate(state.locale, "Era mastery")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{localizedNextUnlock?.description ?? translate(state.locale, "Complete the remaining available branches.")}</p>
             </div>
           </CardContent>
         </Card>
@@ -76,7 +78,7 @@ export default function HomePage() {
                 const tech = technologies.find((item) => item.id === technologyId);
                 return (
                   <div key={technologyId} className="rounded-md border border-primary/35 bg-primary/10 p-3">
-                    <p className="font-bold text-foreground">{tech?.title ?? translate(state.locale, "Life mission")}</p>
+                    <p className="font-bold text-foreground">{tech ? localizeTechnology(tech, state.locale).title : translate(state.locale, "Life mission")}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, "Started")} {runtime.startedAt ? new Date(runtime.startedAt).toLocaleTimeString(state.locale) : translate(state.locale, "now")}</p>
                   </div>
                 );
@@ -92,8 +94,8 @@ export default function HomePage() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><GitBranch size={17} className="text-primary" />{translate(state.locale, "Strategic Recommendation")}</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p className="text-base font-bold text-foreground">{recommendation.title}</p>
-              <p>{recommendation.description}</p>
+              <p className="text-base font-bold text-foreground">{recommendation.technologyId ? `${state.locale === "ru" ? "Исследуйте" : "Research"} ${localizeTechnology(technologies.find((item) => item.id === recommendation.technologyId)!, state.locale).title}` : translate(state.locale, recommendation.title)}</p>
+              <p>{recommendation.technologyId ? localizeTechnology(technologies.find((item) => item.id === recommendation.technologyId)!, state.locale).description : translate(state.locale, recommendation.description)}</p>
               <Button asChild variant="outline" size="sm"><Link href="/tree">{translate(state.locale, "Inspect Tree")} <ArrowRight size={15} /></Link></Button>
             </CardContent>
           </Card>
@@ -107,7 +109,7 @@ export default function HomePage() {
             {categories.map((item) => (
               <div key={item.category}>
                 <div className="mb-1 flex justify-between text-xs">
-                  <span className="font-bold" style={{ color: categoryColors[item.category as keyof typeof categoryColors] }}>{item.label}</span>
+                  <span className="font-bold" style={{ color: categoryColors[item.category as keyof typeof categoryColors] }}>{translate(state.locale, item.label)}</span>
                   <span className="text-muted-foreground">{item.unlocked}/{item.total}</span>
                 </div>
                 <Progress value={item.percent} />

@@ -39,6 +39,15 @@
 - Background artwork is oversized beyond the viewport to prevent uncovered black edges.
 - Mobile disables ambient background animation, node drop shadows and backdrop blur.
 
+## Localization
+
+- English remains the default language; Russian is the second selectable language in Profile.
+- The selected locale is persisted and updates the document language.
+- Russian covers navigation, dashboard, missions, planner, statistics, awards, profile, themes, eras and Tree controls.
+- Chapter 1 technology content is localized by ID in `lib/technology-i18n.ts`: titles, descriptions, requirements, actions and exact steps.
+- Dynamic Trial lock reasons and cooldown labels are localized as well.
+- When adding technologies, add their Russian content to `lib/technology-i18n.ts` at the same time.
+
 ## Verification checklist
 
 - Run `pnpm run build`.

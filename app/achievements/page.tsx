@@ -35,10 +35,10 @@ export default function AchievementsPage() {
             {achievements.map((achievement) => (
               <div key={achievement.id} className={cn("rounded-lg border p-4", achievement.unlocked ? "border-primary/50 bg-primary/10" : "border-border bg-muted/35 opacity-70")}>
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <p className="font-black text-foreground">{achievement.title}</p>
+                  <p className="font-black text-foreground">{translate(locale, achievement.title)}</p>
                   {achievement.unlocked ? <CheckCircle2 size={18} className="text-primary" /> : <Lock size={18} className="text-muted-foreground" />}
                 </div>
-                <p className="text-sm leading-6 text-muted-foreground">{achievement.description}</p>
+                <p className="text-sm leading-6 text-muted-foreground">{translate(locale, achievement.description)}</p>
               </div>
             ))}
           </CardContent>

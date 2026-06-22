@@ -38,6 +38,7 @@ export function nextStrategicRecommendation(state: PlayerState) {
   const next = available[0];
   return {
     title: `Research ${next.title}`,
-    description: next.description
+    description: next.description,
+    technologyId: next.id
   };
 }
