@@ -108,6 +108,7 @@ html[data-site-theme] body {
   box-shadow: 0 20px 55px color-mix(in srgb, var(--theme-bg) 56%, transparent), inset 0 1px rgba(255,255,255,.08);
 }
 .app-nav-link { color: hsl(var(--muted-foreground)); border-radius: calc(var(--theme-radius) * .75); }
+.app-nav-link { min-width: 0; overflow-wrap: anywhere; text-align: center; line-height: 1.1; }
 .app-nav-link.is-active { color: hsl(var(--foreground)); background: color-mix(in srgb, hsl(var(--primary)) 18%, transparent); }
 .app-nav-emblem { position: relative; display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; transition: transform .18s ease, filter .18s ease; }
 .app-nav-emblem img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; filter: saturate(.92); }
@@ -473,7 +474,18 @@ html[data-site-theme="pulse"] .theme-card { box-shadow: 0 16px 45px rgba(49,100,
   .epoch-chip span {
     font-size: 11px;
     font-weight: 900;
-    line-height: 1;
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+  }
+
+  html[lang="ru"] .epoch-chip {
+    min-width: 104px;
+    max-width: 132px;
+  }
+
+  html[lang="ru"] .life-tree-panel,
+  html[lang="ru"] .theme-choice {
+    overflow-wrap: anywhere;
   }
 
   .epoch-chip small {
