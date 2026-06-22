@@ -91,6 +91,7 @@ export function localizeTechnology(technology: LifeTechnology, locale: Locale): 
       action: content.action,
       actionTitle: content.action,
       actionDescription: content.description,
+      successCriteria: content.steps.at(-1) ?? content.action,
       exactSteps: content.steps,
       whatCounts: technology.mission.whatCounts ? "Засчитывается полное выполнение перечисленных шагов с реальным результатом." : undefined,
       whatDoesNotCount: technology.mission.whatDoesNotCount ? "Не засчитывается отметка без выполнения действия или сохранённого результата." : undefined

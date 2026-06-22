@@ -9,6 +9,7 @@ import { TreeCameraController } from "@/components/tree-camera-controller";
 import { defaultTreeThemeId, treeThemes, type TreeThemeId } from "@/lib/tree-themes";
 import { applySiteTheme, readSiteTheme } from "@/lib/site-theme";
 import { useLifeStore } from "@/lib/store";
+import { translate } from "@/lib/i18n";
 import fieldStyles from "./tree-field.module.css";
 import styles from "./tree-visuals.module.css";
 import assetStyles from "./tree-generated-assets.module.css";
@@ -17,6 +18,7 @@ export default function TreePage() {
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
   const [initialTechnologyId, setInitialTechnologyId] = useState<string | null>(null);
   const unlockedThemeIds = useLifeStore((state) => state.unlockedTreeThemeIds);
+  const locale = useLifeStore((state) => state.locale);
 
   useEffect(() => {
     setInitialTechnologyId(new URLSearchParams(window.location.search).get("focus"));
@@ -34,7 +36,7 @@ export default function TreePage() {
     <AppShell immersive>
       <div className={`${fieldStyles.fullscreenField} ${styles.visualTreeSkin} ${assetStyles.generatedTreeAssets}`} data-tree-theme={themeId}>
         <TreeCameraController className={fieldStyles.cameraDock} />
-        <div className={fieldStyles.themeDock} aria-label="Choose interface theme">
+        <div className={fieldStyles.themeDock} aria-label={translate(locale, "Choose interface theme")}>
           <div className={fieldStyles.themeSwatches}>
             {treeThemes.map((theme) => {
               const unlocked = unlockedThemeIds.includes(theme.id);
@@ -48,7 +50,7 @@ export default function TreePage() {
                   ["--theme-secondary" as string]: theme.palette.secondary,
                   ["--theme-accent" as string]: theme.palette.accent
                 }}
-                aria-label={`${unlocked ? "Use" : "Preview locked"} ${theme.title} theme`}
+                aria-label={`${translate(locale, unlocked ? "Use theme" : "Preview locked theme")}: ${theme.title}`}
                 aria-pressed={theme.id === themeId}
                 data-theme-locked={!unlocked || undefined}
                 onClick={() => selectTheme(theme.id)}

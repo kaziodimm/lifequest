@@ -76,6 +76,89 @@ const guidedRootMissions: Record<string, Partial<MissionDefinition>> = {
     inputSchema: [{ id: "creative-medium", type: "singleChoice", label: "Which format will you use?", required: true, allowCustomChoice: true, choices: [
       { id: "writing", label: "Writing" }, { id: "drawing-design", label: "Drawing or design" }, { id: "photo-video", label: "Photo or video" }, { id: "music-audio", label: "Music or audio" }
     ] }]
+  },
+  "morning-walk": {
+    actionTitle: "Walk outside for 10 minutes",
+    concreteOutcome: "One real 10-minute walk and the energy change are recorded.",
+    recommendedChoice: "Walk the easiest familiar route without optimizing distance or pace.",
+    exampleResult: "Walk completed; energy changed from 2/5 to 3/5.",
+    inputSchema: [
+      { id: "walk-completed", type: "confirmation", label: "I walked outside for at least 10 minutes.", required: true },
+      { id: "energy-after", type: "rating", label: "Energy after the walk", min: 1, max: 5, required: true }
+    ]
+  },
+  "reading-ritual": {
+    actionTitle: "Read one prepared source and save one useful idea",
+    concreteOutcome: "One source is read and one reusable idea is saved.",
+    recommendedChoice: "Continue the source you already started instead of searching for a new one.",
+    exampleResult: "Read 10 pages; saved the idea of reducing setup before focused work.",
+    inputSchema: [
+      { id: "reading-choice", type: "singleChoice", label: "What did you read?", required: true, allowCustomChoice: true, choices: [
+        { id: "book", label: "A book already in progress" }, { id: "article", label: "One saved article" }, { id: "course-note", label: "Notes from a course or lesson" }
+      ] },
+      { id: "key-idea", type: "shortText", label: "What useful idea will you keep?", placeholder: "One sentence you can reuse", required: true }
+    ]
+  },
+  "expense-tracking": {
+    actionTitle: "Record every payment from today",
+    concreteOutcome: "Today's payments and the largest spending category are saved.",
+    recommendedChoice: "Use your banking history and include cash purchases you remember.",
+    exampleResult: "Recorded 6 payments; the largest category was food.",
+    inputSchema: [
+      { id: "payment-count", type: "number", label: "How many payments did you record?", required: true },
+      { id: "largest-category", type: "singleChoice", label: "Which category was largest?", required: true, allowCustomChoice: true, choices: [
+        { id: "housing", label: "Housing" }, { id: "food", label: "Food" }, { id: "transport", label: "Transport" }, { id: "subscriptions", label: "Subscriptions" }
+      ] }
+    ]
+  },
+  "project-definition": {
+    actionTitle: "Define one visible deliverable and one boundary",
+    concreteOutcome: "The next deliverable and what is outside its scope are saved.",
+    recommendedChoice: "Choose the smallest deliverable another person could see or use.",
+    exampleResult: "Registration screen; payment and account settings are outside this version.",
+    inputSchema: [
+      { id: "deliverable", type: "singleChoice", label: "What will become visible?", required: true, allowCustomChoice: true, choices: [
+        { id: "screen", label: "One working screen" }, { id: "document", label: "One complete document section" }, { id: "process", label: "One usable process" }, { id: "prototype", label: "One showable prototype" }
+      ] },
+      { id: "boundary", type: "shortText", label: "What is explicitly outside this version?", placeholder: "Not included in this version…", required: true }
+    ]
+  },
+  "opportunity-scan": {
+    actionTitle: "Save one realistic professional opportunity",
+    concreteOutcome: "One target role and one concrete opportunity are saved.",
+    recommendedChoice: "Choose an opportunity that matches at least half of your current skills.",
+    exampleResult: "Frontend developer; saved a role requiring React and basic testing.",
+    inputSchema: [
+      { id: "target-role", type: "shortText", label: "Which role or direction are you scanning?", required: true },
+      { id: "opportunity-source", type: "singleChoice", label: "Where did you find the opportunity?", required: true, choices: [
+        { id: "job", label: "Job listing" }, { id: "project", label: "Project or freelance request" }, { id: "person", label: "Conversation or recommendation" }
+      ] },
+      { id: "saved-opportunity", type: "shortText", label: "What opportunity did you save?", placeholder: "Role, project or next contact", required: true }
+    ]
+  },
+  "weekly-check-in": {
+    actionTitle: "Make one genuine check-in",
+    concreteOutcome: "One intentional contact and its result are recorded.",
+    recommendedChoice: "Send a short specific message to the person already selected as your focus.",
+    exampleResult: "Sent Anna a real check-in; agreed to call on Friday.",
+    inputSchema: [
+      { id: "contact-method", type: "singleChoice", label: "How did you make contact?", required: true, choices: [
+        { id: "message", label: "Meaningful message" }, { id: "call", label: "Short call" }, { id: "meeting", label: "Meeting arranged or completed" }
+      ] },
+      { id: "contact-result", type: "shortText", label: "What happened after the contact?", placeholder: "One concrete response or next step", required: true }
+    ]
+  },
+  "reference-study": {
+    actionTitle: "Study one reference and extract one principle",
+    concreteOutcome: "One reference and one principle for your own work are saved.",
+    recommendedChoice: "Use a reference you already admire instead of searching for the perfect example.",
+    exampleResult: "Studied one landing page; kept the principle of one clear action per section.",
+    inputSchema: [
+      { id: "reference-type", type: "singleChoice", label: "What reference did you study?", required: true, allowCustomChoice: true, choices: [
+        { id: "article", label: "Article or text" }, { id: "design", label: "Design or illustration" }, { id: "video", label: "Video or photo" }, { id: "book", label: "Book or long-form work" }
+      ] },
+      { id: "principle", type: "shortText", label: "Which principle will you try in your own work?", placeholder: "One specific principle", required: true }
+    ]
   }
 };
 

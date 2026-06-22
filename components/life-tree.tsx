@@ -258,7 +258,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
           <div className="node-mini-emblem" style={{ color, borderColor: `${color}66`, ["--node-color" as string]: color }}>
             {status === "locked" ? <Lock size={18} /> : <TechnologyGlyph icon={technology.icon} size={21} />}
           </div>
-          <button type="button" className="tree-close-button" aria-label="Close mission panel" onClick={onClose}>
+          <button type="button" className="tree-close-button" aria-label={translate(locale, "Close mission panel")} onClick={onClose}>
             <CloseIcon size={16} />
           </button>
         </div>
@@ -577,8 +577,8 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
           {activeTechnology ? <button type="button" className="mt-1 text-[10px] font-black text-primary underline-offset-2 hover:underline" onClick={() => handleNodeClick(activeTechnology)}>{translate(locale, "Return to active mission")}</button> : null}
         </div>
         <div className="epoch-navigation">
-          <button type="button" className="epoch-scroll-button" aria-label="Previous epochs" onClick={() => scrollEpochs(-1)}><ChevronLeft size={16} /></button>
-          <div ref={epochStripRef} className="epoch-strip" aria-label="Era epochs">
+          <button type="button" className="epoch-scroll-button" aria-label={translate(locale, "Previous epochs")} onClick={() => scrollEpochs(-1)}><ChevronLeft size={16} /></button>
+          <div ref={epochStripRef} className="epoch-strip" aria-label={translate(locale, "Era epochs")}>
             {epochs.map((epoch) => (
               <button key={epoch.id} type="button" disabled={!epoch.unlocked} className={cn("epoch-chip", epoch.unlocked ? "active" : "locked")}>
                 <span>{translate(locale, epoch.title)}</span>
@@ -586,9 +586,9 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
               </button>
             ))}
           </div>
-          <button type="button" className="epoch-scroll-button" aria-label="Next epochs" onClick={() => scrollEpochs(1)}><ChevronRight size={16} /></button>
+          <button type="button" className="epoch-scroll-button" aria-label={translate(locale, "Next epochs")} onClick={() => scrollEpochs(1)}><ChevronRight size={16} /></button>
         </div>
-        <button type="button" className="tree-tool-button shrink-0" aria-label="Center tree" onClick={resetView}><LocateFixed size={16} /></button>
+        <button type="button" className="tree-tool-button shrink-0" aria-label={translate(locale, "Center tree")} onClick={resetView}><LocateFixed size={16} /></button>
       </div>
 
       <div
@@ -725,13 +725,13 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
                 {isPolarStar ? (
                   <span className="polar-star-art">
                     <span className="polar-star-face" aria-hidden="true" />
-                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
+                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label={translate(locale, "Mission completed")} title={translate(locale, "Mission completed")}><Check /></span> : null}
                   </span>
                 ) : (
                   <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
                     <span className="tech-emblem-inner" />
                     {status === "locked" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
-                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
+                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label={translate(locale, "Mission completed")} title={translate(locale, "Mission completed")}><Check /></span> : null}
                     {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
                     {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
                   </span>

@@ -4,7 +4,8 @@
 
 - Repository: `kaziodimm/lifequest`
 - Production branch: `main`
-- Production URL: https://lifequest-gamma.vercel.app
+- Canonical production URL: https://www.habidoo.com
+- `habidoo.com` and production Vercel aliases redirect to the canonical `www` origin so browser-local progress is not split across entry domains.
 - Product source of truth: Product Bible documents in the repository.
 
 ## Current product stage
@@ -17,7 +18,7 @@ The artistic direction is frozen. Do not generate new themes, backgrounds, icons
 - `MissionAttempt`, answers, evidence, rewards, and selected Focus Object persist in Zustand/localStorage.
 - Only one technology mission can be active. Legacy Daily Mission actions delegate to the same technology mission flow.
 - Completion requires minimum elapsed time and all required answers; rewards are issued once.
-- Root missions for all seven branches use prepared choices or structured fields instead of empty prompts.
+- Root missions and the first mission after each root in all seven branches use prepared choices or structured fields instead of empty prompts.
 - Later missions reuse the branch Focus Object automatically.
 - The planner can link to a mission but no longer grants XP for arbitrary checkbox completion.
 
@@ -31,12 +32,12 @@ The artistic direction is frozen. Do not generate new themes, backgrounds, icons
 ## Localization
 
 - Supported locales: English, Russian, Czech, Ukrainian.
-- New onboarding, mission, Command Center, and shared UI text exists in all four locales.
-- Russian chapter-one technology content is localized by ID in `lib/technology-i18n.ts`.
+- New onboarding, mission, Command Center, accessibility controls, and shared UI text exists in all four locales.
+- Russian Chapter 1 content is localized by ID; the audit covers all 65 technology titles and concrete mission outcomes.
 
 ## Verification completed
 
-- Mission rule tests: 12/12 passing.
+- Mission rule and content-contract tests: 15/15 passing.
 - TypeScript typecheck: passing.
 - Next.js production build: passing.
 - Browser flow checked at 390×844 and 1440×900: onboarding, Russian locale, branch/focus selection, focused mission panel, no horizontal page overflow.

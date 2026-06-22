@@ -205,6 +205,21 @@ const russian: Record<string, string> = {
   ,Details: "Подробности"
 };
 
+Object.assign(russian, {
+  "Close mission panel": "Закрыть панель миссии",
+  "Previous epochs": "Предыдущие эпохи",
+  "Next epochs": "Следующие эпохи",
+  "Era epochs": "Эпохи",
+  "Center tree": "Центрировать дерево",
+  "Mission completed": "Миссия выполнена",
+  "Tree camera controls": "Управление камерой дерева",
+  "Zoom in": "Приблизить",
+  "Zoom out": "Отдалить",
+  "Choose interface theme": "Выбор темы интерфейса",
+  "Use theme": "Использовать тему",
+  "Preview locked theme": "Предпросмотр закрытой темы"
+});
+
 const czech: Record<string, string> = {
   "Life Strategy": "Životní strategie", "Foundation Era": "Éra základů", Tree: "Strom", Missions: "Mise", Stats: "Statistiky", Awards: "Odměny", Profile: "Profil",
   "Commander Profile": "Profil stratéga", Level: "Úroveň", "Life Score": "Životní skóre", "Unlocked Technologies": "Odemčené technologie", Achievements: "Úspěchy",
@@ -224,6 +239,21 @@ const czech: Record<string, string> = {
   ,Soon: "Brzy", "about 30 days": "asi 30 dní", "Return to active mission": "Zpět k aktivní misi", "Chapter 1 / 12": "Kapitola 1 / 12", Details: "Podrobnosti"
 };
 
+Object.assign(czech, {
+  "Close mission panel": "Zavřít panel mise",
+  "Previous epochs": "Předchozí epochy",
+  "Next epochs": "Další epochy",
+  "Era epochs": "Epochy",
+  "Center tree": "Vycentrovat strom",
+  "Mission completed": "Mise dokončena",
+  "Tree camera controls": "Ovládání kamery stromu",
+  "Zoom in": "Přiblížit",
+  "Zoom out": "Oddálit",
+  "Choose interface theme": "Výběr tématu rozhraní",
+  "Use theme": "Použít téma",
+  "Preview locked theme": "Náhled uzamčeného tématu"
+});
+
 const ukrainian: Record<string, string> = {
   "Life Strategy": "Стратегія життя", "Foundation Era": "Ера основ", Tree: "Дерево", Missions: "Місії", Stats: "Статистика", Awards: "Нагороди", Profile: "Профіль",
   "Commander Profile": "Профіль стратега", Level: "Рівень", "Life Score": "Рейтинг життя", "Unlocked Technologies": "Відкриті технології", Achievements: "Досягнення",
@@ -242,6 +272,21 @@ const ukrainian: Record<string, string> = {
   "Planner blocks support execution but do not award XP. Link them to the active or next Life Tree mission.": "Блоки плану допомагають діяти, але не дають XP. Пов’язуйте їх з активною або наступною місією Дерева життя."
   ,Soon: "Незабаром", "about 30 days": "близько 30 днів", "Return to active mission": "Повернутися до активної місії", "Chapter 1 / 12": "Глава 1 / 12", Details: "Подробиці"
 };
+
+Object.assign(ukrainian, {
+  "Close mission panel": "Закрити панель місії",
+  "Previous epochs": "Попередні епохи",
+  "Next epochs": "Наступні епохи",
+  "Era epochs": "Епохи",
+  "Center tree": "Центрувати дерево",
+  "Mission completed": "Місію виконано",
+  "Tree camera controls": "Керування камерою дерева",
+  "Zoom in": "Наблизити",
+  "Zoom out": "Віддалити",
+  "Choose interface theme": "Вибір теми інтерфейсу",
+  "Use theme": "Використати тему",
+  "Preview locked theme": "Перегляд закритої теми"
+});
 
 export function translate(locale: Locale, text: string) {
   if (locale === "ru") return russian[text] ?? text;

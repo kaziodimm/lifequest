@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { LocateFixed, Minus, Plus } from "lucide-react";
+import { translate } from "@/lib/i18n";
+import { useLifeStore } from "@/lib/store";
 
 type CameraControlProps = {
   className?: string;
@@ -26,6 +28,7 @@ function dispatchCenter(stage: HTMLElement) {
 }
 
 export function TreeCameraController({ className }: CameraControlProps) {
+  const locale = useLifeStore((state) => state.locale);
   useEffect(() => {
     const stage = document.querySelector<HTMLElement>(".life-tree-stage");
     if (!stage) return;
@@ -115,14 +118,14 @@ export function TreeCameraController({ className }: CameraControlProps) {
   }
 
   return (
-    <div className={className} aria-label="Tree camera controls">
-      <button type="button" aria-label="Zoom in" onClick={() => controlZoom(-120)}>
+    <div className={className} aria-label={translate(locale, "Tree camera controls")}>
+      <button type="button" aria-label={translate(locale, "Zoom in")} onClick={() => controlZoom(-120)}>
         <Plus size={16} />
       </button>
-      <button type="button" aria-label="Center tree" onClick={centerTree}>
+      <button type="button" aria-label={translate(locale, "Center tree")} onClick={centerTree}>
         <LocateFixed size={16} />
       </button>
-      <button type="button" aria-label="Zoom out" onClick={() => controlZoom(120)}>
+      <button type="button" aria-label={translate(locale, "Zoom out")} onClick={() => controlZoom(120)}>
         <Minus size={16} />
       </button>
     </div>

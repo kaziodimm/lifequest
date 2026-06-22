@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { canCompleteMissionAttempt, canStartMission, completeAttemptOnce, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, recommendUnlocked } from "../lib/mission-rules.ts";
+import { technologies } from "../lib/life-tree.ts";
+import { localizeMissionDefinition } from "../lib/mission-i18n.ts";
+import { getMissionDefinition } from "../lib/missions.ts";
 import type { MissionAttempt, MissionDefinition, UserFocusObject } from "../lib/types.ts";
 
 const definition = { minimumDurationSeconds: 60, inputSchema: [{ id: "result", type: "shortText", label: "Result", required: true }], technologyId: "health-root" } as MissionDefinition;
@@ -18,3 +21,34 @@ test("recommendation excludes locked and active technologies", () => assert.deep
 test("legacy persisted state gets safe mission collections", () => assert.deepEqual(normalizePersistedMissionData({ totalXp: 10 }), { missionAttempts: [], focusObjects: [] }));
 test("supported locale survives migration", () => assert.equal(migrateLocale("uk"), "uk"));
 test("old theme ids migrate to canonical ids", () => assert.equal(migrateThemeId("pixel-quest"), "arcade-codex"));
+
+test("the first mission after each root is guided", () => {
+  const guidedIds = ["morning-walk", "reading-ritual", "expense-tracking", "project-definition", "opportunity-scan", "weekly-check-in", "reference-study"];
+  guidedIds.forEach((id) => {
+    const technology = technologies.find((item) => item.id === id);
+    assert.ok(technology);
+    const guided = getMissionDefinition(technology);
+    assert.ok(guided.inputSchema.length >= 2);
+    assert.ok(guided.inputSchema.every((input) => input.required));
+  });
+});
+
+test("guided first missions are localized in every supported non-English locale", () => {
+  const technology = technologies.find((item) => item.id === "project-definition");
+  assert.ok(technology);
+  const guided = getMissionDefinition(technology);
+  (["ru", "cs", "uk"] as const).forEach((locale) => {
+    const localized = localizeMissionDefinition(guided, locale);
+    assert.notEqual(localized.actionTitle, guided.actionTitle);
+    assert.notEqual(localized.inputSchema[0]?.label, guided.inputSchema[0]?.label);
+  });
+});
+
+test("every chapter-one mission has a concrete outcome and required evidence", () => {
+  technologies.forEach((technology) => {
+    const mission = getMissionDefinition(technology);
+    assert.ok(mission.actionTitle.trim());
+    assert.ok(mission.concreteOutcome.trim());
+    assert.ok(mission.inputSchema.some((input) => input.required));
+  });
+});
