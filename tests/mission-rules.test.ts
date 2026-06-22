@@ -4,6 +4,8 @@ import { canCompleteMissionAttempt, canStartMission, completeAttemptOnce, findRe
 import { technologies } from "../lib/life-tree.ts";
 import { localizeMissionDefinition } from "../lib/mission-i18n.ts";
 import { getMissionDefinition } from "../lib/missions.ts";
+import { getUiTranslationSourceKeys, translate } from "../lib/i18n.ts";
+import { localizeTechnology } from "../lib/technology-i18n.ts";
 import type { MissionAttempt, MissionDefinition, UserFocusObject } from "../lib/types.ts";
 
 const definition = { minimumDurationSeconds: 60, inputSchema: [{ id: "result", type: "shortText", label: "Result", required: true }], technologyId: "health-root" } as MissionDefinition;
@@ -50,5 +52,26 @@ test("every chapter-one mission has a concrete outcome and required evidence", (
     assert.ok(mission.actionTitle.trim());
     assert.ok(mission.concreteOutcome.trim());
     assert.ok(mission.inputSchema.some((input) => input.required));
+  });
+});
+
+test("the full technology catalogue is localized in Czech and Ukrainian", () => {
+  (["cs", "uk"] as const).forEach((locale) => {
+    technologies.forEach((technology) => {
+      const localizedTechnology = localizeTechnology(technology, locale);
+      const originalMission = getMissionDefinition(technology);
+      const localizedMission = localizeMissionDefinition(getMissionDefinition(localizedTechnology), locale);
+      assert.notEqual(localizedTechnology.title, technology.title, `${locale}/${technology.id}/title`);
+      assert.notEqual(localizedTechnology.description, technology.description, `${locale}/${technology.id}/description`);
+      assert.notEqual(localizedMission.actionTitle, originalMission.actionTitle, `${locale}/${technology.id}/action`);
+      assert.notEqual(localizedMission.concreteOutcome, originalMission.concreteOutcome, `${locale}/${technology.id}/outcome`);
+      assert.ok(localizedMission.exactSteps.every((step) => step.instruction.trim().length > 0), `${locale}/${technology.id}/steps`);
+    });
+  });
+});
+
+test("all shared UI keys are localized in Czech and Ukrainian", () => {
+  (["cs", "uk"] as const).forEach((locale) => {
+    getUiTranslationSourceKeys().forEach((key) => assert.notEqual(translate(locale, key), key, `${locale}/${key}`));
   });
 });

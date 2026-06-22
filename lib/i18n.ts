@@ -1,4 +1,5 @@
 import type { Locale } from "./types";
+import { generatedUiTranslations } from "./ui-i18n.generated.ts";
 
 export const locales: { id: Locale; label: string }[] = [
   { id: "en", label: "English" },
@@ -240,6 +241,19 @@ const czech: Record<string, string> = {
 };
 
 Object.assign(czech, {
+  "Build & Create": "Tvorba a projekty",
+  "People & Connection": "Lidé a vztahy",
+  "Creative Practice": "Tvůrčí praxe",
+  Momentum: "Hybná síla",
+  Focus: "Soustředění",
+  Confidence: "Jistota",
+  Ascension: "Vzestup",
+  Legacy: "Odkaz",
+  cooldown: "obnova",
+  "Branch milestones": "Milníky větví",
+  "Complete Mission": "Dokončit misi",
+  "Complete The Awakening Trial": "Dokončit Zkoušku probuzení",
+  "Start Mission": "Zahájit misi",
   "Close mission panel": "Zavřít panel mise",
   "Previous epochs": "Předchozí epochy",
   "Next epochs": "Další epochy",
@@ -274,6 +288,14 @@ const ukrainian: Record<string, string> = {
 };
 
 Object.assign(ukrainian, {
+  "Build & Create": "Створення і проєкти",
+  "People & Connection": "Люди та стосунки",
+  Control: "Контроль",
+  Confidence: "Упевненість",
+  Ascension: "Сходження",
+  "Branch milestones": "Ключові етапи гілок",
+  "Complete Mission": "Завершити місію",
+  "Start Mission": "Почати місію",
   "Close mission panel": "Закрити панель місії",
   "Previous epochs": "Попередні епохи",
   "Next epochs": "Наступні епохи",
@@ -288,15 +310,47 @@ Object.assign(ukrainian, {
   "Preview locked theme": "Перегляд закритої теми"
 });
 
+export function getUiTranslationSourceKeys() {
+  return Object.keys(russian);
+}
+
 export function translate(locale: Locale, text: string) {
   if (locale === "ru") return russian[text] ?? text;
-  if (locale === "cs") return czech[text] ?? text;
-  if (locale === "uk") return ukrainian[text] ?? text;
+  if (locale === "cs") return czech[text] ?? (generatedUiTranslations.cs as Record<string, string>)[text] ?? text;
+  if (locale === "uk") return ukrainian[text] ?? (generatedUiTranslations.uk as Record<string, string>)[text] ?? text;
   return text;
 }
 
 export function translateDynamic(locale: Locale, text: string) {
-  if (locale !== "ru") return translate(locale, text);
+  const translated = translate(locale, text);
+  if (translated !== text) return translated;
+  if (locale === "cs") {
+    let match = text.match(/^Complete (\d+) more required parent missions?\.$/);
+    if (match) return `Dokončete ještě ${match[1]} povinných předchozích misí.`;
+    match = text.match(/^Reach level (\d+)\.$/);
+    if (match) return `Dosáhněte úrovně ${match[1]}.`;
+    match = text.match(/^Earn (\d+) more Insight Points\.$/);
+    if (match) return `Získejte ještě ${match[1]} bodů vhledu.`;
+    match = text.match(/^Complete (\d+) more (\w+) branch nodes?\.$/);
+    if (match) return `Dokončete ještě ${match[1]} uzlů větve „${translate(locale, categoryName(match[2]))}“.`;
+    match = text.match(/^Complete (\d+) more branch milestones?\.$/);
+    if (match) return `Dokončete ještě ${match[1]} milníků větví.`;
+    return text;
+  }
+  if (locale === "uk") {
+    let match = text.match(/^Complete (\d+) more required parent missions?\.$/);
+    if (match) return `Завершіть ще ${match[1]} обов’язкових попередніх місій.`;
+    match = text.match(/^Reach level (\d+)\.$/);
+    if (match) return `Досягніть рівня ${match[1]}.`;
+    match = text.match(/^Earn (\d+) more Insight Points\.$/);
+    if (match) return `Отримайте ще ${match[1]} очок осяяння.`;
+    match = text.match(/^Complete (\d+) more (\w+) branch nodes?\.$/);
+    if (match) return `Завершіть ще ${match[1]} вузлів гілки «${translate(locale, categoryName(match[2]))}».`;
+    match = text.match(/^Complete (\d+) more branch milestones?\.$/);
+    if (match) return `Завершіть ще ${match[1]} ключових етапів гілок.`;
+    return text;
+  }
+  if (locale !== "ru") return text;
   const exact = russian[text];
   if (exact) return exact;
   let match = text.match(/^Complete (\d+) more required parent missions?\.$/);

@@ -1,4 +1,5 @@
 import type { LifeTechnology, Locale } from "./types";
+import { catalogTranslations, type CatalogTranslation } from "./technology-catalog-i18n.generated.ts";
 
 type RussianTechnology = { title: string; description: string; action: string; steps: string[] };
 
@@ -78,6 +79,33 @@ const ru: Record<string, RussianTechnology> = {
 };
 
 export function localizeTechnology(technology: LifeTechnology, locale: Locale): LifeTechnology {
+  if (locale === "cs" || locale === "uk") {
+    const content = (catalogTranslations[locale] as Record<string, CatalogTranslation>)[technology.id];
+    if (!content) return technology;
+    const requirementPrefix = locale === "cs" ? "Dokončit" : "Виконати";
+    const whatCounts = locale === "cs"
+      ? "Počítá se úplné provedení uvedených kroků se skutečným výsledkem."
+      : "Зараховується повне виконання зазначених кроків із реальним результатом.";
+    const whatDoesNotCount = locale === "cs"
+      ? "Nestačí pouze označit misi bez provedení akce nebo uloženého výsledku."
+      : "Не зараховується позначка без виконання дії або збереженого результату.";
+    return {
+      ...technology,
+      title: content.title,
+      description: content.description,
+      requirements: technology.requirements.map((requirement) => ({ ...requirement, label: `${requirementPrefix}: ${content.action}` })),
+      mission: technology.mission ? {
+        ...technology.mission,
+        action: content.action,
+        actionTitle: content.action,
+        actionDescription: content.description,
+        successCriteria: content.outcome,
+        exactSteps: content.steps,
+        whatCounts: technology.mission.whatCounts ? whatCounts : undefined,
+        whatDoesNotCount: technology.mission.whatDoesNotCount ? whatDoesNotCount : undefined
+      } : undefined
+    };
+  }
   if (locale !== "ru") return technology;
   const content = ru[technology.id];
   if (!content) return technology;

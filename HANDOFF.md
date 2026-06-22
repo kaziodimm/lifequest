@@ -32,21 +32,22 @@ The artistic direction is frozen. Do not generate new themes, backgrounds, icons
 ## Localization
 
 - Supported locales: English, Russian, Czech, Ukrainian.
-- New onboarding, mission, Command Center, accessibility controls, and shared UI text exists in all four locales.
-- Russian Chapter 1 content is localized by ID; the audit covers all 65 technology titles and concrete mission outcomes.
+- Onboarding, missions, Command Center, profile, accessibility controls, and shared UI text exist in all four locales.
+- Russian, Czech, and Ukrainian Chapter 1 content is localized by ID. The audit covers all 65 technology titles, descriptions, actions, outcomes, and mission steps.
+- Czech and Ukrainian include static fallback translations for every one of the 207 shared UI source keys; curated product terminology overrides the generated baseline.
 
 ## Verification completed
 
-- Mission rule and content-contract tests: 15/15 passing.
+- Mission rule, localization-coverage, and content-contract tests: 17/17 passing.
 - TypeScript typecheck: passing.
 - Next.js production build: passing.
-- Browser flow checked at 390×844 and 1440×900: onboarding, Russian locale, branch/focus selection, focused mission panel, no horizontal page overflow.
+- Browser flow checked at 390×844 and 1440×900: onboarding, Russian, Czech, and Ukrainian locales, branch/focus selection, focused mission panel, no horizontal page overflow.
 - Mobile mission panel is opaque and its entry animation is disabled to avoid the temporary translucent/flickering state.
 
 ## Remaining MVP limitations
 
 - Persistence and timestamps remain client-side and are not authoritative.
-- Czech and Ukrainian cover the new guided flow, but the older full chapter technology catalogue is not yet fully translated.
+- Czech and Ukrainian catalogue text has complete coverage, but native-speaker editorial review remains recommended for final publication quality.
 - Real-device iOS Safari and Android Chrome testing remains recommended.
 - Content beyond Chapter 1 is intentionally not implemented.
 
