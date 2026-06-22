@@ -1,123 +1,83 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight, Flame, Gauge, GitBranch, Sparkles, Timer, Zap } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Check, GitBranch } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { lifeEras } from "@/lib/eras";
-import { categoryProgress, nextStrategicRecommendation } from "@/lib/insights";
-import { categoryColors, technologies } from "@/lib/life-tree";
-import { dailyCompletionPercent, levelFromXp } from "@/lib/progression";
+import { locales } from "@/lib/i18n";
+import { categoryColors } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
-import { translate } from "@/lib/i18n";
-import { localizeTechnology } from "@/lib/technology-i18n";
+import type { FocusObjectType, LifeCategory, Locale } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+const categoryNames: Record<Locale, Record<LifeCategory, string>> = {
+  en: { health: "Body & Energy", mind: "Focus & Mind", finance: "Money & Freedom", business: "Build & Create", career: "Direction & Career", relationships: "People & Connection", creativity: "Creative Practice" },
+  ru: { health: "Тело и энергия", mind: "Фокус и разум", finance: "Деньги и свобода", business: "Создание и проекты", career: "Направление и карьера", relationships: "Люди и отношения", creativity: "Творческая практика" },
+  cs: { health: "Tělo a energie", mind: "Soustředění a mysl", finance: "Peníze a svoboda", business: "Tvorba a projekty", career: "Směr a kariéra", relationships: "Lidé a vztahy", creativity: "Tvůrčí praxe" },
+  uk: { health: "Тіло й енергія", mind: "Фокус і розум", finance: "Гроші й свобода", business: "Створення і проєкти", career: "Напрям і кар’єра", relationships: "Люди й стосунки", creativity: "Творча практика" }
+};
+
+const focusSuggestions: Record<Locale, Record<LifeCategory, string[]>> = {
+  en: { health: ["Morning energy", "Sleep routine", "Daily movement"], mind: ["Current priority", "Learning topic", "Focus routine"], finance: ["Monthly clarity", "First safety buffer", "Spending control"], business: ["Website or app", "Work process", "Service idea"], career: ["Proof of skill", "Professional profile", "Role-relevant skill"], relationships: ["Important person", "Family connection", "Friendship"], creativity: ["Writing", "Drawing or design", "Photo or video"] },
+  ru: { health: ["Утренняя энергия", "Режим сна", "Ежедневное движение"], mind: ["Текущий приоритет", "Тема обучения", "Режим фокуса"], finance: ["Ясность бюджета", "Первый резерв", "Контроль расходов"], business: ["Сайт или приложение", "Рабочий процесс", "Идея услуги"], career: ["Доказательство навыка", "Профессиональный профиль", "Полезный для роли навык"], relationships: ["Важный человек", "Связь с семьёй", "Дружеские отношения"], creativity: ["Текст", "Рисунок или дизайн", "Фото или видео"] },
+  cs: { health: ["Ranní energie", "Spánkový režim", "Denní pohyb"], mind: ["Současná priorita", "Téma učení", "Režim soustředění"], finance: ["Přehled rozpočtu", "První rezerva", "Kontrola výdajů"], business: ["Web nebo aplikace", "Pracovní proces", "Nápad na službu"], career: ["Důkaz dovednosti", "Profesní profil", "Dovednost pro roli"], relationships: ["Důležitý člověk", "Rodinný vztah", "Přátelství"], creativity: ["Psaní", "Kresba nebo design", "Foto nebo video"] },
+  uk: { health: ["Ранкова енергія", "Режим сну", "Щоденний рух"], mind: ["Поточний пріоритет", "Тема навчання", "Режим фокусу"], finance: ["Ясність бюджету", "Перший резерв", "Контроль витрат"], business: ["Сайт або застосунок", "Робочий процес", "Ідея послуги"], career: ["Доказ навички", "Професійний профіль", "Корисна для ролі навичка"], relationships: ["Важлива людина", "Зв’язок із родиною", "Дружні стосунки"], creativity: ["Текст", "Малюнок або дизайн", "Фото або відео"] }
+};
+
+const onboardingCopy: Record<Locale, { eyebrow: string; title: string; intro: string; language: string; category: string; focus: string; next: string; enter: string; other: string }> = {
+  en: { eyebrow: "Life Strategy Game", title: "Choose one path. Start one real mission.", intro: "Habidoo turns real action into visible Life Tree progress.", language: "Choose language", category: "Which area should improve first?", focus: "What should this chapter focus on?", next: "Continue", enter: "Enter the Life Tree", other: "Your own focus" },
+  ru: { eyebrow: "Стратегическая игра жизни", title: "Выберите путь. Начните одну реальную миссию.", intro: "Habidoo превращает реальные действия в видимый прогресс Дерева жизни.", language: "Выберите язык", category: "Какую сферу улучшить первой?", focus: "На чём сосредоточиться в этой главе?", next: "Продолжить", enter: "Перейти в Дерево жизни", other: "Свой объект фокуса" },
+  cs: { eyebrow: "Strategická hra života", title: "Zvolte cestu. Začněte jednu skutečnou misi.", intro: "Habidoo mění skutečné kroky na viditelný postup ve Stromu života.", language: "Zvolte jazyk", category: "Která oblast se má zlepšit jako první?", focus: "Na co se má tato kapitola zaměřit?", next: "Pokračovat", enter: "Vstoupit do Stromu života", other: "Vlastní zaměření" },
+  uk: { eyebrow: "Стратегічна гра життя", title: "Оберіть шлях. Почніть одну реальну місію.", intro: "Habidoo перетворює реальні дії на видимий прогрес Дерева життя.", language: "Оберіть мову", category: "Яку сферу покращити першою?", focus: "На чому зосередитися в цій главі?", next: "Продовжити", enter: "Перейти до Дерева життя", other: "Свій об’єкт фокусу" }
+};
+
+const focusTypes: Record<LifeCategory, FocusObjectType> = { health: "healthRoutine", mind: "learningTopic", finance: "financialGoal", business: "project", career: "careerSkill", relationships: "relationship", creativity: "creativeMedium" };
+const desiredOutcomeCopy: Record<Locale, string> = { en: "Create one visible result in this chapter.", ru: "Создать один видимый результат в этой главе.", cs: "Vytvořit v této kapitole jeden viditelný výsledek.", uk: "Створити один видимий результат у цій главі." };
+const rootIds: Record<LifeCategory, string> = { health: "health-root", mind: "mind-root", finance: "finance-root", business: "business-root", career: "career-root", relationships: "relationships-root", creativity: "creativity-root" };
 
 export default function HomePage() {
-  const state = useLifeStore();
-  const level = levelFromXp(state.totalXp);
-  const completion = dailyCompletionPercent(state);
-  const recommendation = nextStrategicRecommendation(state);
-  const categories = categoryProgress(state);
-  const currentEra = lifeEras.find((era) => era.id === state.currentEra) ?? lifeEras[0];
-  const treeCompletion = Math.round((state.completedTechnologyIds.length / technologies.length) * 100);
-  const activeMissions = Object.entries(state.technologyRuntime).filter(([, runtime]) => runtime.status === "active");
-  const nextUnlock = technologies.find((tech) => !state.completedTechnologyIds.includes(tech.id) && tech.parents.every((parentId) => state.completedTechnologyIds.includes(parentId)));
-  const localizedNextUnlock = nextUnlock ? localizeTechnology(nextUnlock, state.locale) : null;
+  const router = useRouter();
+  const onboardingCompleted = useLifeStore((state) => state.onboardingCompleted);
+  const completeOnboarding = useLifeStore((state) => state.completeOnboarding);
+  const [hydrated, setHydrated] = useState(false);
+  const [step, setStep] = useState(0);
+  const [locale, setLocale] = useState<Locale>("en");
+  const [category, setCategory] = useState<LifeCategory | null>(null);
+  const [focus, setFocus] = useState("");
+  const finishingRef = useRef(false);
+  const copy = onboardingCopy[locale];
+
+  useEffect(() => {
+    setHydrated(useLifeStore.persist.hasHydrated());
+    return useLifeStore.persist.onFinishHydration(() => setHydrated(true));
+  }, []);
+  useEffect(() => { if (hydrated && onboardingCompleted && !finishingRef.current) router.replace("/tree"); }, [hydrated, onboardingCompleted, router]);
+  const suggestions = useMemo(() => category ? focusSuggestions[locale][category] : [], [category, locale]);
+
+  if (!hydrated || onboardingCompleted) return <main className="min-h-screen bg-background" />;
+
+  function finish() {
+    if (!category || !focus.trim()) return;
+    finishingRef.current = true;
+    const now = Date.now();
+    completeOnboarding(locale, category, { id: `focus:${category}:${now}`, type: focusTypes[category], category, name: focus.trim(), desiredOutcome: desiredOutcomeCopy[locale], createdAt: now });
+    router.push(`/tree?focus=${rootIds[category]}`);
+  }
 
   return (
-    <AppShell>
-      <section className="mb-5 rounded-lg border border-primary/30 bg-card/70 p-5 shadow-node backdrop-blur">
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">{translate(state.locale, "Life Strategy Command")}</p>
-        <h1 className="text-3xl font-black tracking-tight text-foreground">{translate(state.locale, "Unlock your life, one technology at a time.")}</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">{translate(state.locale, "Habidoo is not a todo list. Start missions, respect cooldowns, and turn real effort into Life Tree progress.")}</p>
-        <Button asChild className="mt-5">
-          <Link href="/tree">{translate(state.locale, "Open Life Tree")} <ArrowRight size={17} /></Link>
-        </Button>
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles size={17} className="text-primary" />{translate(state.locale, "Level")} {level.level}</CardTitle></CardHeader>
-          <CardContent><Progress value={level.progress} /><p className="mt-2 text-xs text-muted-foreground">{level.current}/{level.needed} {translate(state.locale, "XP to next level")}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><GitBranch size={17} className="text-primary" />{translate(state.locale, "Life Tree")}</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-black">{treeCompletion}%</p><p className="mt-2 text-xs text-muted-foreground">{state.completedTechnologyIds.length}/{technologies.length} {translate(state.locale, "technologies unlocked")}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Flame size={17} className="text-strategy-red" />{translate(state.locale, "Streak")}</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-black">{state.streak} {translate(state.locale, "days")}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Gauge size={17} className="text-strategy-green" />{translate(state.locale, "Today")}</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-black">{completion}%</p></CardContent>
-        </Card>
-      </section>
-
-      <section className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-primary/25 bg-primary/5">
-          <CardHeader><CardTitle className="flex items-center gap-2"><Zap size={17} className="text-strategy-gold" />{translate(state.locale, "Current Era")}</CardTitle></CardHeader>
-          <CardContent>
-            <p className="text-2xl font-black text-foreground">{translate(state.locale, currentEra.title)}</p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{translate(state.locale, currentEra.description)}</p>
-            <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
-              <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">{translate(state.locale, "Next unlockable technology")}</p>
-              <p className="mt-1 font-bold text-foreground">{localizedNextUnlock?.title ?? translate(state.locale, "Era mastery")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{localizedNextUnlock?.description ?? translate(state.locale, "Complete the remaining available branches.")}</p>
-            </div>
+    <AppShell hideNavigation>
+      <div className="mx-auto grid min-h-[72vh] max-w-2xl place-items-center">
+        <Card className="w-full border-primary/35 bg-card/90">
+          <CardHeader><p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{copy.eyebrow}</p><CardTitle className="mt-2 text-2xl sm:text-3xl">{copy.title}</CardTitle><p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.intro}</p></CardHeader>
+          <CardContent className="grid gap-4">
+            {step === 0 ? <><h2 className="font-black text-foreground">{copy.language}</h2><div className="grid grid-cols-2 gap-2">{locales.map((item) => <button key={item.id} type="button" className={cn("min-h-12 rounded-md border p-3 font-bold", locale === item.id ? "border-primary bg-primary/10 text-primary" : "border-border bg-muted/30")} onClick={() => setLocale(item.id)}>{item.label}</button>)}</div><Button onClick={() => setStep(1)}>{copy.next}<ArrowRight size={16} /></Button></> : null}
+            {step === 1 ? <><h2 className="font-black text-foreground">{copy.category}</h2><div className="grid gap-2 sm:grid-cols-2">{(Object.keys(categoryNames[locale]) as LifeCategory[]).map((item) => <button key={item} type="button" className={cn("flex min-h-12 items-center gap-3 rounded-md border p-3 text-left font-bold", category === item ? "border-primary bg-primary/10" : "border-border bg-muted/30")} onClick={() => { setCategory(item); setFocus(""); }}><span className="size-3 shrink-0 rounded-full" style={{ background: categoryColors[item] }} />{categoryNames[locale][item]}{category === item ? <Check className="ml-auto text-primary" size={16} /> : null}</button>)}</div><Button disabled={!category} onClick={() => setStep(2)}>{copy.next}<ArrowRight size={16} /></Button></> : null}
+            {step === 2 && category ? <><h2 className="font-black text-foreground">{copy.focus}</h2><div className="grid gap-2">{suggestions.map((suggestion) => <button key={suggestion} type="button" className={cn("min-h-11 rounded-md border p-3 text-left font-bold", focus === suggestion ? "border-primary bg-primary/10" : "border-border bg-muted/30")} onClick={() => setFocus(suggestion)}>{suggestion}</button>)}</div><input className="h-11 rounded-md border border-border bg-background/60 px-3 text-sm outline-none focus:border-primary" placeholder={copy.other} value={suggestions.includes(focus) ? "" : focus} onChange={(event) => setFocus(event.target.value)} /><Button disabled={!focus.trim()} onClick={finish}><GitBranch size={17} />{copy.enter}</Button></> : null}
           </CardContent>
         </Card>
-
-        <div className="grid gap-4">
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Timer size={17} className="text-primary" />{translate(state.locale, "Active Missions")}</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {activeMissions.length ? activeMissions.map(([technologyId, runtime]) => {
-                const tech = technologies.find((item) => item.id === technologyId);
-                return (
-                  <div key={technologyId} className="rounded-md border border-primary/35 bg-primary/10 p-3">
-                    <p className="font-bold text-foreground">{tech ? localizeTechnology(tech, state.locale).title : translate(state.locale, "Life mission")}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, "Started")} {runtime.startedAt ? new Date(runtime.startedAt).toLocaleTimeString(state.locale) : translate(state.locale, "now")}</p>
-                  </div>
-                );
-              }) : (
-                <div className="rounded-md border border-border bg-muted/35 p-3">
-                  <p className="font-bold text-foreground">{translate(state.locale, "No active mission")}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, "Open the Life Tree and start one focused action.")}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><GitBranch size={17} className="text-primary" />{translate(state.locale, "Strategic Recommendation")}</CardTitle></CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p className="text-base font-bold text-foreground">{recommendation.technologyId ? `${state.locale === "ru" ? "Исследуйте" : "Research"} ${localizeTechnology(technologies.find((item) => item.id === recommendation.technologyId)!, state.locale).title}` : translate(state.locale, recommendation.title)}</p>
-              <p>{recommendation.technologyId ? localizeTechnology(technologies.find((item) => item.id === recommendation.technologyId)!, state.locale).description : translate(state.locale, recommendation.description)}</p>
-              <Button asChild variant="outline" size="sm"><Link href="/tree">{translate(state.locale, "Inspect Tree")} <ArrowRight size={15} /></Link></Button>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <section className="mt-5">
-        <Card>
-          <CardHeader><CardTitle>{translate(state.locale, "Life Domains")}</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            {categories.map((item) => (
-              <div key={item.category}>
-                <div className="mb-1 flex justify-between text-xs">
-                  <span className="font-bold" style={{ color: categoryColors[item.category as keyof typeof categoryColors] }}>{translate(state.locale, item.label)}</span>
-                  <span className="text-muted-foreground">{item.unlocked}/{item.total}</span>
-                </div>
-                <Progress value={item.percent} />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </section>
+      </div>
     </AppShell>
   );
 }

@@ -2,7 +2,9 @@ import type { Locale } from "./types";
 
 export const locales: { id: Locale; label: string }[] = [
   { id: "en", label: "English" },
-  { id: "ru", label: "Русский" }
+  { id: "ru", label: "Русский" },
+  { id: "cs", label: "Čeština" },
+  { id: "uk", label: "Українська" }
 ];
 
 const russian: Record<string, string> = {
@@ -183,14 +185,73 @@ const russian: Record<string, string> = {
   ,Theme: "Тема"
   ,"Cosmetic reward slot prepared": "Место для косметической награды подготовлено"
   ,"Life Core": "Ядро жизни"
+  ,"Concrete result": "Конкретный результат"
+  ,Recommended: "Рекомендуется"
+  ,Example: "Пример"
+  ,"Save the result": "Сохраните результат"
+  ,"Complete required answers": "Заполните обязательные ответы"
+  ,"Required answers stay in Habidoo and become part of this mission attempt.": "Обязательные ответы сохраняются в Habidoo как часть этой попытки."
+  ,"Other option": "Свой вариант"
+  ,"One mission system: continue the active mission or choose the next available Life Tree upgrade.": "Единая система миссий: продолжите активную миссию или выберите следующее доступное улучшение Дерева жизни."
+  ,"Continue in Life Tree": "Продолжить в Дереве жизни"
+  ,"Choose the recommended available technology below.": "Выберите рекомендованную доступную технологию ниже."
+  ,"Recommended next mission": "Рекомендуемая следующая миссия"
+  ,"Available alternatives": "Доступные альтернативы"
+  ,"Planner blocks support execution but do not award XP. Link them to the active or next Life Tree mission.": "Блоки плана помогают действовать, но не дают XP. Связывайте их с активной или следующей миссией Дерева жизни."
+  ,Soon: "Скоро"
+  ,"about 30 days": "около 30 дней"
+  ,"Return to active mission": "Вернуться к активной миссии"
+  ,"Chapter 1 / 12": "Глава 1 / 12"
+  ,Details: "Подробности"
+};
+
+const czech: Record<string, string> = {
+  "Life Strategy": "Životní strategie", "Foundation Era": "Éra základů", Tree: "Strom", Missions: "Mise", Stats: "Statistiky", Awards: "Odměny", Profile: "Profil",
+  "Commander Profile": "Profil stratéga", Level: "Úroveň", "Life Score": "Životní skóre", "Unlocked Technologies": "Odemčené technologie", Achievements: "Úspěchy",
+  "Streak Milestones": "Milníky série", Language: "Jazyk", "Visual Style": "Vizuální styl", active: "aktivní", preview: "náhled", locked: "zamčeno", "Unlock:": "Odemknutí:",
+  "Life Tree": "Strom života", "Open Life Tree": "Otevřít Strom života", Streak: "Série", Today: "Dnes", days: "dní", "Current Era": "Současná éra",
+  "Active Missions": "Aktivní mise", "No active mission": "Žádná aktivní mise", "Strategic Recommendation": "Strategické doporučení", "Life Domains": "Oblasti života",
+  Statistics: "Statistiky", "Morning System": "Ranní systém", "Daily Command Center": "Denní velitelské centrum", "Top 3 Missions": "Tři hlavní mise",
+  Start: "Začít", Complete: "Dokončit", Done: "Hotovo", "Active mission": "Aktivní mise", "No technology": "Bez technologie", "24h Planner": "Plán na 24 hodin",
+  "The Awakening": "Probuzení", "Research progress": "Postup výzkumu", "Exact steps": "Přesné kroky", Duration: "Délka", Cooldown: "Obnova", Personal: "Osobní", Global: "Globální",
+  Research: "Výzkum", Insight: "Vhled", "Future reward": "Budoucí odměna", "What counts": "Co se počítá", "Does not count": "Co se nepočítá", "Next unlock": "Další odemknutí",
+  "Concrete result": "Konkrétní výsledek", Recommended: "Doporučeno", Example: "Příklad", "Save the result": "Uložit výsledek", "Complete required answers": "Vyplňte povinné odpovědi",
+  "Required answers stay in Habidoo and become part of this mission attempt.": "Povinné odpovědi zůstanou v Habidoo jako součást tohoto pokusu.", "Other option": "Vlastní možnost",
+  "One mission system: continue the active mission or choose the next available Life Tree upgrade.": "Jeden systém misí: pokračujte v aktivní misi nebo zvolte další dostupné vylepšení Stromu života.",
+  "Continue in Life Tree": "Pokračovat ve Stromu života", "Choose the recommended available technology below.": "Vyberte doporučenou dostupnou technologii níže.",
+  "Recommended next mission": "Doporučená další mise", "Available alternatives": "Dostupné alternativy",
+  "Planner blocks support execution but do not award XP. Link them to the active or next Life Tree mission.": "Bloky plánu pomáhají s provedením, ale nedávají XP. Propojte je s aktivní nebo další misí Stromu života."
+  ,Soon: "Brzy", "about 30 days": "asi 30 dní", "Return to active mission": "Zpět k aktivní misi", "Chapter 1 / 12": "Kapitola 1 / 12", Details: "Podrobnosti"
+};
+
+const ukrainian: Record<string, string> = {
+  "Life Strategy": "Стратегія життя", "Foundation Era": "Ера основ", Tree: "Дерево", Missions: "Місії", Stats: "Статистика", Awards: "Нагороди", Profile: "Профіль",
+  "Commander Profile": "Профіль стратега", Level: "Рівень", "Life Score": "Рейтинг життя", "Unlocked Technologies": "Відкриті технології", Achievements: "Досягнення",
+  "Streak Milestones": "Етапи серії", Language: "Мова", "Visual Style": "Візуальний стиль", active: "активна", preview: "перегляд", locked: "закрито", "Unlock:": "Відкривається:",
+  "Life Tree": "Дерево життя", "Open Life Tree": "Відкрити Дерево життя", Streak: "Серія", Today: "Сьогодні", days: "днів", "Current Era": "Поточна ера",
+  "Active Missions": "Активні місії", "No active mission": "Немає активної місії", "Strategic Recommendation": "Стратегічна рекомендація", "Life Domains": "Сфери життя",
+  Statistics: "Статистика", "Morning System": "Ранкова система", "Daily Command Center": "Щоденний командний центр", "Top 3 Missions": "Три головні місії",
+  Start: "Почати", Complete: "Завершити", Done: "Готово", "Active mission": "Активна місія", "No technology": "Без технології", "24h Planner": "План на 24 години",
+  "The Awakening": "Пробудження", "Research progress": "Прогрес дослідження", "Exact steps": "Точні кроки", Duration: "Тривалість", Cooldown: "Відновлення", Personal: "Особисте", Global: "Загальне",
+  Research: "Дослідження", Insight: "Осяяння", "Future reward": "Майбутня нагорода", "What counts": "Що зараховується", "Does not count": "Що не зараховується", "Next unlock": "Наступне відкриття",
+  "Concrete result": "Конкретний результат", Recommended: "Рекомендовано", Example: "Приклад", "Save the result": "Зберегти результат", "Complete required answers": "Заповніть обов’язкові відповіді",
+  "Required answers stay in Habidoo and become part of this mission attempt.": "Обов’язкові відповіді залишаться в Habidoo як частина цієї спроби.", "Other option": "Свій варіант",
+  "One mission system: continue the active mission or choose the next available Life Tree upgrade.": "Єдина система місій: продовжте активну місію або оберіть наступне доступне покращення Дерева життя.",
+  "Continue in Life Tree": "Продовжити в Дереві життя", "Choose the recommended available technology below.": "Оберіть рекомендовану доступну технологію нижче.",
+  "Recommended next mission": "Рекомендована наступна місія", "Available alternatives": "Доступні альтернативи",
+  "Planner blocks support execution but do not award XP. Link them to the active or next Life Tree mission.": "Блоки плану допомагають діяти, але не дають XP. Пов’язуйте їх з активною або наступною місією Дерева життя."
+  ,Soon: "Незабаром", "about 30 days": "близько 30 днів", "Return to active mission": "Повернутися до активної місії", "Chapter 1 / 12": "Глава 1 / 12", Details: "Подробиці"
 };
 
 export function translate(locale: Locale, text: string) {
-  return locale === "ru" ? russian[text] ?? text : text;
+  if (locale === "ru") return russian[text] ?? text;
+  if (locale === "cs") return czech[text] ?? text;
+  if (locale === "uk") return ukrainian[text] ?? text;
+  return text;
 }
 
 export function translateDynamic(locale: Locale, text: string) {
-  if (locale !== "ru") return text;
+  if (locale !== "ru") return translate(locale, text);
   const exact = russian[text];
   if (exact) return exact;
   let match = text.match(/^Complete (\d+) more required parent missions?\.$/);
@@ -212,5 +273,7 @@ function categoryName(category: string) {
 
 export const copy = {
   en: { product: "Habidoo", category: "Life Strategy", tree: "Life Technology Tree", command: "Daily Command Center" },
-  ru: { product: "Habidoo", category: "Стратегия жизни", tree: "Дерево жизненных технологий", command: "Дневной командный центр" }
+  ru: { product: "Habidoo", category: "Стратегия жизни", tree: "Дерево жизненных технологий", command: "Дневной командный центр" },
+  cs: { product: "Habidoo", category: "Životní strategie", tree: "Strom životních technologií", command: "Denní velitelské centrum" },
+  uk: { product: "Habidoo", category: "Стратегія життя", tree: "Дерево життєвих технологій", command: "Щоденний командний центр" }
 } satisfies Record<Locale, Record<string, string>>;

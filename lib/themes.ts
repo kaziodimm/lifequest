@@ -13,7 +13,7 @@ export type VisualTheme = {
 
 export const visualThemes: VisualTheme[] = [
   {
-    id: "focus-dark",
+    id: "animus-dark",
     name: "Animus Dark",
     description: "The default premium strategy interface: dark open field, golden core, cyan energy lines, and serious adult game UI.",
     mood: "strategic, focused, premium, high contrast",
@@ -23,7 +23,7 @@ export const visualThemes: VisualTheme[] = [
     availableInMvp: true
   },
   {
-    id: "soft-light",
+    id: "mirage-atlas",
     name: "Mirage Atlas",
     description: "A lighter historical-map skin for users who prefer warmer visuals without losing the strategic feeling.",
     mood: "warm, precise, exploratory, calm",
@@ -33,7 +33,7 @@ export const visualThemes: VisualTheme[] = [
     availableInMvp: false
   },
   {
-    id: "pixel-quest",
+    id: "arcade-codex",
     name: "Arcade Codex",
     description: "A collectible game skin for a more playful audience while keeping the product about life progression.",
     mood: "collectible, energetic, retro, readable",
@@ -43,7 +43,7 @@ export const visualThemes: VisualTheme[] = [
     availableInMvp: false
   },
   {
-    id: "cyber-calm",
+    id: "neon-synapse",
     name: "Neon Synapse",
     description: "A futuristic neural-network version of the Life Tree for users who like sci-fi progress systems.",
     mood: "futuristic, electric, focused, intelligent",
@@ -53,7 +53,7 @@ export const visualThemes: VisualTheme[] = [
     availableInMvp: false
   },
   {
-    id: "nature-progress",
+    id: "verdant-relic",
     name: "Verdant Relic",
     description: "An organic growth skin where life development feels like cultivating an ancient living tree.",
     mood: "grounded, restorative, mysterious, growth-oriented",

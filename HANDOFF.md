@@ -1,70 +1,52 @@
 # Habidoo — current handoff
 
-## Repository and deployment
+## Repository
 
 - Repository: `kaziodimm/lifequest`
-- Working branch: `codex/tree-constellation-polish`
 - Production branch: `main`
-- Production URL: https://lifequest-gamma.vercel.app/tree
-- Vercel project: `prj_94A8lDCmvvFYwG6DUa0GsxCH6Hob`
-- Vercel team: `team_tMqKBKkwpjBlShMCFxA1oLJ2`
+- Production URL: https://lifequest-gamma.vercel.app
+- Product source of truth: Product Bible documents in the repository.
 
-## Current design state
+## Current product stage
 
-- The Life Tree has five themes: Orbit, Atlas, Nexus, Blueprint and Pulse.
-- The Awakening Trial is a large theme-specific star outside the normal branch structure.
-- Completed missions use an explicit green check seal.
-- Branch names were removed from the canvas.
-- Branch lines have distinct locked, available and completed states.
-- Theme tooltips are equal in size and centered below their icons.
-- Epoch navigation has previous/next controls and mobile snapping for all 12 epochs.
-- The mission card is the highest interactive layer. Other controls disappear while it is open.
+The artistic direction is frozen. Do not generate new themes, backgrounds, icons, decorative effects, or future-era structures. Work is focused on guided missions, persisted evidence, Focus Objects, first-user flow, honest progression, and mobile stability.
 
-## Progression foundation
+## Guided mission system
 
-- All eight Trial nodes are one-time 30–90 minute mastery checks, not multi-day habit loops.
-- Only one daily or Tree mission can be active; persisted duplicate active states are normalized safely.
-- Every mission enforces minimum duration, a global cooldown tier and a personal cooldown.
-- XP is balanced by mission depth. Normal nodes award modest XP, milestones award 125, Trials 250 and The Awakening Trial 500.
-- Player state supports category Research Points and rare Insight Points.
-- Reward bundles support XP, Research, Insight, badges, titles, theme unlocks, theme fragments, node frames and background effects.
-- Trial readiness supports `requiredLevel`, `requiredInsightPoints`, `requiredCategoryProgress` and `requiredCompletedBranches`.
-- Orbit is the default unlocked theme. Locked themes remain previewable and can be unlocked by rewards; Atlas is tied to The Awakening Trial.
-- The mission panel displays action, steps, duration, personal/global cooldowns, rewards, counting rules and Trial lock reasons.
+- `MissionDefinition` is the shared contract for Tree and Command Center missions.
+- `MissionAttempt`, answers, evidence, rewards, and selected Focus Object persist in Zustand/localStorage.
+- Only one technology mission can be active. Legacy Daily Mission actions delegate to the same technology mission flow.
+- Completion requires minimum elapsed time and all required answers; rewards are issued once.
+- Root missions for all seven branches use prepared choices or structured fields instead of empty prompts.
+- Later missions reuse the branch Focus Object automatically.
+- The planner can link to a mission but no longer grants XP for arbitrary checkbox completion.
 
-## Mobile stability work
+## First-user flow
 
-- Coarse-pointer devices use a stable 2D canvas transform instead of `translate3d`.
-- Background parallax is disabled on coarse-pointer devices to avoid compositor-layer flicker.
-- Background artwork is oversized beyond the viewport to prevent uncovered black edges.
-- Mobile disables ambient background animation, node drop shadows and backdrop blur.
+- New users choose language, one branch, and one prepared Focus Object.
+- Onboarding sends them directly to the relevant root node with its mission panel open.
+- Existing persisted users are redirected from `/` to `/tree`.
+- Onboarding navigation is hidden so the first mission remains the only primary path.
 
 ## Localization
 
-- English remains the default language; Russian is the second selectable language in Profile.
-- The selected locale is persisted and updates the document language.
-- Russian covers navigation, dashboard, missions, planner, statistics, awards, profile, themes, eras and Tree controls.
-- Chapter 1 technology content is localized by ID in `lib/technology-i18n.ts`: titles, descriptions, requirements, actions and exact steps.
-- Dynamic Trial lock reasons and cooldown labels are localized as well.
-- When adding technologies, add their Russian content to `lib/technology-i18n.ts` at the same time.
-- If Git Data API ref updates do not trigger Vercel, create the final `main` commit through the GitHub Contents API so a normal push webhook is emitted.
+- Supported locales: English, Russian, Czech, Ukrainian.
+- New onboarding, mission, Command Center, and shared UI text exists in all four locales.
+- Russian chapter-one technology content is localized by ID in `lib/technology-i18n.ts`.
 
-## Verification checklist
+## Verification completed
 
-- Run `pnpm run build`.
-- Verify desktop and 390x844 mobile layouts in Chromium/Edge.
-- On a physical phone, drag the map repeatedly to every edge and check for flicker or uncovered background.
-- Open a mission on desktop and mobile; theme, zoom, epoch and bottom navigation must not cover it.
-- Use epoch arrows repeatedly; `New Horizon` must become fully visible.
-- Confirm the latest `main` deployment is `READY` before reporting completion.
+- Mission rule tests: 12/12 passing.
+- TypeScript typecheck: passing.
+- Next.js production build: passing.
+- Browser flow checked at 390×844 and 1440×900: onboarding, Russian locale, branch/focus selection, focused mission panel, no horizontal page overflow.
+- Mobile mission panel is opaque and its entry animation is disabled to avoid the temporary translucent/flickering state.
 
-## Next product steps after visual polish
+## Remaining MVP limitations
 
-1. Add backend persistence and server-authoritative mission timestamps before public leaderboards.
-2. Build Inner Order chapter content using the new progression and reward fields.
-3. Add a dedicated wallet/reward inventory UI for Research, Insight and cosmetics.
-4. Validate real-device performance on iOS Safari and Android Chrome.
-5. Add automated progression and visual regression tests.
+- Persistence and timestamps remain client-side and are not authoritative.
+- Czech and Ukrainian cover the new guided flow, but the older full chapter technology catalogue is not yet fully translated.
+- Real-device iOS Safari and Android Chrome testing remains recommended.
+- Content beyond Chapter 1 is intentionally not implemented.
 
 Read this file first when continuing in a new Codex thread.
-

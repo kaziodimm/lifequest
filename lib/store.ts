@@ -3,9 +3,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
-import { getGlobalCooldownSeconds, getTechnologyMission, getTechnologyTarget } from "./missions";
+import { getGlobalCooldownSeconds, getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "./missions";
 import { getTechnologyLockReasons } from "./progression";
-import { DailyMission, LifeCategory, Locale, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, VisualThemeId } from "./types";
+import { canCompleteMissionAttempt, canStartMission, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData } from "./mission-rules";
+import { DailyMission, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
 
 const emptyResearchPoints: ResearchPointBalances = {
   health: 0,
@@ -27,6 +28,35 @@ function addResearchPoints(current: ResearchPointBalances, reward?: ProgressionR
 
 function addUnique(current: string[], value?: string) {
   return value && !current.includes(value) ? [...current, value] : current;
+}
+
+function answerText(value: MissionAnswer | undefined) {
+  if (Array.isArray(value)) return value.join(", ");
+  return value === undefined ? "" : String(value);
+}
+
+function focusObjectFromAttempt(category: LifeCategory, answers: Record<string, MissionAnswer>, now: number): UserFocusObject | undefined {
+  const values: Partial<Record<LifeCategory, { type: UserFocusObject["type"]; name: string; outcome: string }>> = {
+    health: { type: "healthRoutine", name: "Body awareness", outcome: answerText(answers["body-factor"]) },
+    mind: { type: "learningTopic", name: "Current focus", outcome: answerText(answers["next-step"]) },
+    finance: { type: "financialGoal", name: "Financial foundation", outcome: `Balance ${answerText(answers.balance)}; income ${answerText(answers.income)}` },
+    business: { type: "project", name: answerText(answers["project-name"]), outcome: answerText(answers["desired-result"]) },
+    career: { type: "careerSkill", name: answerText(answers["career-target"]), outcome: "Create visible career progress this chapter." },
+    relationships: { type: "relationship", name: answerText(answers["person-name"]), outcome: answerText(answers["connection-outcome"]) },
+    creativity: { type: "creativeMedium", name: answerText(answers["creative-medium"]), outcome: "Create and save a first visible draft." }
+  };
+  const value = values[category];
+  if (!value?.name) return undefined;
+  return { id: `focus:${category}:${now}`, type: value.type, category, name: value.name, desiredOutcome: value.outcome, createdAt: now };
+}
+
+function initialAnswersFromFocus(category: LifeCategory, focusObject: UserFocusObject | undefined): Record<string, MissionAnswer> {
+  if (!focusObject) return {};
+  if (category === "business") return { "project-type": focusObject.name, "project-name": focusObject.name, "desired-result": focusObject.desiredOutcome };
+  if (category === "career") return { "career-target": focusObject.name };
+  if (category === "relationships") return { "person-name": focusObject.name };
+  if (category === "creativity") return { "creative-medium": focusObject.name };
+  return {};
 }
 
 const initialMissions: DailyMission[] = [
@@ -87,14 +117,16 @@ function createInitialTechnologyRuntime(completedTechnologyIds: string[]): Recor
 }
 
 const legacyCompletedTechnologyIds = ["health-root", "business-root"];
-const initialCompletedTechnologyIds = ["health-root", "morning-walk", "business-root", "project-sprint", "finance-root"];
+const initialCompletedTechnologyIds: string[] = [];
 
 const initialState: PlayerState = {
   avatarName: "Strategist",
+  onboardingCompleted: false,
+  primaryCategory: undefined,
   locale: "en",
-  theme: "focus-dark",
+  theme: "animus-dark",
   currentEra: "foundation",
-  totalXp: 80,
+  totalXp: 0,
   researchPoints: { ...emptyResearchPoints },
   insightPoints: 0,
   unlockedTreeThemeIds: ["orbit"],
@@ -103,17 +135,20 @@ const initialState: PlayerState = {
   earnedTitles: [],
   unlockedNodeFrames: [],
   unlockedBackgroundEffects: [],
-  streak: 3,
+  streak: 0,
   completedTechnologyIds: initialCompletedTechnologyIds,
   technologyRuntime: createInitialTechnologyRuntime(initialCompletedTechnologyIds),
   globalMissionCooldownUntil: undefined,
+  activeMissionAttemptId: undefined,
+  missionAttempts: [],
+  focusObjects: [],
   dailyMissions: initialMissions,
   planner: Array.from({ length: 24 }, (_, hour) => ({ hour, plan: "", completed: false })),
   achievements: [
     { id: "first-command", title: "First Command", description: "Complete the first daily mission.", unlocked: false },
-    { id: "three-day-streak", title: "3 Day Chain", description: "Reach a 3 day streak.", unlocked: true }
+    { id: "three-day-streak", title: "3 Day Chain", description: "Reach a 3 day streak.", unlocked: false }
   ],
-  progressHistory: [12, 18, 22, 35, 41, 47, 53]
+  progressHistory: [0, 0, 0, 0, 0, 0, 0]
 };
 
 type PartialMission = Partial<DailyMission> & Pick<DailyMission, "id">;
@@ -158,13 +193,10 @@ function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined)
 }
 
 function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerState {
-  let activeMissionClaimed = false;
+  const normalizedMissionData = normalizePersistedMissionData(persisted);
   const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => {
     const normalized = normalizeMission(mission);
-    if (normalized.status !== "active") return normalized;
-    if (activeMissionClaimed) return { ...normalized, status: "ready" as const, startedAt: undefined };
-    activeMissionClaimed = true;
-    return normalized;
+    return normalized.status === "active" ? { ...normalized, status: "ready" as const, startedAt: undefined } : normalized;
   });
   const savedCompletedIds = persisted?.completedTechnologyIds;
   const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
@@ -172,6 +204,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
   const hasRemovedTechnology = savedCompletedIds?.some((id) => !validIds.has(id));
 
   const technologyRuntime = normalizeTechnologyRuntime(persisted);
+  let activeMissionClaimed = false;
   Object.keys(technologyRuntime).forEach((technologyId) => {
     if (technologyRuntime[technologyId].status !== "active") return;
     if (activeMissionClaimed) technologyRuntime[technologyId] = { ...technologyRuntime[technologyId], status: "ready", startedAt: undefined };
@@ -181,7 +214,10 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
   return {
     ...initialState,
     ...persisted,
-    locale: persisted?.locale === "ru" ? "ru" : "en",
+    locale: migrateLocale(persisted?.locale),
+    onboardingCompleted: persisted?.onboardingCompleted ?? Boolean(persisted),
+    primaryCategory: persisted?.primaryCategory,
+    theme: migrateThemeId(persisted?.theme),
     completedTechnologyIds: !savedCompletedIds || isLegacyDemo || hasRemovedTechnology ? initialState.completedTechnologyIds : savedCompletedIds,
     currentEra: persisted?.currentEra ?? initialState.currentEra,
     researchPoints: { ...emptyResearchPoints, ...(persisted?.researchPoints ?? {}) },
@@ -192,6 +228,9 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     earnedTitles: persisted?.earnedTitles ?? [],
     unlockedNodeFrames: persisted?.unlockedNodeFrames ?? [],
     unlockedBackgroundEffects: persisted?.unlockedBackgroundEffects ?? [],
+    activeMissionAttemptId: persisted?.activeMissionAttemptId,
+    missionAttempts: (normalizedMissionData.missionAttempts as PlayerState["missionAttempts"]).filter((attempt) => attempt?.id && attempt?.missionId && attempt?.technologyId && attempt?.startedAt),
+    focusObjects: (normalizedMissionData.focusObjects as PlayerState["focusObjects"]).filter((object) => object?.id && object?.type && object?.category && object?.name),
     technologyRuntime,
     dailyMissions: missions,
     planner: persisted?.planner ?? initialState.planner,
@@ -201,6 +240,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
 }
 
 type LifeStore = PlayerState & {
+  completeOnboarding: (locale: Locale, category: LifeCategory, focusObject: UserFocusObject) => void;
   setLocale: (locale: Locale) => void;
   setTheme: (theme: VisualThemeId) => void;
   unlockTreeTheme: (themeId: string) => void;
@@ -208,6 +248,8 @@ type LifeStore = PlayerState & {
   completeMission: (missionId: string) => void;
   startTechnologyMission: (technologyId: string) => void;
   completeTechnologyMission: (technologyId: string) => void;
+  setMissionAnswer: (attemptId: string, inputId: string, value: MissionAnswer) => void;
+  saveFocusObject: (focusObject: UserFocusObject) => void;
   unlockTechnology: (technologyId: string) => void;
   updatePlannerBlock: (hour: number, plan: string, technologyId?: string) => void;
   togglePlannerBlock: (hour: number) => void;
@@ -217,6 +259,14 @@ export const useLifeStore = create<LifeStore>()(
   persist(
     (set, get) => ({
       ...initialState,
+      completeOnboarding(locale, category, focusObject) {
+        set((state) => ({
+          locale,
+          onboardingCompleted: true,
+          primaryCategory: category,
+          focusObjects: [...state.focusObjects.filter((item) => item.category !== category), focusObject]
+        }));
+      },
       setLocale(locale) {
         set({ locale });
       },
@@ -226,54 +276,25 @@ export const useLifeStore = create<LifeStore>()(
       unlockTreeTheme(themeId) {
         set((state) => ({ unlockedTreeThemeIds: state.unlockedTreeThemeIds.includes(themeId) ? state.unlockedTreeThemeIds : [...state.unlockedTreeThemeIds, themeId] }));
       },
-      startMission(missionId) {
-        const state = get();
-        const mission = state.dailyMissions.find((item) => item.id === missionId);
-        if (!mission || mission.completed || mission.status === "active") return;
-        if (mission.status === "cooldown" && mission.cooldownUntil && mission.cooldownUntil > Date.now()) return;
-        if (state.globalMissionCooldownUntil && state.globalMissionCooldownUntil > Date.now()) return;
-        if (state.dailyMissions.some((item) => item.status === "active") || Object.values(state.technologyRuntime).some((item) => item.status === "active")) return;
-
+      setMissionAnswer(attemptId, inputId, value) {
         set((state) => ({
-          dailyMissions: state.dailyMissions.map((item) =>
-            item.id === missionId ? { ...item, status: "active", startedAt: Date.now(), completedAt: undefined } : item
-          )
+          missionAttempts: state.missionAttempts.map((attempt) => attempt.id === attemptId ? { ...attempt, answers: { ...attempt.answers, [inputId]: value } } : attempt)
         }));
+      },
+      saveFocusObject(focusObject) {
+        set((state) => ({
+          focusObjects: state.focusObjects.some((item) => item.id === focusObject.id)
+            ? state.focusObjects.map((item) => item.id === focusObject.id ? { ...focusObject, updatedAt: Date.now() } : item)
+            : [...state.focusObjects, focusObject]
+        }));
+      },
+      startMission(missionId) {
+        const mission = get().dailyMissions.find((item) => item.id === missionId);
+        if (mission) get().startTechnologyMission(mission.technologyId);
       },
       completeMission(missionId) {
         const mission = get().dailyMissions.find((item) => item.id === missionId);
-        if (!mission || mission.completed || mission.status !== "active" || !mission.startedAt) return;
-
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - mission.startedAt) / 1000);
-        if (elapsedSeconds < mission.minDurationSeconds) return;
-
-        const technology = technologies.find((item) => item.id === mission.technologyId);
-        const reward: ProgressionReward = mission.rewards ?? {
-          xp: mission.xpReward,
-          researchPoints: technology ? { [technology.category]: 1 } : undefined
-        };
-
-        set((state) => ({
-          totalXp: state.totalXp + reward.xp,
-          researchPoints: addResearchPoints(state.researchPoints, reward.researchPoints),
-          insightPoints: state.insightPoints + (reward.insightPoints ?? 0),
-          unlockedTreeThemeIds: reward.themeUnlock && !state.unlockedTreeThemeIds.includes(reward.themeUnlock) ? [...state.unlockedTreeThemeIds, reward.themeUnlock] : state.unlockedTreeThemeIds,
-          themeFragments: reward.themeFragment ? { ...state.themeFragments, [reward.themeFragment]: (state.themeFragments[reward.themeFragment] ?? 0) + 1 } : state.themeFragments,
-          earnedBadges: addUnique(state.earnedBadges, reward.badge),
-          earnedTitles: addUnique(state.earnedTitles, reward.title),
-          unlockedNodeFrames: addUnique(state.unlockedNodeFrames, reward.nodeFrame),
-          unlockedBackgroundEffects: addUnique(state.unlockedBackgroundEffects, reward.backgroundEffect),
-          globalMissionCooldownUntil: now + getGlobalCooldownSeconds(mission.globalCooldownType) * 1000,
-          dailyMissions: state.dailyMissions.map((item) =>
-            item.id === missionId
-              ? { ...item, completed: true, status: "completed", completedAt: now, cooldownUntil: now + (mission.personalCooldownSeconds ?? 24 * 60 * 60) * 1000 }
-              : item
-          ),
-          achievements: state.achievements.map((achievement) =>
-            achievement.id === "first-command" ? { ...achievement, unlocked: true } : achievement
-          )
-        }));
+        if (mission) get().completeTechnologyMission(mission.technologyId);
       },
       startTechnologyMission(technologyId) {
         const tech = technologies.find((item) => item.id === technologyId);
@@ -281,17 +302,29 @@ export const useLifeStore = create<LifeStore>()(
 
         const state = get();
         const completed = state.completedTechnologyIds;
-        const canStart = getTechnologyLockReasons(tech, state).length === 0;
+        const locked = getTechnologyLockReasons(tech, state).length > 0;
         const runtime = state.technologyRuntime[technologyId] ?? { progress: 0, status: "ready" };
-        if (!canStart || completed.includes(technologyId) || runtime.status === "active") return;
-        if (runtime.cooldownUntil && runtime.cooldownUntil > Date.now()) return;
-        if (state.globalMissionCooldownUntil && state.globalMissionCooldownUntil > Date.now()) return;
-        if (state.dailyMissions.some((item) => item.status === "active") || Object.values(state.technologyRuntime).some((item) => item.status === "active")) return;
+        const now = Date.now();
+        const hasAnotherActiveMission = Object.entries(state.technologyRuntime).some(([id, item]) => id !== technologyId && item.status === "active");
+        if (!canStartMission({ locked, completed: completed.includes(technologyId), globalCooldownUntil: state.globalMissionCooldownUntil, runtime, hasAnotherActiveMission, now })) return;
 
+        const startedAt = now;
+        const definition = getMissionDefinition(tech);
+        const attemptId = `${definition.id}:${startedAt}`;
+        const focusObject = findReusableFocusObject(state.focusObjects, tech.category);
         set((state) => ({
+          activeMissionAttemptId: attemptId,
+          missionAttempts: [...state.missionAttempts, {
+            id: attemptId,
+            missionId: definition.id,
+            technologyId,
+            startedAt,
+            answers: initialAnswersFromFocus(tech.category, focusObject),
+            selectedFocusObject: focusObject?.id
+          }],
           technologyRuntime: {
             ...state.technologyRuntime,
-            [technologyId]: { ...runtime, status: "active", startedAt: Date.now(), completedAt: undefined }
+            [technologyId]: { ...runtime, status: "active", startedAt, completedAt: undefined }
           }
         }));
       },
@@ -299,9 +332,14 @@ export const useLifeStore = create<LifeStore>()(
         const tech = technologies.find((item) => item.id === technologyId);
         if (!tech) return;
 
+        const stateBeforeCompletion = get();
         const mission = getTechnologyMission(tech);
-        const runtime = get().technologyRuntime[technologyId];
+        const definition = getMissionDefinition(tech);
+        const runtime = stateBeforeCompletion.technologyRuntime[technologyId];
         if (!runtime || runtime.status !== "active" || !runtime.startedAt) return;
+
+        const activeAttempt = stateBeforeCompletion.missionAttempts.find((attempt) => attempt.id === stateBeforeCompletion.activeMissionAttemptId && attempt.technologyId === technologyId);
+        if (!activeAttempt || !canCompleteMissionAttempt(definition, activeAttempt, runtime, Date.now())) return;
 
         const now = Date.now();
         const elapsedSeconds = Math.floor((now - runtime.startedAt) / 1000);
@@ -310,12 +348,14 @@ export const useLifeStore = create<LifeStore>()(
         const target = getTechnologyTarget(tech);
         const nextProgress = Math.min(target, runtime.progress + mission.progressGain);
         const completedTechnology = nextProgress >= target;
-        const alreadyCompleted = get().completedTechnologyIds.includes(technologyId);
+        const alreadyCompleted = stateBeforeCompletion.completedTechnologyIds.includes(technologyId);
         const missionXp = completedTechnology ? tech.xpReward : Math.max(5, Math.round(tech.xpReward / target));
         const globalCooldownUntil = now + getGlobalCooldownSeconds(mission.globalCooldownType) * 1000;
         const categoryReward = tech.rewards.researchPoints?.[tech.category] ?? 0;
         const researchGain = completedTechnology ? categoryReward : Math.max(1, Math.round(categoryReward / target));
         const completionInsight = completedTechnology && !alreadyCompleted ? tech.rewards.insightPoints ?? 0 : 0;
+        const existingFocusObject = findReusableFocusObject(stateBeforeCompletion.focusObjects, tech.category);
+        const newFocusObject = tech.parents.length === 0 && !existingFocusObject ? focusObjectFromAttempt(tech.category, activeAttempt.answers, now) : undefined;
 
         set((state) => ({
           totalXp: state.totalXp + missionXp,
@@ -328,6 +368,16 @@ export const useLifeStore = create<LifeStore>()(
           unlockedNodeFrames: completedTechnology ? addUnique(state.unlockedNodeFrames, tech.rewards.nodeFrame) : state.unlockedNodeFrames,
           unlockedBackgroundEffects: completedTechnology ? addUnique(state.unlockedBackgroundEffects, tech.rewards.backgroundEffect) : state.unlockedBackgroundEffects,
           globalMissionCooldownUntil: globalCooldownUntil,
+          activeMissionAttemptId: undefined,
+          focusObjects: newFocusObject ? [...state.focusObjects.filter((item) => item.category !== tech.category), newFocusObject] : state.focusObjects,
+          missionAttempts: state.missionAttempts.map((attempt) => attempt.id === activeAttempt.id ? {
+            ...attempt,
+            completedAt: now,
+            elapsedSeconds,
+            selectedFocusObject: newFocusObject?.id ?? attempt.selectedFocusObject,
+            evidence: { summary: answerText(activeAttempt.answers.result) || definition.concreteOutcome, confirmedAt: now } satisfies MissionCompletionEvidence,
+            earnedRewards: { xp: missionXp, researchPoints: { [tech.category]: researchGain }, insightPoints: completionInsight }
+          } : attempt),
           completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
           technologyRuntime: {
             ...state.technologyRuntime,
@@ -353,7 +403,6 @@ export const useLifeStore = create<LifeStore>()(
         const block = get().planner.find((item) => item.hour === hour);
         if (!block || !block.plan.trim()) return;
         set((state) => ({
-          totalXp: block.completed ? Math.max(0, state.totalXp - 5) : state.totalXp + 5,
           planner: state.planner.map((item) => (item.hour === hour ? { ...item, completed: !item.completed } : item))
         }));
       }

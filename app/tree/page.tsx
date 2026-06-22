@@ -15,9 +15,11 @@ import assetStyles from "./tree-generated-assets.module.css";
 
 export default function TreePage() {
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
+  const [initialTechnologyId, setInitialTechnologyId] = useState<string | null>(null);
   const unlockedThemeIds = useLifeStore((state) => state.unlockedTreeThemeIds);
 
   useEffect(() => {
+    setInitialTechnologyId(new URLSearchParams(window.location.search).get("focus"));
     const savedTheme = readSiteTheme();
     setThemeId(savedTheme);
     applySiteTheme(savedTheme, false);
@@ -59,7 +61,7 @@ export default function TreePage() {
             })}
           </div>
         </div>
-        <LifeTree />
+        <LifeTree initialTechnologyId={initialTechnologyId} />
       </div>
     </AppShell>
   );

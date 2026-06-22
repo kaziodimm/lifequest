@@ -692,6 +692,18 @@
 }
 
 @media (max-width: 767px) {
+  .fullscreenField :global(.life-tree-stage.is-focused .life-tree-canvas) {
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  .fullscreenField :global(.life-tree-stage.is-focused .mission-panel) {
+    background: #07111d !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
   .fullscreenField :global(.life-tree-toolbar) {
     display: grid;
     height: 100px;

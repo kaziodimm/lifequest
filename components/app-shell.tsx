@@ -19,7 +19,7 @@ const nav = [
   { href: "/profile", label: "Profile", icon: UserRound }
 ];
 
-export function AppShell({ children, immersive = false }: { children: React.ReactNode; immersive?: boolean }) {
+export function AppShell({ children, immersive = false, hideNavigation = false }: { children: React.ReactNode; immersive?: boolean; hideNavigation?: boolean }) {
   const pathname = usePathname();
   const locale = useLifeStore((state) => state.locale);
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
@@ -38,7 +38,7 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
   }, [locale]);
 
   return (
-    <main className={cn("app-theme-shell min-h-screen", immersive ? "overflow-hidden pb-0" : "pb-24")} data-site-theme={themeId}>
+    <main className={cn("app-theme-shell min-h-screen", immersive || hideNavigation ? "overflow-hidden pb-0" : "pb-24")} data-site-theme={themeId}>
       {immersive ? (
         children
       ) : (
@@ -58,7 +58,7 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
           {children}
         </div>
       )}
-      <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-[90] grid grid-cols-5 border-t border-border px-2 py-2 md:left-1/2 md:max-w-xl md:-translate-x-1/2 md:border-x">
+      {!hideNavigation ? <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-[90] grid grid-cols-5 border-t border-border px-2 py-2 md:left-1/2 md:max-w-xl md:-translate-x-1/2 md:border-x">
         {nav.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
@@ -72,7 +72,7 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
             </Link>
           );
         })}
-      </nav>
+      </nav> : null}
     </main>
   );
 }

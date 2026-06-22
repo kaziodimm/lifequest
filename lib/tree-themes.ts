@@ -28,8 +28,8 @@ export type TreeTheme = {
 export const treeThemes: TreeTheme[] = [
   {
     id: "orbit",
-    title: "Orbit",
-    shortTitle: "Orbit",
+    title: "Animus Dark",
+    shortTitle: "Animus",
     description: "A focused constellation system for seeing every area of life as one connected trajectory.",
     mood: "Focused, intelligent, premium, calm.",
     background: "Graphite orbital field with restrained cyan and amber navigation light.",
@@ -41,8 +41,8 @@ export const treeThemes: TreeTheme[] = [
   },
   {
     id: "atlas",
-    title: "Atlas",
-    shortTitle: "Atlas",
+    title: "Mirage Atlas",
+    shortTitle: "Mirage",
     description: "A bright strategic life map built from paper, mineral glass and fine brass.",
     mood: "Clear, exploratory, warm, considered.",
     background: "Ivory cartography with subtle topography and mineral-blue overlays.",
@@ -54,8 +54,8 @@ export const treeThemes: TreeTheme[] = [
   },
   {
     id: "nexus",
-    title: "Nexus",
-    shortTitle: "Nexus",
+    title: "Neon Synapse",
+    shortTitle: "Synapse",
     description: "A deep systems view for users who want every habit and goal to feel interconnected.",
     mood: "Technical, analytical, deep, controlled.",
     background: "Optical blue system field with concentric clusters and precision detail.",
@@ -67,8 +67,8 @@ export const treeThemes: TreeTheme[] = [
   },
   {
     id: "blueprint",
-    title: "Blueprint",
-    shortTitle: "Plan",
+    title: "Arcade Codex",
+    shortTitle: "Codex",
     description: "An architectural view of personal development: precise, practical and built step by step.",
     mood: "Purposeful, structured, mature, productive.",
     background: "Blueprint paper with construction geometry and amber registration points.",
@@ -80,8 +80,8 @@ export const treeThemes: TreeTheme[] = [
   },
   {
     id: "pulse",
-    title: "Pulse",
-    shortTitle: "Pulse",
+    title: "Verdant Relic",
+    shortTitle: "Verdant",
     description: "A human, restorative system where progress feels organic, balanced and alive.",
     mood: "Fresh, warm, restorative, optimistic.",
     background: "Pearl biomaterials, water-like glass and soft living color.",
