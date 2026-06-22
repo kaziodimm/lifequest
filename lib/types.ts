@@ -9,7 +9,7 @@ export type TechnologyNodeType = "technology" | "milestone" | "challenge";
 export type GlobalCooldownType = "micro" | "standard" | "deep";
 export type MissionDepth = GlobalCooldownType | "trial";
 
-export type Locale = "en" | "cs" | "ru" | "uk";
+export type Locale = "en" | "ru";
 
 export type VisualThemeId = "focus-dark" | "soft-light" | "pixel-quest" | "cyber-calm" | "nature-progress";
 

@@ -8,6 +8,8 @@ import { Award, BarChart3, GitBranch, Radar, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { defaultTreeThemeId, type TreeThemeId } from "@/lib/tree-themes";
 import { applySiteTheme, readSiteTheme, siteThemeEvent } from "@/lib/site-theme";
+import { translate } from "@/lib/i18n";
+import { useLifeStore } from "@/lib/store";
 
 const nav = [
   { href: "/tree", label: "Tree", icon: GitBranch },
@@ -19,6 +21,7 @@ const nav = [
 
 export function AppShell({ children, immersive = false }: { children: React.ReactNode; immersive?: boolean }) {
   const pathname = usePathname();
+  const locale = useLifeStore((state) => state.locale);
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
 
   useEffect(() => {
@@ -29,6 +32,10 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
     window.addEventListener(siteThemeEvent, handleTheme);
     return () => window.removeEventListener(siteThemeEvent, handleTheme);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   return (
     <main className={cn("app-theme-shell min-h-screen", immersive ? "overflow-hidden pb-0" : "pb-24")} data-site-theme={themeId}>
@@ -43,10 +50,10 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
               </div>
               <div>
                 <p className="text-sm font-black uppercase tracking-wide text-foreground">Habidoo</p>
-                <p className="text-xs text-muted-foreground">Life Strategy</p>
+                <p className="text-xs text-muted-foreground">{translate(locale, "Life Strategy")}</p>
               </div>
             </Link>
-            <div className="app-era-badge border border-border px-3 py-1 text-xs font-semibold text-muted-foreground">Foundation Era</div>
+            <div className="app-era-badge border border-border px-3 py-1 text-xs font-semibold text-muted-foreground">{translate(locale, "Foundation Era")}</div>
           </header>
           {children}
         </div>
@@ -61,7 +68,7 @@ export function AppShell({ children, immersive = false }: { children: React.Reac
                 <Image src={`/art/themes-v4/${themeId}/emblem-base.webp`} alt="" width={38} height={38} />
                 <Icon size={17} />
               </span>
-              {item.label}
+              {translate(locale, item.label)}
             </Link>
           );
         })}

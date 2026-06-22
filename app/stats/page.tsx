@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { categoryProgress } from "@/lib/insights";
 import { categoryColors } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
+import { translate } from "@/lib/i18n";
 
 export default function StatsPage() {
   const state = useLifeStore();
@@ -16,14 +17,14 @@ export default function StatsPage() {
   return (
     <AppShell>
       <div className="mb-4">
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">Intelligence</p>
-        <h1 className="text-2xl font-black text-foreground">Statistics</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Progress history should show life development, not only task completion.</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">{translate(state.locale, "Intelligence")}</p>
+        <h1 className="text-2xl font-black text-foreground">{translate(state.locale, "Statistics")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{translate(state.locale, "Progress history should show life development, not only task completion.")}</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_0.7fr]">
         <Card>
-          <CardHeader><CardTitle>7 Day Progress</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{translate(state.locale, "7 Day Progress")}</CardTitle></CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data}>
@@ -42,7 +43,7 @@ export default function StatsPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Category Growth</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{translate(state.locale, "Category Growth")}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {categories.map((item) => (
               <div key={item.category}>
@@ -51,7 +52,7 @@ export default function StatsPage() {
                   <span className="text-muted-foreground">{item.percent}%</span>
                 </div>
                 <Progress value={item.percent} />
-                <p className="mt-1 text-[11px] text-muted-foreground">{item.unlocked} of {item.total} technologies unlocked</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{item.unlocked} {translate(state.locale, "of")} {item.total} {translate(state.locale, "technologies unlocked")}</p>
               </div>
             ))}
           </CardContent>

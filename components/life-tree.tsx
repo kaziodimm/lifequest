@@ -13,6 +13,7 @@ import { getTechnologyLockReasons } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
 import type { LifeCategory, LifeTechnology, TechStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { translate } from "@/lib/i18n";
 
 const treeSize = 4200;
 const corePoint = { x: treeSize / 2, y: treeSize / 2 };
@@ -197,6 +198,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const globalMissionCooldownUntil = useLifeStore((state) => state.globalMissionCooldownUntil);
   const totalXp = useLifeStore((state) => state.totalXp);
   const insightPoints = useLifeStore((state) => state.insightPoints);
+  const locale = useLifeStore((state) => state.locale);
   const mission = getTechnologyMission(technology);
   const target = getTechnologyTarget(technology);
   const progress = runtime?.progress ?? technology.requirements[0]?.current ?? 0;
@@ -242,7 +244,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
 
       <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
         <div className="mb-2 flex items-center justify-between text-xs font-bold">
-          <span>Research progress</span>
+          <span>{translate(locale, "Research progress")}</span>
           <span style={{ color }}>{progress}/{target}</span>
         </div>
         <Progress value={progressPercent} />
@@ -251,13 +253,13 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
 
       <div className="mt-4 grid gap-2 text-sm">
         <div className="rounded-md border border-border bg-muted/35 p-3">
-          <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-primary"><Sparkles size={14} /> What do I do now?</p>
+          <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-primary"><Sparkles size={14} /> {translate(locale, "What do I do now?")}</p>
           <p className="font-black text-foreground">{mission.actionTitle ?? mission.action}</p>
           {mission.actionDescription ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{mission.actionDescription}</p> : null}
         </div>
         {mission.exactSteps?.length ? (
           <div className="rounded-md border border-border bg-muted/35 p-3">
-            <p className="mb-2 text-xs font-black uppercase tracking-wide text-primary">Exact steps</p>
+            <p className="mb-2 text-xs font-black uppercase tracking-wide text-primary">{translate(locale, "Exact steps")}</p>
             <ol className="grid list-decimal gap-1.5 pl-5 text-xs leading-5 text-foreground">
               {mission.exactSteps.map((step) => <li key={step}>{step}</li>)}
             </ol>
@@ -265,421 +267,15 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
         ) : null}
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-md border border-border bg-muted/35 p-3">
-            <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Timer size={14} /> Duration</p>
+            <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Timer size={14} /> {translate(locale, "Duration")}</p>
             <p className="font-bold text-foreground">{mission.durationLabel}</p>
           </div>
           <div className="rounded-md border border-border bg-muted/35 p-3">
-            <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Clock3 size={14} /> Cooldown</p>
-            <p className="font-bold text-foreground">Personal {formatDuration(mission.personalCooldownSeconds ?? mission.cooldownSeconds)}</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">Global {mission.globalCooldownType ?? "standard"}</p>
+            <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-muted-foreground"><Clock3 size={14} /> {translate(locale, "Cooldown")}</p>
+            <p className="font-bold text-foreground">{translate(locale, "Personal")} {formatDuration(mission.personalCooldownSeconds ?? mission.cooldownSeconds)}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">{translate(locale, "Global")} {mission.globalCooldownType ?? "standard"}</p>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">XP</p><p className="mt-1 font-black text-foreground">+{technology.rewards.xp}</p></div>
-          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">Research</p><p className="mt-1 font-black text-foreground">+{researchReward}</p></div>
-          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">Insight</p><p className="mt-1 font-black text-foreground">+{technology.rewards.insightPoints ?? 0}</p></div>
-        </div>
-        <div className="rounded-md border border-border bg-muted/35 p-3 text-xs">
-          <p className="font-black uppercase tracking-wide text-muted-foreground">Future reward</p>
-          <p className="mt-1 leading-5 text-foreground">{futureRewards.length ? futureRewards.join(" Â· ") : "Cosmetic reward slot prepared"}</p>
-        </div>
-      </div>
-
-      {mission.whatCounts || mission.whatDoesNotCount ? (
-        <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
-          {mission.whatCounts ? <div className="rounded-md border border-border bg-muted/35 p-3"><strong className="text-foreground">What counts</strong><p className="mt-1 leading-5 text-muted-foreground">{mission.whatCounts}</p></div> : null}
-          {mission.whatDoesNotCount ? <div className="rounded-md border border-border bg-muted/35 p-3"><strong className="text-foreground">Does not count</strong><p className="mt-1 leading-5 text-muted-foreground">{mission.whatDoesNotCount}</p></div> : null}
-        </div>
-      ) : null}
-
-      <div className="mt-4 rounded-md border border-border bg-background/45 p-3">
-        <p className="mb-2 text-xs font-black uppercase tracking-wide text-muted-foreground">Next unlock</p>
-        <p className="text-sm font-bold text-foreground">{nextUnlocks.length ? nextUnlocks.join(", ") : "Branch mastery"}</p>
-      </div>
-
-      {technology.type === "challenge" ? (
-        <div className="mt-3 rounded-md border border-border bg-muted/35 p-3 text-xs">
-          <p className="font-black uppercase tracking-wide text-primary">Trial readiness</p>
-          <p className="mt-2 text-muted-foreground">Level {technology.requiredLevel ?? "future"} Â· Insight {technology.requiredInsightPoints ?? "future"} Â· Branch milestones {technology.requiredCompletedBranches ?? 1}</p>
-          {lockReasons.length ? <ul className="mt-2 grid list-disc gap-1 pl-4 text-foreground">{lockReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul> : <p className="mt-2 font-bold text-foreground">Current readiness requirements met.</p>}
-        </div>
-      ) : null}
-
-      {status === "locked" ? (
-        <div className="mt-4 flex items-start gap-2 rounded-md border border-border bg-muted/35 p-3 text-xs text-muted-foreground">
-          <ShieldAlert size={16} className="mt-0.5 shrink-0" /> {lockReasons[0] ?? "Unlock parent technologies first."}
-        </div>
-      ) : runtime?.status === "active" ? (
-        <Button className="mt-4 w-full" disabled={!canComplete} onClick={() => completeTechnologyMission(technology.id)}>
-          <Check size={16} /> {canComplete ? "Complete Mission" : `Keep going ${formatDuration(remainingSeconds)}`}
-        </Button>
-      ) : cooldownRemaining > 0 ? (
-        <Button className="mt-4 w-full" disabled variant="outline">
-          <Clock3 size={16} /> Cooldown {formatDuration(cooldownRemaining)}
-        </Button>
-      ) : status === "unlocked" ? (
-        <Button className="mt-4 w-full" disabled variant="secondary">
-          <Check size={16} /> Technology completed
-        </Button>
-      ) : anotherMissionActive ? (
-        <Button className="mt-4 w-full" disabled variant="outline">
-          <ShieldAlert size={16} /> Another mission is already active.
-        </Button>
-      ) : globalCooldownRemaining > 0 ? (
-        <Button className="mt-4 w-full" disabled variant="outline">
-          <Clock3 size={16} /> Global cooldown {formatDuration(globalCooldownRemaining)}
-        </Button>
-      ) : (
-        <Button className="mt-4 w-full" onClick={() => startTechnologyMission(technology.id)}>
-          <Play size={16} /> Start Mission
-        </Button>
-      )}
-    </aside>
-  );
-}
-
-export function LifeTree() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [panelAnchor, setPanelAnchor] = useState<PanelAnchor>({ x: 16, y: 96 });
-  const [returnView, setReturnView] = useState<ViewState | null>(null);
-  const [now, setNow] = useState(() => Date.now());
-  const [view, setView] = useState<ViewState>({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
-  const [dragStart, setDragStart] = useState<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null);
-  const [stableMobileRendering, setStableMobileRendering] = useState(false);
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLDivElement | null>(null);
-  const artLayerRef = useRef<HTMLDivElement | null>(null);
-  const epochStripRef = useRef<HTMLDivElement | null>(null);
-  const viewRef = useRef(view);
-  const pendingDragPanRef = useRef<ViewState["pan"] | null>(null);
-  const dragFrameRef = useRef<number | null>(null);
-  const completedIds = useLifeStore((state) => state.completedTechnologyIds);
-  const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
-  const totalXp = useLifeStore((state) => state.totalXp);
-  const insightPoints = useLifeStore((state) => state.insightPoints);
-  const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
-  const rootTechnologies = useMemo(() => technologies.filter((tech) => tech.parents.length === 0), []);
-  const progressionLockedIds = useMemo(() => new Set(technologies.filter((technology) => getTechnologyLockReasons(technology, { completedTechnologyIds: completedIds, totalXp, insightPoints }).length > 0).map((technology) => technology.id)), [completedIds, insightPoints, totalXp]);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    setStableMobileRendering(window.matchMedia("(pointer: coarse)").matches);
-  }, []);
-
-  useEffect(() => {
-    viewRef.current = view;
-    const artLayer = artLayerRef.current;
-    if (artLayer) {
-      if (stableMobileRendering) {
-        artLayer.style.transform = "translate(0, 0) scale(1.08)";
-      } else {
-        const parallaxX = clamp(view.pan.x * 0.055, -72, 72);
-        const parallaxY = clamp(view.pan.y * 0.055, -72, 72);
-        const depthScale = 1.018 + Math.max(0, view.zoom - overviewZoom) * 0.035;
-        artLayer.style.transform = `translate3d(${parallaxX}px, ${parallaxY}px, 0) scale(${depthScale})`;
-      }
-    }
-  }, [stableMobileRendering, view]);
-
-  useEffect(() => () => {
-    if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
-  }, []);
-
-  function resetView() {
-    setPanelOpen(false);
-    setSelectedId(null);
-    setReturnView(null);
-    setView({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
-  }
-
-  function scrollEpochs(direction: -1 | 1) {
-    const strip = epochStripRef.current;
-    if (!strip) return;
-    const isCompact = strip.clientWidth < 520;
-    const step = isCompact ? 112 : Math.min(360, strip.clientWidth * .72);
-    strip.scrollBy({ left: direction * step, behavior: isCompact ? "auto" : "smooth" });
-  }
-
-  function focusTechnology(tech: LifeTechnology) {
-    const rect = stageRef.current?.getBoundingClientRect();
-    const stageWidth = rect?.width ?? 390;
-    const stageHeight = rect?.height ?? 760;
-    const node = getNodePoint(tech);
-    const topSpace = 88;
-    const bottomNavSpace = 92;
-    const cardOffsetX = stageWidth >= 1024 ? -190 : 0;
-    const cardOffsetY = stageWidth >= 1024 ? 0 : -110;
-    const nextPan = {
-      x: -(node.x - corePoint.x) * focusZoom + cardOffsetX,
-      y: -(node.y - corePoint.y) * focusZoom + cardOffsetY
-    };
-    const screenX = stageWidth / 2 + nextPan.x + (node.x - corePoint.x) * focusZoom;
-    const screenY = stageHeight / 2 + nextPan.y + (node.y - corePoint.y) * focusZoom;
-
-    setSelectedId(tech.id);
-    setPanelOpen(true);
-    setView({ zoom: focusZoom, pan: nextPan });
-    setPanelAnchor({
-      x: clamp(screenX + 54, 16, Math.max(16, stageWidth - 392)),
-      y: clamp(screenY - 190, topSpace, Math.max(topSpace, stageHeight - bottomNavSpace - 430))
-    });
-  }
-
-  function handleNodeClick(tech: LifeTechnology) {
-    if (!panelOpen) setReturnView(view);
-    focusTechnology(tech);
-  }
-
-  function closePanel() {
-    setPanelOpen(false);
-    setSelectedId(null);
-    if (returnView) setView(returnView);
-    setReturnView(null);
-  }
-
-  function handleWheel(event: WheelEvent<HTMLDivElement>) {
-    if (panelOpen) return;
-    event.preventDefault();
-    const rect = stageRef.current?.getBoundingClientRect();
-    const stageWidth = rect?.width ?? 390;
-    const stageHeight = rect?.height ?? 760;
-    const delta = event.deltaY > 0 ? -0.08 : 0.08;
-    const nextZoom = clamp(view.zoom + delta, minZoom, maxZoom);
-    const zoomRatio = nextZoom / view.zoom;
-    const pointerX = event.clientX - (rect?.left ?? 0) - stageWidth / 2;
-    const pointerY = event.clientY - (rect?.top ?? 0) - stageHeight / 2;
-
-    setView({
-      zoom: nextZoom,
-      pan: {
-        x: pointerX - (pointerX - view.pan.x) * zoomRatio,
-        y: pointerY - (pointerY - view.pan.y) * zoomRatio
-      }
-    });
-  }
-
-  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 || panelOpen) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setDragStart({ pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: view.pan.x, panY: view.pan.y });
-  }
-
-  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (!dragStart || dragStart.pointerId !== event.pointerId) return;
-    const nextPan = { x: dragStart.panX + event.clientX - dragStart.x, y: dragStart.panY + event.clientY - dragStart.y };
-    pendingDragPanRef.current = nextPan;
-    if (dragFrameRef.current !== null) return;
-
-    dragFrameRef.current = window.requestAnimationFrame(() => {
-      dragFrameRef.current = null;
-      const pan = pendingDragPanRef.current;
-      const canvas = canvasRef.current;
-      if (!pan || !canvas) return;
-      canvas.style.transform = stableMobileRendering
-        ? `translate(${pan.x}px, ${pan.y}px) scale(${viewRef.current.zoom})`
-        : `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${viewRef.current.zoom})`;
-      const artLayer = artLayerRef.current;
-      if (artLayer && !stableMobileRendering) {
-        const parallaxX = clamp(pan.x * 0.055, -72, 72);
-        const parallaxY = clamp(pan.y * 0.055, -72, 72);
-        const depthScale = 1.018 + Math.max(0, viewRef.current.zoom - overviewZoom) * 0.035;
-        artLayer.style.transform = `translate3d(${parallaxX}px, ${parallaxY}px, 0) scale(${depthScale})`;
-      }
-    });
-  }
-
-  function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
-    if (dragStart?.pointerId !== event.pointerId) return;
-    if (dragFrameRef.current !== null) {
-      window.cancelAnimationFrame(dragFrameRef.current);
-      dragFrameRef.current = null;
-    }
-    const finalPan = pendingDragPanRef.current;
-    pendingDragPanRef.current = null;
-    if (finalPan) setView((current) => ({ ...current, pan: finalPan }));
-    setDragStart(null);
-  }
-
-  return (
-    <div className="life-tree-shell immersive-tree-shell">
-      <div className="life-tree-toolbar epoch-toolbar">
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">The Awakening</p>
-          <p className="text-xs text-muted-foreground">Chapter 1 / 12 Â· about 30 days</p>
-        </div>
-        <div className="epoch-navigation">
-          <button type="button" className="epoch-scroll-button" aria-label="Previous epochs" onClick={() => scrollEpochs(-1)}><ChevronLeft size={16} /></button>
-          <div ref={epochStripRef} className="epoch-strip" aria-label="Era epochs">
-            {epochs.map((epoch) => (
-              <button key={epoch.id} type="button" disabled={!epoch.unlocked} className={cn("epoch-chip", epoch.unlocked ? "active" : "locked")}> 
-                <span>{epoch.title}</span>
-                <small>{epoch.duration}</small>
-              </button>
-            ))}
-          </div>
-          <button type="button" className="epoch-scroll-button" aria-label="Next epochs" onClick={() => scrollEpochs(1)}><ChevronRight size={16} /></button>
-        </div>
-        <button type="button" className="tree-tool-button shrink-0" aria-label="Center tree" onClick={resetView}><LocateFixed size={16} /></button>
-      </div>
-
-      <div
-        ref={stageRef}
-        className={cn("life-tree-stage", dragStart && "is-dragging", panelOpen && "is-focused")}
-        onWheel={handleWheel}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        <div ref={artLayerRef} className="life-tree-art-layer" aria-hidden="true">
-          <div className="life-tree-art-image" />
-          <div className="life-tree-art-atmosphere" />
-        </div>
-
-        <div className="life-tree-vignette" />
-        <div className="life-tree-starfield" />
-        <div className="life-tree-rune-grid" />
-
-        <div
-          ref={canvasRef}
-          className="life-tree-canvas"
-          style={{ width: treeSize, height: treeSize, ["--tree-half" as string]: `-${treeSize / 2}px`, transform: stableMobileRendering ? `translate(${view.pan.x}px, ${view.pan.y}px) scale(${view.zoom})` : `translate3d(${view.pan.x}px, ${view.pan.y}px, 0) scale(${view.zoom})` }}
-        >
-          <svg className="pointer-events-none absolute inset-0 size-full" viewBox={`0 0 ${treeSize} ${treeSize}`} aria-hidden="true">
-            <defs>
-              <radialGradient id="coreAura" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(246, 196, 83, 0.34)" />
-                <stop offset="45%" stopColor="rgba(76, 224, 210, 0.13)" />
-                <stop offset="100%" stopColor="rgba(76, 224, 210, 0)" />
-              </radialGradient>
-            </defs>
-            <circle cx={corePoint.x} cy={corePoint.y} r="560" fill="url(#coreAura)" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="360" fill="none" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 18" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="760" fill="none" stroke="rgba(255,255,255,0.045)" strokeDasharray="2 22" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="1140" fill="none" stroke="rgba(255,255,255,0.035)" strokeDasharray="2 26" />
-            <circle cx={corePoint.x} cy={corePoint.y} r="1500" fill="none" stroke="rgba(246,196,83,0.025)" strokeDasharray="1 30" />
-
-            {rootTechnologies.map((tech) => {
-              const runtime = technologyRuntime[tech.id];
-              const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress, progressionLockedIds.has(tech.id));
-              const color = categoryColors[tech.category];
-              const end = getNodePoint(tech);
-              const joint = getBranchJoint(corePoint, end);
-
-              return (
-                <g key={`core-${tech.id}`}>
-                  <path className="tree-connection-shadow" d={getBranchPath(corePoint, end)} fill="none" stroke="rgba(0,0,0,0.42)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
-                  {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(corePoint, end)} fill="none" stroke={color} strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" /> : null}
-                  <path
-                    className={`tree-connection tree-connection-${status}`}
-                    d={getBranchPath(corePoint, end)}
-                    fill="none"
-                    stroke={status === "locked" ? "rgba(148, 163, 184, 0.42)" : `${color}D8`}
-                    strokeWidth={status === "locked" ? 5 : 7}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="7" fill={status === "locked" ? "rgba(148, 163, 184, 0.42)" : color} />
-                </g>
-              );
-            })}
-
-            {technologies.map((tech) => {
-                const parentId = visualParents[tech.id];
-                if (!parentId) return null;
-                const parent = technologies.find((item) => item.id === parentId);
-                if (!parent) return null;
-
-                const runtime = technologyRuntime[tech.id];
-                const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress, progressionLockedIds.has(tech.id));
-                const color = categoryColors[tech.category];
-                const start = getNodePoint(parent);
-                const end = getNodePoint(tech);
-                const joint = getBranchJoint(start, end);
-
-                return (
-                  <g key={`visual-${parentId}-${tech.id}`}>
-                    <path className="tree-connection-shadow" d={getBranchPath(start, end)} fill="none" stroke="rgba(0,0,0,0.42)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
-                    {status === "unlocked" ? <path className="tree-connection-glow" d={getBranchPath(start, end)} fill="none" stroke={color} strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" /> : null}
-                    <path
-                      className={`tree-connection tree-connection-${status}`}
-                      d={getBranchPath(start, end)}
-                      fill="none"
-                      stroke={status === "unlocked" ? color : status === "available" || status === "in_progress" ? `${color}D8` : "rgba(148, 163, 184, 0.42)"}
-                      strokeWidth={status === "unlocked" ? 8 : status === "available" || status === "in_progress" ? 7 : 5}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <circle className={`tree-joint tree-joint-${status}`} cx={joint.x} cy={joint.y} r="6" fill={status === "locked" ? "rgba(148, 163, 184, 0.42)" : color} />
-                  </g>
-                );
-              })}
-          </svg>
-
-          <button
-            type="button"
-            className="life-core-node"
-            style={{ left: corePoint.x - 74, top: corePoint.y - 74 }}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={resetView}
-          >
-            <span className="life-core-art" aria-hidden="true" />
-            <Sparkles className="life-core-glyph" size={36} aria-hidden="true" />
-            <span className="life-core-copy">
-              <span className="text-[9px] font-black uppercase tracking-[0.24em] text-accent">Habidoo</span>
-              <span className="text-sm font-black text-foreground">Life Core</span>
-            </span>
-          </button>
-
-          {technologies.map((tech) => {
-            const runtime = technologyRuntime[tech.id];
-            const status = getStatus(tech, completedIds, runtime?.status, runtime?.progress, progressionLockedIds.has(tech.id));
-            const color = categoryColors[tech.category];
-            const isSelected = selectedTechnology?.id === tech.id;
-            const cooldownActive = runtime?.cooldownUntil ? runtime.cooldownUntil > now : false;
-            const position = radialPositions[tech.id] ?? { x: tech.x, y: tech.y };
-            const isPolarStar = tech.id === "awakening-trial";
-
-            return (
-              <button
-                key={tech.id}
-                type="button"
-                className={cn("tech-node-button radial-tech-node absolute flex w-32 flex-col items-center gap-2 text-center transition", status, isSelected && "selected", isPolarStar && "polar-star-node")}
-                data-category={tech.category}
-                data-tech-id={tech.id}
-                data-node-role={position.role}
-                data-node-type={tech.type ?? "technology"}
-                style={{ left: position.x, top: position.y, ["--node-color" as string]: color, ["--node-size" as string]: `${position.size}px` }}
-                onPointerDown={(event) => event.stopPropagation()}
-                onClick={() => handleNodeClick(tech)}
-              >
-                {isPolarStar ? (
-                  <span className="polar-star-art">
-                    <span className="polar-star-face" aria-hidden="true" />
-                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
-                  </span>
-                ) : (
-                  <span className="tech-orb tech-emblem grid place-items-center border bg-card/95 backdrop-blur">
-                    <span className="tech-emblem-inner" />
-                    {status === "locked" ? <Lock size={23} /> : <TechnologyGlyph icon={tech.icon} size={27} />}
-                    {status === "unlocked" ? <span className="tech-completion-badge" role="img" aria-label="Mission completed" title="Mission completed"><Check /></span> : null}
-                    {runtime?.status === "active" ? <span className="absolute -right-1 -top-1 size-4 rounded-full bg-primary shadow-node" /> : null}
-                    {cooldownActive ? <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border border-border bg-background text-[9px]">cd</span> : null}
-                  </span>
-                )}
-                <span className="tech-node-label line-clamp-2 text-[12px] font-black leading-tight text-foreground">{tech.title}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {panelOpen && selectedTechnology ? <MissionPanel anchor={panelAnchor} technology={selectedTechnology} now={now} onClose={closePanel} /> : null}
-      </div>
-    </div>
-  );
-}
+          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">XP</p><p className="mt-1 font-black text-foreground">+{technolÛy¶‰žËkºwµçAÍÑÉ¥À¹±¥•¹Ñ]¥‘Ñ €ð€ÔÈÀì(€€€½¹ÍÐÍÑ•À€ô¥Í½µÁ…Ð€ü€ÄÄÈ€è5…Ñ ¹µ¥¸ ÌØÀ°ÍÑÉ¥À¹±¥•¹Ñ]¥‘Ñ €¨€¸ÜÈ¤ì(€€€ÍÑÉ¥À¹ÍÉ½±±	ä¡ì±•™Ðè‘¥É•Ñ¥½¸€¨ÍÑ•À°‰•¡…Ù¥½Èè¥Í½µÁ…Ð€ü€‰…ÕÑ¼ˆ€è€‰Íµ½½Ñ ˆô¤ì(€ô((€™Õ¹Ñ¥½¸™½ÕÍQ•¡¹½±½ä¡Ñ• è1¥™•Q•¡¹½±½ä¤ì(€€€½¹ÍÐÉ•Ð€ôÍÑ…•I•˜¹ÕÉÉ•¹Ðü¹•Ñ	½Õ¹‘¥¹±¥•¹ÑI•Ð ¤ì(€€€½¹ÍÐÍÑ…•]¥‘Ñ €ôÉ•Ðü¹Ý¥‘Ñ €üü€ÌäÀì(€€€½¹ÍÐÍÑ…•!•¥¡Ð€ôÉ•Ðü¹¡•¥¡Ð€üü€ÜØÀì(€€€½¹ÍÐ¹½‘”€ô•Ñ9½‘•A½¥¹Ð¡Ñ• ¤ì(€€€½¹ÍÐÑ½ÁMÁ…”€ô€ààì(€€€½¹ÍÐ‰½ÑÑ½µ9…ÙMÁ…”€ô€äÈì(€€€½¹ÍÐ…É‘=™™Í•Ñ`€ôÍÑ…•]¥‘Ñ €øô€ÄÀÈÐ€ü€´ÄäÀ€è€Àì(€€€½¹ÍÐ…É‘=™™Í•Ñd€ôÍÑ…•]¥‘Ñ €øô€ÄÀÈÐ€ü€À€è€´ÄÄÀì(€€€½¹ÍÐ¹•áÑA…¸€ôì(€€€€€àè€´¡¹½‘”¹à€´½É•A½¥¹Ð¹à¤€¨™½ÕÍi½½´€¬…É‘=™™Í•Ñ`°(€€€€€äè€´¡¹½‘”¹ä€´½É•A½¥¹Ð¹ä¤€¨™½ÕÍi½½´€¬…É‘=™™Í•Ñd(€€€ôì(€€€½¹ÍÐÍÉ••¹`€ôÍÑ…•]¥‘Ñ €¼€È€¬¹•áÑA…¸¹à€¬€¡¹½‘”¹à€´½É•A½¥¹Ð¹à¤€¨™½ÕÍi½½´ì(€€€½¹ÍÐÍÉ••¹d€ôÍÑ…•!•¥¡Ð€¼€È€¬¹•áÑA…¸¹ä€¬€¡¹½‘”¹ä€´½É•A½¥¹Ð¹ä¤€¨™½ÕÍi½½´ì((€€€Í•ÑM•±•Ñ•‘%¡Ñ• ¹¥¤ì(€€€Í•ÑA…¹•±=Á•¸¡ÑÉÕ”¤ì(€€€Í•ÑY¥•Ü¡ìé½½´è™½ÕÍi½½´°Á…¸è¹•áÑA…¸ô¤ì(€€€Í•ÑA…¹•±¹¡½È¡ì(€€€€€àè±…µÀ¡ÍÉ••¹`€¬€ÔÐ°€ÄØ°5…Ñ ¹µ…à ÄØ°ÍÑ…•]¥‘Ñ €´€ÌäÈ¤¤°(€€€€€äè±…µÀ¡ÍÉ••¹d€´€ÄäÀ°Ñ½ÁMÁ…”°5…Ñ ¹µ…à¡Ñ½ÁMÁ…”°ÍÑ…•!•¥¡Ð€´‰½ÑÑ½µ9…ÙMÁ…”€´€ÐÌÀ¤¤(€€€ô¤ì(€ô((€™Õ¹Ñ¥½¸¡…¹‘±•9½‘•±¥¬¡Ñ• è1¥™•Q•¡¹½±½ä¤ì(€€€¥˜€ …Á…¹•±=Á•¸¤Í•ÑI•ÑÕÉ¹Y¥•Ü¡Ù¥•Ü¤ì(€€€™½ÕÍQ•¡¹½±½ä¡Ñ• ¤ì(€ô((€™Õ¹Ñ¥½¸±½Í•A…¹•° ¤ì(€€€Í•ÑA…¹•±=Á•¸¡™…±Í”¤ì(€€€Í•ÑM•±•Ñ•‘%¡¹Õ±°¤ì(€€€¥˜€¡É•ÑÕÉ¹Y¥•Ü¤Í•ÑY¥•Ü¡É•ÑÕÉ¹Y¥•Ü¤ì(€€€Í•ÑI•ÑÕÉ¹Y¥•Ü¡¹Õ±°¤ì(€ô((€™Õ¹Ñ¥½¸¡…¹‘±•]¡••°¡•Ù•¹Ðè]¡••±Ù•¹Ðñ!Q51¥Ù±•µ•¹Ðø¤ì(€€€¥˜€¡Á…¹•±=Á•¸¤É•ÑÕÉ¸ì(€€€•Ù•¹Ð¹ÁÉ•Ù•¹Ñ•™…Õ±Ð ¤ì(€€€½¹ÍÐÉ•Ð€ôÍÑ…•I•˜¹ÕÉÉ•¹Ðü¹•Ñ	½Õ¹‘¥¹±¥•¹ÑI•Ð ¤ì(€€€½¹ÍÐÍÑ…•]¥‘Ñ €ôÉ•Ðü¹Ý¥‘Ñ €üü€ÌäÀì(€€€½¹ÍÐÍÑ…•!•¥¡Ð€ôÉ•Ðü¹¡•¥¡Ð€üü€ÜØÀì(€€€½¹ÍÐ‘•±Ñ„€ô•Ù•¹Ð¹‘•±Ñ…d€ø€À€ü€´À¸Àà€è€À¸Ààì(€€€½¹ÍÐ¹•áÑi½½´€ô±…µÀ¡Ù¥•Ü¹é½½´€¬‘•±Ñ„°µ¥¹i½½´°µ…ái½½´¤ì(€€€½¹ÍÐé½½µI…Ñ¥¼€ô¹•áÑi½½´€¼Ù¥•Ü¹é½½´ì(€€€½¹ÍÐÁ½¥¹Ñ•É`€ô•Ù•¹Ð¹±¥•¹Ñ`€´€¡É•Ðü¹±•™Ð€üü€À¤€´ÍÑ…•]¥‘Ñ €¼€Èì(€€€½¹ÍÐÁ½¥¹Ñ•Éd€ô•Ù•¹Ð¹±¥•¹Ñd€´€¡É•Ðü¹Ñ½À€üü€À¤€´ÍÑ…•!•¥¡Ð€¼€Èì((€€€Í•ÑY¥•Ü¡ì(€€€€€é½½´è¹•áÑi½½´°(€€€€€Á…¸èì(€€€€€€€àèÁ½¥¹Ñ•É`€´€¡Á½¥¹Ñ•É`€´Ù¥•Ü¹Á…¸¹à¤€¨é½½µI…Ñ¥¼°(€€€€€€€äèÁ½¥¹Ñ•Éd€´€¡Á½¥¹Ñ•Éd€´Ù¥•Ü¹Á…¸¹ä¤€¨é½½µI…Ñ¥¼(€€€€€ô(€€€ô¤ì(€ô((€™Õ¹Ñ¥½¸¡…¹‘±•A½¥¹Ñ•É½Ý¸¡•Ù•¹ÐèA½¥¹Ñ•ÉÙ•¹Ðñ!Q51¥Ù±•µ•¹Ðø¤ì(€€€¥˜€¡•Ù•¹Ð¹‰ÕÑÑ½¸€„ôô€ÀñðÁ…¹•±=Á•¸¤É•ÑÕÉ¸ì(€€€•Ù•¹Ð¹ÕÉÉ•¹ÑQ…É•Ð¹Í•ÑA½¥¹Ñ•É…ÁÑÕÉ”¡•Ù•¹Ð¹Á½¥¹Ñ•É%¤ì(€€€Í•ÑÉ…MÑ…ÉÐ¡ìÁ½¥¹Ñ•É%è•Ù•¹Ð¹Á½¥¹Ñ•É%°àè•Ù•¹Ð¹±¥•¹Ñ`°äè•Ù•¹Ð¹±¥•¹Ñd°Á…¹`èÙ¥•Ü¹Á…¸¹à°Á…¹dèÙ¥•Ü¹Á…¸¹äô¤ì(€ô((€™Õ¹Ñ¥½¸¡…¹‘±•A½¥¹Ñ•É5½Ù”¡•Ù•¹ÐèA½¥¹Ñ•ÉÙ•¹Ðñ!Q51¥Ù±•µ•¹Ðø¤ì(€€€¥˜€ …‘É…MÑ…ÉÐñð‘É…MÑ…ÉÐ¹Á½¥¹Ñ•É%€„ôô•Ù•¹Ð¹Á½¥¹Ñ•É%¤É•ÑÕÉ¸ì(€€€½¹ÍÐ¹•áÑA…¸€ôìàè‘É…MÑ…ÉÐ¹Á…¹`€¬•Ù•¹Ð¹±¥•¹Ñ`€´‘É…MÑ…ÉÐ¹à°äè‘É…MÑ…ÉÐ¹Á…¹d€¬•Ù•¹Ð¹±¥•¹Ñd€´‘É…MÑ…ÉÐ¹äôì(€€€Á•¹‘¥¹É…A…¹I•˜¹ÕÉÉ•¹Ð€ô¹•áÑA…¸ì(€€€¥˜€¡‘É…É…µ•I•˜¹ÕÉÉ•¹Ð€„ôô¹Õ±°¤É•ÑÕÉ¸ì((€€€‘É…É…µ•I•˜¹ÕÉÉ•¹Ð€ôÝ¥¹‘½Ü¹É•ÅÕ•ÍÑ¹¥µ…Ñ¥½¹É…µ”  ¤€ôøì(€€€€€‘É…É…µ•I•˜¹ÕÉÉ•¹Ð€ô¹Õ±°ì(€€€€€½¹ÍÐÁ…¸€ôÁ•¹‘¥¹É…A…¹I•˜¹ÕÉÉ•¹Ðì(€€€€€½¹ÍÐ…¹Ù…Ì€ô…¹Ù…ÍI•˜¹ÕÉÉ•¹Ðì(€€€€€¥˜€ …Á…¸ñð€……¹Ù…Ì¤É•ÑÕÉ¸ì(€€€€€…¹Ù…Ì¹ÍÑå±”¹ÑÉ…¹Í™½É´€ôÍÑ…‰±•5½‰¥±•I•¹‘•É¥¹œ(€€€€€€€€üÑÉ…¹Í±…Ñ” ‘íÁ…¸¹áõÁà°€‘íÁ…¸¹åõÁà¤Í…±” ‘íÙ¥•ÝI•˜¹ÕÉÉ•¹Ð¹é½½µô¥€(€€€€€€€€èÑÉ…¹Í±…Ñ”Í ‘íÁ…¸¹áõÁà°€‘íÁ…¸¹åõÁà°€À¤Í…±” ‘íÙ¥•ÝI•˜¹ÕÉÉ•¹Ð¹é½½µô¥€ì(€€€€€½¹ÍÐ…ÉÑ1…å•È€ô…ÉÑ1…å•ÉI•˜¹ÕÉÉ•¹Ðì(€€€€€¥˜€¡…ÉÑ1…å•È€˜˜€…ÍÑ…‰±•5½‰¥±•I•¹‘•É¥¹œ¤ì(€€€€€€€½¹ÍÐÁ…É…±±…á`€ô±…µÀ¡Á…¸¹à€¨€À¸ÀÔÔ°€´ÜÈ°€ÜÈ¤ì(€€€€€€€½¹ÍÐÁ…É…±±…ád€ô±…µÀ¡Á…¸¹ä€¨€À¸ÀÔÔ°€´ÜÈ°€ÜÈ¤ì(€€€€€€€½¹ÍÐ‘•ÁÑ¡M…±”€ô€Ä¸ÀÄà€¬5…Ñ ¹µ…à À°Ù¥•ÝI•˜¹ÕÉÉ•¹Ð¹é½½´€´½Ù•ÉÙ¥•Ýi½½´¤€¨€À¸ÀÌÔì(€€€€€€€…ÉÑ1…å•È¹ÍÑå±”¹ÑÉ…¹Í™½É´€ôÑÉ…¹Í±…Ñ”Í ‘íÁ…É…±±…áaõÁà°€‘íÁ…É…±±…áeõÁà°€À¤Í…±” ‘í‘•ÁÑ¡M…±•ô¥€ì(€€€€€ô(€€€ô¤ì(€ô((€™Õ¹Ñ¥½¸¡…¹‘±•A½¥¹Ñ•ÉUÀ¡•Ù•¹ÐèA½¥¹Ñ•ÉÙ•¹Ðñ!Q51¥Ù±•µ•¹Ðø¤ì(€€€¥˜€¡‘É…MÑ…ÉÐü¹Á½¥¹Ñ•É%€„ôô•Ù•¹Ð¹Á½¥¹Ñ•É%¤É•ÑÕÉ¸ì(€€€¥˜€¡‘É…É…µ•I•˜¹ÕÉÉ•¹Ð€„ôô¹Õ±°¤ì(€€€€€Ý¥¹‘½Ü¹…¹•±¹¥µ…Ñ¥½¹É…µ”¡‘É…É…µ•I•˜¹ÕÉÉ•¹Ð¤ì(€€€€€‘É…É…µ•I•˜¹ÕÉÉ•¹Ð€ô¹Õ±°ì(€€€ô(€€€½¹ÍÐ™¥¹…±A…¸€ôÁ•¹‘¥¹É…A…¹I•˜¹ÕÉÉ•¹Ðì(€€€Á•¹‘¥¹É…A…¹I•˜¹ÕÉÉ•¹Ð€ô¹Õ±°ì(€€€¥˜€¡™¥¹…±A…¸¤Í•ÑY¥•Ü ¡ÕÉÉ•¹Ð¤€ôø€¡ì€¸¸¹ÕÉÉ•¹Ð°Á…¸è™¥¹…±A…¸ô¤¤ì(€€€Í•ÑÉ…MÑ…ÉÐ¡¹Õ±°¤ì(€ô((€É•ÑÕÉ¸€ (€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µÍ¡•±°¥µµ•ÉÍ¥Ù”µÑÉ•”µÍ¡•±°ˆø(€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µÑ½½±‰…È•Á½ µÑ½½±‰…Èˆø(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µ¥¸µÜ´Àˆø(€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµlÄÁÁát™½¹Ðµ‰±…¬ÕÁÁ•É…Í”ÑÉ…­¥¹œµlÀ¸ÈÉ•µtÑ•áÐµÁÉ¥µ…ÉäˆùíÑÉ…¹Í±…Ñ”¡±½…±”°€‰Q¡”Ý…­•¹¥¹œˆ¥ôð½Àø(€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµáÌÑ•áÐµµÕÑ•µ™½É•É½Õ¹ˆùíÑÉ…¹Í±…Ñ”¡±½…±”°€‰¡…ÁÑ•È€Ä€¼€ÄÈƒ
+Ü…‰½ÕÐ€ÌÀ‘…åÌˆ¥ôð½Àø(€€€€€€€€ð½‘¥Øø(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰•Á½ µ¹…Ù¥…Ñ¥½¸ˆø(€€€€€€€€€€ñ‰ÕÑÑ½¸ÑåÁ”ô‰‰ÕÑÑ½¸ˆ±…ÍÍ9…µ”ô‰•Á½ µÍÉ½±°µ‰ÕÑÑ½¸ˆ…É¥„µ±…‰•°ô‰AÉ•Ù¥½ÕÌ•Á½¡Ìˆ½¹±¥¬õì ¤€ôøÍÉ½±±Á½¡Ì ´Ä¥ôøñ¡•ÙÉ½¹1•™ÐÍ¥é”õìÄÙô€¼øð½‰ÕÑÑ½¸ø(€€€€€€€€€€ñ‘¥ØÉ•˜õí•Á½¡MÑÉ¥ÁI•™ô±…ÍÍ9…µ”ô‰•Á½ µÍÑÉ¥Àˆ…É¥„µ±…‰•°ô‰É„•Á½¡Ìˆø(€€€€€€€€€€€í•Á½¡Ì¹µ…À ¡•Á½ ¤€ôø€ (€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸­•äõí•Á½ ¹¥‘ôÑåÁ”ô‰‰ÕÑÑ½¸ˆ‘¥Í…‰±•õì…•Á½ ¹Õ¹±½­•‘ô±…ÍÍ9…µ”õí¸ ‰•Á½ µ¡¥Àˆ°•Á½ ¹Õ¹±½­•€ü€‰…Ñ¥Ù”ˆ€è€‰±½­•ˆ¥ôø€(€€€€€€€€€€€€€€€€ñÍÁ…¸ùí•Á½ ¹Ñ¥Ñ±•ôð½ÍÁ…¸ø(€€€€€€€€€€€€€€€€ñÍµ…±°ùí•Á½ ¹‘ÕÉ…Ñ¥½¹ôð½Íµ…±°ø(€€€€€€€€€€€€€€ð½‰ÕÑÑ½¸ø(€€€€€€€€€€€€¤¥ô(€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€ñ‰ÕÑÑ½¸ÑåÁ”ô‰‰ÕÑÑ½¸ˆ±…ÍÍ9…µ”ô‰•Á½ µÍÉ½±°µ‰ÕÑÑ½¸ˆ…É¥„µ±…‰•°ô‰9•áÐ•Á½¡Ìˆ½¹±¥¬õì ¤€ôøÍÉ½±±Á½¡Ì Ä¥ôøñ¡•ÙÉ½¹I¥¡ÐÍ¥é”õìÄÙô€¼øð½‰ÕÑÑ½¸ø(€€€€€€€€ð½‘¥Øø(€€€€€€€€ñ‰ÕÑÑ½¸ÑåÁ”ô‰‰ÕÑÑ½¸ˆ±…ÍÍ9…µ”ô‰ÑÉ•”µÑ½½°µ‰ÕÑÑ½¸Í¡É¥¹¬´Àˆ…É¥„µ±…‰•°ô‰•¹Ñ•ÈÑÉ•”ˆ½¹±¥¬õíÉ•Í•ÑY¥•Ýôøñ1½…Ñ•¥á•Í¥é”õìÄÙô€¼øð½‰ÕÑÑ½¸ø(€€€€€€ð½‘¥Øø((€€€€€€ñ‘¥Ø(€€€€€€€É•˜õíÍÑ…•I•™ô(€€€€€€€±…ÍÍ9…µ”õí¸ ‰±¥™”µÑÉ•”µÍÑ…”ˆ°‘É…MÑ…ÉÐ€˜˜€‰¥Ìµ‘É…¥¹œˆ°Á…¹•±=Á•¸€˜˜€‰¥Ìµ™½ÕÍ•ˆ¥ô(€€€€€€€½¹]¡••°õí¡…¹‘±•]¡••±ô(€€€€€€€½¹A½¥¹Ñ•É½Ý¸õí¡…¹‘±•A½¥¹Ñ•É½Ý¹ô(€€€€€€€½¹A½¥¹Ñ•É5½Ù”õí¡…¹‘±•A½¥¹Ñ•É5½Ù•ô(€€€€€€€½¹A½¥¹Ñ•ÉUÀõí¡…¹‘±•A½¥¹Ñ•ÉUÁô(€€€€€€€½¹A½¥¹Ñ•É…¹•°õí¡…¹‘±•A½¥¹Ñ•ÉUÁô(€€€€€€ø(€€€€€€€€ñ‘¥ØÉ•˜õí…ÉÑ1…å•ÉI•™ô±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µ…ÉÐµ±…å•Èˆ…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆø(€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µ…ÉÐµ¥µ…”ˆ€¼ø(€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µ…ÉÐµ…Ñµ½ÍÁ¡•É”ˆ€¼ø(€€€€€€€€ð½‘¥Øø((€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µÙ¥¹•ÑÑ”ˆ€¼ø(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µÍÑ…É™¥•±ˆ€¼ø(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µÉÕ¹”µÉ¥ˆ€¼ø((€€€€€€€€ñ‘¥Ø(€€€€€€€€€É•˜õí…¹Ù…ÍI•™ô(€€€€€€€€€±…ÍÍ9…µ”ô‰±¥™”µÑÉ•”µ…¹Ù…Ìˆ(€€€€€€€€€ÍÑå±”õíìÝ¥‘Ñ èÑÉ••M¥é”°¡•¥¡ÐèÑÉ••M¥é”°lˆ´µÑÉ•”µ¡…±˜ˆ…ÌÍÑÉ¥¹tè€´‘íÑÉ••M¥é”€¼€ÉõÁá€°ÑÉ…¹Í™½É´èÍÑ…‰±•5½‰¥±•I•¹‘•É¥¹œ€üÑÉ…¹Í±…Ñ” ‘íÙ¥•Ü¹Á…¸¹áõÁà°€‘íÙ¥•Ü¹Á…¸¹åõÁà¤Í…±” ‘íÙ¥•Ü¹é½½µô¥€€èÑÉ…¹Í±…Ñ”Í ‘íÙ¥•Ü¹Á…¸¹áõÁà°€‘íÙ¥•Ü¹Á…¸¹åõÁà°€À¤Í…±” ‘íÙ¥•Ü¹é½½µô¥€õô(€€€€€€€€ø(€€€€€€€€€€ñÍÙœ±…ÍÍ9…µ”ô‰Á½¥¹Ñ•Èµ•Ù•¹ÑÌµ¹½¹”…‰Í½±ÕÑ”¥¹Í•Ð´ÀÍ¥é”µ™Õ±°ˆÙ¥•Ý	½àõí€À€À€‘íÑÉ••M¥é•ô€‘íÑÉ••M¥é•õô…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆø(€€€€€€€€€€€€ñ‘•™Ìø(€€€€€€€€€€€€€€ñÉ…‘¥…±É…‘¥•¹Ð¥ô‰½É•ÕÉ„ˆàôˆÔÀ”ˆäôˆÔÀ”ˆÈôˆÔÀ”ˆø(€€€€€€€€€€€€€€€€ñÍÑ½À½™™Í•ÐôˆÀ”ˆÍÑ½Á½±½Èô‰É‰„ ÈÐØ°€ÄäØ°€àÌ°€À¸ÌÐ¤ˆ€¼ø(€€€€€€€€€€€€€€€€ñÍÑ½À½™™Í•ÐôˆÐÔ”ˆÍÑ½Á½±½Èô‰É‰„ ÜØ°€ÈÈÐ°€ÈÄÀ°€À¸ÄÌ¤ˆ€¼ø(€€€€€€€€€€€€€€€€ñÍÑ½À½™™Í•ÐôˆÄÀÀ”ˆÍÑ½Á½±½Èô‰É‰„ ÜØ°€ÈÈÐ°€ÈÄÀ°€À¤ˆ€¼ø(€€€€€€€€€€€€€€ð½É…‘¥…±É…‘¥•¹Ðø(€€€€€€€€€€€€ð½‘•™Ìø(€€€€€€€€€€€€ñ¥É±”àõí½É•A½¥¹Ð¹áôäõí½É•A½¥¹Ð¹åôÈôˆÔØÀˆ™¥±°ô‰ÕÉ° ½É•ÕÉ„¤ˆ€¼ø(€€€€€€€€€€€€ñ¥É±”àõí½É•A½¥¹Ð¹áôäõí½É•A½¥¹Ð¹åôÈôˆÌØÀˆ™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰É‰„ ÈÔÔ°ÈÔÔ°ÈÔÔ°À¸ÀØ¤ˆÍÑÉ½­•…Í¡…ÉÉ…äôˆÌ€Äàˆ€¼ø(€€€€€€€€€€€€ñ¥É±”àõí½É•A½¥¹Ð¹áôäõí½É•A½¥¹Ð¹åôÈôˆÜØÀˆ™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰É‰„ ÈÔÔ°ÈÔÔ°ÈÔÔ°À¸ÀÐÔ¤ˆÍÑÉ½­•…Í¡…ÉÉ…äôˆÈ€ÈÈˆ€¼ø(€€€€€€€€€€€€ñ¥É±”àõí½É•A½¥¹Ð¹áôäõí½É•A½¥¹Ð¹åôÈôˆÄÄÐÀˆ™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰É‰„ ÈÔÔ°ÈÔÔ°ÈÔÔ°À¸ÀÌÔ¤ˆÍÑÉ½­•…Í¡…ÉÉ…äôˆÈ€ÈØˆ€¼ø(€€€€€€€€€€€€ñ¥É±”àõí½É•A½¥¹Ð¹áôäõí½É•A½¥¹Ð¹åôÈôˆÄÔÀÀˆ™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰É‰„ ÈÐØ°ÄäØ°àÌ°À¸ÀÈÔ¤ˆÍÑÉ½­•…Í¡…ÉÉ…äôˆÄ€ÌÀˆ€¼ø((€€€€€€€€€€€íÉ½½ÑQ•¡¹½±½¥•Ì¹µ…À ¡Ñ• ¤€ôøì(€€€€€€€€€€€€€½¹ÍÐÉÕ¹Ñ¥µ”€ôÑ•¡¹½±½åIÕ¹Ñ¥µ•mÑ• ¹¥‘tì(€€€€€€€€€€€€€½¹ÍÐÍÑ…ÑÕÌ€ô•ÑMÑ…ÑÕÌ¡Ñ• °½µÁ±•Ñ•‘%‘Ì°ÉÕ¹Ñ¥µ”ü¹ÍÑ…ÑÕÌ°ÉÕ¹Ñ¥µ”ü¹ÁÉ½É•ÍÌ°ÁÉ½É•ÍÍ¥½¹1½­•‘%‘Ì¹¡…Ì¡Ñ• ¹¥¤¤ì(€€€€€€€€€€€€€½¹ÍÐ½±½È€ô…Ñ•½Éå½±½ÉÍmÑ• ¹…Ñ•½Éåtì(€€€€€€€€€€€€€½¹ÍÐ•¹€ô•Ñ9½‘•A½¥¹Ð¡Ñ• ¤ì(€€€€€€€€€€€€€½¹ÍÐ©½¥¹Ð€ô•Ñ	É…¹¡)½¥¹Ð¡½É•A½¥¹Ð°•¹¤ì((€€€€€€€€€€€€€É•ÑÕÉ¸€ (€€€€€€€€€€€€€€€€ñœ­•äõí½É”´‘íÑ• ¹¥‘õôø(€€€€€€€€€€€€€€€€€€ñÁ…Ñ ±…ÍÍ9…µ”ô‰ÑÉ•”µ½¹¹•Ñ¥½¸µÍ¡…‘½Üˆõí•Ñ	É…¹¡A…Ñ ¡½É•A½¥¹Ð°•¹¥ô™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰É‰„ À°À°À°À¸ÐÈ¤ˆÍÑÉ½­•]¥‘Ñ ôˆÄÄˆÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆ€¼ø(€€€€€€€€€€€€€€€€€íÍÑ…ÑÕÌ€ôôô€‰Õ¹±½­•ˆ€ü€ñÁ…Ñ ±…ÍÍ9…µ”ô‰ÑÉ•”µ½¹¹•Ñ¥½¸µ±½Üˆõí•Ñ	É…¹¡A…Ñ ¡½É•A½¥¹Ð°•¹¥ô™¥±°ô‰¹½¹”ˆÍÑÉ½­”õí½±½ÉôÍÑÉ½­•]¥‘Ñ ôˆÄØˆÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆ€¼ø€è¹Õ±±ô(€€€€€€€€€€€€€€€€€€ñÁ…Ñ (€€€€€€€€€€€€€€€€€€€±…ÍÍ9…µ”õíÑÉ•”µ½¹¹•Ñ¥½¸ÑÉ•”µ½¹¹•Ñ¥½¸´‘íÍÑ…ÑÕÍõô(€€€€€€€€€€€€€€€€€€€õí•Ñ	É…¹¡A…Ñ ¡½É•A½¥¹Ð°•¹¥ô(€€€€€€€€€€€€€€€€€€€™¥±°ô‰¹½¹”ˆ(€€€€€€€€€€€€€€€€€€€ÍÑÉ½­”õíÍÑ…ÑÕÌ€ôôô€‰±½­•ˆ€ü€‰É‰„ ÄÐà°€ÄØÌ°€ÄàÐ°€À¸ÐÈ¤ˆ€è€‘í½±½Éõáô(€€€€€€€€€€€€€€€€€€€ÍÑÉ½­•]¥‘Ñ õíÍÑ…ÑÕÌ€ôôô€‰±½­•ˆ€ü€Ô€è€Ýô(€€€€€€€€€€€€€€€€€€€ÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆ(€€€€€€€€€€€€€€€€€€€ÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆ(€€€€€€€€€€€€€€€€€€¼ø(€€€€€€€€€€€€€€€€€€ñ¥É±”±…ÍÍ9…µ”õíÑÉ•”µ©½¥¹ÐÑÉ•”µ©½¥¹Ð´‘íÍÑ…ÑÕÍõôàõí©½¥¹Ð¹áôäõí©½¥¹Ð¹åôÈôˆÜˆ™¥±°õíÍÑ…ÑÕÌ€ôôô€‰±½­•ˆ€ü€‰É‰„ ÄÐà°€ÄØÌ°€ÄàÐ°€À¸ÐÈ¤ˆ€è½±½Éô€¼ø(€€€€€€€€€€€€€€€€ð½œø(€€€€€€€€€€€€€€¤ì(€€€€€€€€€€€ô¥ô((€€€€€€€€€€€íÑ•¡¹½±½¥•Ì¹µ…À ¡Ñ• ¤€ôøì(€€€€€€€€€€€€€€€½¹ÍÐÁ…É•¹Ñ%€ôÙ¥ÍÕ…±A…É•¹ÑÍmÑ• ¹¥‘tì(€€€€€€€€€€€€€€€¥˜€ …Á…É•¹Ñ%¤É•ÑÕÉ¸¹Õ±°ì(€€€€€€€€€€€€€€€½¹ÍÐÁ…É•¹Ð€ôÑ•¡¹½±½¥•Ì¹™¥¹ ¡¥Ñ•´¤€ôø¥Ñ•´¹¥€ôôôÁ…É•¹Ñ%¤ì(€€€€€€€€€€€€€€€¥˜€ …Á…É•¹Ð¤É•ÑÕÉ¸¹Õ±°ì((€€€€€€€€€€€€€€€½¹ÍÐÉÕ¹Ñ¥µ”€ôÑ•¡¹½±½åIÕ¹Ñ¥µ•mÑ• ¹¥‘tì(€€€€€€€€€€€€€€€½¹ÍÐÍÑ…ÑÕÌ€ô•ÑMÑ…ÑÕÌ¡Ñ• °½µÁ±•Ñ•‘%‘Ì°ÉÕ¹Ñ¥µ”ü¹ÍÑ…ÑÕÌ°ÉÕ¹Ñ¥µ”ü¹ÁÉ½É•ÍÌ°ÁÉ½É•ÍÍ¥½¹1½­•‘%‘Ì¹¡…Ì¡Ñ• ¹¥¤¤ì(€€€€€€€€€€€€€€€½¹ÍÐ½±½È€ô…Ñ•½Éå½±½ÉÍmÑ• ¹…Ñ•½Éåtì(€€€€€€€€€€€€€€€½¹ÍÐÍÑ…ÉÐ€ô•Ñ9½‘•A½¥¹Ð¡Á…É•¹Ð¤ì(€€€€€€€€€€€€€€€½¹ÍÐ•¹€ô•Ñ9½‘•A½¥¹Ð¡Ñ• ¤ì(€€€€€€€€€€€€€€€½¹ÍÐ©½¥¹Ð€ô•Ñ	É…¹¡)½¥¹Ð¡ÍÑ…ÉÐ°•¹¤ì((€€€€€€€€€€€€€€€É•ÑÕÉ¸€ (€€€€€€€€€€€€€€€€€€ñœ­•äõíÙ¥ÍÕ…°´‘íÁ…É•¹Ñ%‘ô´‘íÑ• ¹¥‘õôø(€€€€€€€€€€€€€€€€€€€€ñÁ…Ñ ±…ÍÍ9…µ”ô‰ÑÉ•”µ½¹¹•Ñ¥½¸µÍ¡…‘½Üˆõí•Ñ	É…¹¡A…Ñ ¡ÍÑ…ÉÐ°•¹¥ô™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰É‰„ À°À°À°À¸ÐÈ¤ˆÍÑÉ½­•]¥‘Ñ ôˆÄÄˆÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆ€¼ø(€€€€€€€€€€€€€€€€€€€íÍÑ…ÑÕÌ€ôôô€‰Õ¹±½­•ˆ€ü€ñÁ…Ñ ±…ÍÍ9…µ”ô‰ÑÉ•”µ½¹¹•Ñ¥½¸µ±½Üˆõí•Ñ	É…¹¡A…Ñ ¡ÍÑ…ÉÐ°•¹¥ô™¥±°ô‰¹½¹”ˆÍÑÉ½­”õí½±½ÉôÍÑÉ½­•]¥‘Ñ ôˆÄØˆÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆ€¼ø€è¹Õ±±ô(€€€€€€€€€€€€€€€€€€€€ñÁ…Ñ (€€€€€€€€€€€€€€€€€€€€€±…ÍÍ9…µ”õíÑÉ•”µ½¹¹•Ñ¥½¸ÑÉ•”µ½¹¹•Ñ¥½¸´‘íÍÑ…ÑÕÍõô(€€€€€€€€€€€€€€€€€€€€€õí•Ñ	É…¹¡A…Ñ ¡ÍÑ…ÉÐ°•¹¥ô(€€€€€€€€€€€€€€€€€€€€€™¥±°ô‰¹½¹”ˆ(€€€€€€€€€€€€€€€€€€€€€ÍÑÉ½­”õíÍÑ…ÑÕÌ€ôôô€‰Õ¹±½­•ˆ€ü½±½È€èÍÑ…ÑÕÌ€ôôô€‰…Ù…¥±…‰±”ˆñðÍÑ…ÑÕÌ€ôôô€‰¥¹}ÁÉ½É•ÍÌˆ€ü€‘í½±½Éõá€€è€‰É‰„ ÄÐà°€ÄØÌ°€ÄàÐ°€À¸ÐÈ¤‰ô(€€€€€€€€€€€€€€€€€€€€€ÍÑÉ½­•]¥‘Ñ õíÍÑ…ÑÕÌ€ôôô€‰Õ¹±½­•ˆ€ü€à€èÍÑ…ÑÕÌ€ôôô€‰…Ù…¥±…‰±”ˆñðÍÑ…ÑÕÌ€ôôô€‰¥¹}ÁÉ½É•ÍÌˆ€ü€Ü€è€Õô(€€€€€€€€€€€€€€€€€€€€€ÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆ(€€€€€€€€€€€€€€€€€€€€€ÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆ(€€€€€€€€€€€€€€€€€€€€¼ø(€€€€€€€€€€€€€€€€€€€€ñ¥É±”±…ÍÍ9…µ”õíÑÉ•”µ©½¥¹ÐÑÉ•”µ©½¥¹Ð´‘íÍÑ…ÑÕÍõôàõí©½¥¹Ð¹áôäõí©½¥¹Ð¹åôÈôˆØˆ™¥±°õíÍÑ…ÑÕÌ€ôôô€‰±½­•ˆ€ü€‰É‰„ ÄÐà°€ÄØÌ°€ÄàÐ°€À¸ÐÈ¤ˆ€è½±½Éô€¼ø(€€€€€€€€€€€€€€€€€€ð½œø(€€€€€€€€€€€€€€€€¤ì(€€€€€€€€€€€€€ô¥ô(€€€€€€€€€€ð½ÍÙœø((€€€€€€€€€€ñ‰ÕÑÑ½¸(€€€€€€€€€€€ÑåÁ”ô‰‰ÕÑÑ½¸ˆ(€€€€€€€€€€€±…ÍÍ9…µ”ô‰±¥™”µ½É”µ¹½‘”ˆ(€€€€€€€€€€€ÍÑå±”õíì±•™Ðè½É•A½¥¹Ð¹à€´€ÜÐ°Ñ½Àè½É•A½¥¹Ð¹ä€´€ÜÐõô(€€€€€€€€€€€½¹A½¥¹Ñ•É½Ý¸õì¡•Ù•¹Ð¤€ôø•Ù•¹Ð¹ÍÑ½ÁAÉ½Á……Ñ¥½¸ ¥ô(€€€€€€€€€€€½¹±¥¬õíÉ•Í•ÑY¥•Ýô(€€€€€€€€€€ø(€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰±¥™”µ½É”µ…ÉÐˆ…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆ€¼ø(€€€€€€€€€€€€ñMÁ…É­±•Ì±…ÍÍ9…µ”ô‰±¥™”µ½É”µ±åÁ ˆÍ¥é”õìÌÙô…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆ€¼ø(€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰±¥™”µ½É”µ½Áäˆø(€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµlåÁát™½¹Ðµ‰±…¬ÕÁÁ•É…Í”ÑÉ…­¥¹œµlÀ¸ÈÑ•µtÑ•áÐµ…•¹Ðˆù!…‰¥‘½¼ð½ÍÁ…¸ø(€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´™½¹Ðµ‰±…¬Ñ•áÐµ™½É•É½Õ¹ˆù1¥™”½É”ð½ÍÁ…¸ø(€€€€€€€€€€€€ð½ÍÁ…¸ø(€€€€€€€€€€ð½‰ÕÑÑ½¸ø((€€€€€€€€€íÑ•¡¹½±½¥•Ì¹µ…À ¡Ñ• ¤€ôøì(€€€€€€€€€€€½¹ÍÐÉÕ¹Ñ¥µ”€ôÑ•¡¹½±½åIÕ¹Ñ¥µ•mÑ• ¹¥‘tì(€€€€€€€€€€€½¹ÍÐÍÑ…ÑÕÌ€ô•ÑMÑ…ÑÕÌ¡Ñ• °½µÁ±•Ñ•‘%‘Ì°ÉÕ¹Ñ¥µ”ü¹ÍÑ…ÑÕÌ°ÉÕ¹Ñ¥µ”ü¹ÁÉ½É•ÍÌ°ÁÉ½É•ÍÍ¥½¹1½­•‘%‘Ì¹¡…Ì¡Ñ• ¹¥¤¤ì(€€€€€€€€€€€½¹ÍÐ½±½È€ô…Ñ•½Éå½±½ÉÍmÑ• ¹…Ñ•½Éåtì(€€€€€€€€€€€½¹ÍÐ¥ÍM•±•Ñ•€ôÍ•±•Ñ•‘Q•¡¹½±½äü¹¥€ôôôÑ• ¹¥ì(€€€€€€€€€€€½¹ÍÐ½½±‘½Ý¹Ñ¥Ù”€ôÉÕ¹Ñ¥µ”ü¹½½±‘½Ý¹U¹Ñ¥°€üÉÕ¹Ñ¥µ”¹½½±‘½Ý¹U¹Ñ¥°€ø¹½Ü€è™…±Í”ì(€€€€€€€€€€€½¹ÍÐÁ½Í¥Ñ¥½¸€ôÉ…‘¥…±A½Í¥Ñ¥½¹ÍmÑ• ¹¥‘t€üüìàèÑ• ¹à°äèÑ• ¹äôì(€€€€€€€€€€€½¹ÍÐ¥ÍA½±…ÉMÑ…È€ôÑ• ¹¥€ôôô€‰…Ý…­•¹¥¹œµÑÉ¥…°ˆì((€€€€€€€€€€€É•ÑÕÉ¸€ (€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸(€€€€€€€€€€€€€€€­•äõíÑ• ¹¥‘ô(€€€€€€€€€€€€€€€ÑåÁ”ô‰‰ÕÑÑ½¸ˆ(€€€€€€€€€€€€€€€±…ÍÍ9…µ”õí¸ ‰Ñ• µ¹½‘”µ‰ÕÑÑ½¸É…‘¥…°µÑ• µ¹½‘”…‰Í½±ÕÑ”™±•àÜ´ÌÈ™±•àµ½°¥Ñ•µÌµ•¹Ñ•È…À´ÈÑ•áÐµ•¹Ñ•ÈÑÉ…¹Í¥Ñ¥½¸ˆ°ÍÑ…ÑÕÌ°¥ÍM•±•Ñ•€˜˜€‰Í•±•Ñ•ˆ°¥ÍA½±…ÉMÑ…È€˜˜€‰Á½±…ÈµÍÑ…Èµ¹½‘”ˆ¥ô(€€€€€€€€€€€€€€€‘…Ñ„µ…Ñ•½ÉäõíÑ• ¹…Ñ•½Éåô(€€€€€€€€€€€€€€€‘…Ñ„µÑ• µ¥õíÑ• ¹¥‘ô(€€€€€€€€€€€€€€€‘…Ñ„µ¹½‘”µÉ½±”õíÁ½Í¥Ñ¥½¸¹É½±•ô(€€€€€€€€€€€€€€€‘…Ñ„µ¹½‘”µÑåÁ”õíÑ• ¹ÑåÁ”€üü€‰Ñ•¡¹½±½ä‰ô(€€€€€€€€€€€€€€€ÍÑå±”õíì±•™ÐèÁ½Í¥Ñ¥½¸¹à°Ñ½ÀèÁ½Í¥Ñ¥½¸¹ä°lˆ´µ¹½‘”µ½±½Èˆ…ÌÍÑÉ¥¹tè½±½È°lˆ´µ¹½‘”µÍ¥é”ˆ…ÌÍÑÉ¥¹tè€‘íÁ½Í¥Ñ¥½¸¹Í¥é•õÁá€õô(€€€€€€€€€€€€€€€½¹A½¥¹Ñ•É½Ý¸õì¡•Ù•¹Ð¤€ôø•Ù•¹Ð¹ÍÑ½ÁAÉ½Á……Ñ¥½¸ ¥ô(€€€€€€€€€€€€€€€½¹±¥¬õì ¤€ôø¡…¹‘±•9½‘•±¥¬¡Ñ• ¥ô(€€€€€€€€€€€€€€ø(€€€€€€€€€€€€€€€í¥ÍA½±…ÉMÑ…È€ü€ (€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Á½±…ÈµÍÑ…Èµ…ÉÐˆø(€€€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Á½±…ÈµÍÑ…Èµ™…”ˆ…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆ€¼ø(€€€€€€€€€€€€€€€€€€€íÍÑ…ÑÕÌ€ôôô€‰Õ¹±½­•ˆ€ü€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ• µ½µÁ±•Ñ¥½¸µ‰…‘”ˆÉ½±”ô‰¥µœˆ…É¥„µ±…‰•°ô‰5¥ÍÍ¥½¸½µÁ±•Ñ•ˆÑ¥Ñ±”ô‰5¥ÍÍ¥½¸½µÁ±•Ñ•ˆøñ¡•¬€¼øð½ÍÁ…¸ø€è¹Õ±±ô(€€€€€€€€€€€€€€€€€€ð½ÍÁ…¸ø(€€€€€€€€€€€€€€€€¤€è€ (€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ• µ½ÉˆÑ• µ•µ‰±•´É¥Á±…”µ¥Ñ•µÌµ•¹Ñ•È‰½É‘•È‰œµ…É¼äÔ‰…­‘É½Àµ‰±ÕÈˆø(€€€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ• µ•µ‰±•´µ¥¹¹•Èˆ€¼ø(€€€€€€€€€€€€€€€€€€€íÍÑ…ÑÕÌ€ôôô€‰±½­•ˆ€ü€ñ1½¬Í¥é”õìÈÍô€¼ø€è€ñQ•¡¹½±½å±åÁ ¥½¸õíÑ• ¹¥½¹ôÍ¥é”õìÈÝô€¼ùô(€€€€€€€€€€€€€€€€€€€íÍÑ…ÑÕÌ€ôôô€‰Õ¹±½­•ˆ€ü€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ• µ½µÁ±•Ñ¥½¸µ‰…‘”ˆÉ½±”ô‰¥µœˆ…É¥„µ±…‰•°ô‰5¥ÍÍ¥½¸½µÁ±•Ñ•ˆÑ¥Ñ±”ô‰5¥ÍÍ¥½¸½µÁ±•Ñ•ˆøñ¡•¬€¼øð½ÍÁ…¸ø€è¹Õ±±ô(€€€€€€€€€€€€€€€€€€€íÉÕ¹Ñ¥µ”ü¹ÍÑ…ÑÕÌ€ôôô€‰…Ñ¥Ù”ˆ€ü€ñÍÁ…¸±…ÍÍ9…µ”ô‰…‰Í½±ÕÑ”€µÉ¥¡Ð´Ä€µÑ½À´ÄÍ¥é”´ÐÉ½Õ¹‘•µ™Õ±°‰œµÁÉ¥µ…ÉäÍ¡…‘½Üµ¹½‘”ˆ€¼ø€è¹Õ±±ô(€€€€€€€€€€€€€€€€€€€í½½±‘½Ý¹Ñ¥Ù”€ü€ñÍÁ…¸±…ÍÍ9…µ”ô‰…‰Í½±ÕÑ”€µ‰½ÑÑ½´´Ä€µÉ¥¡Ð´ÄÉ¥Í¥é”´ÔÁ±…”µ¥Ñ•µÌµ•¹Ñ•ÈÉ½Õ¹‘•µ™Õ±°‰½É‘•È‰½É‘•Èµ‰½É‘•È‰œµ‰…­É½Õ¹Ñ•áÐµlåÁátˆùð½ÍÁ…¸ø€è¹Õ±±ô(€€€€€€€€€€€€€€€€€€ð½ÍÁ…¸ø(€€€€€€€€€€€€€€€€¥ô(€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ• µ¹½‘”µ±…‰•°±¥¹”µ±…µÀ´ÈÑ•áÐµlÄÉÁát™½¹Ðµ‰±…¬±•…‘¥¹œµÑ¥¡ÐÑ•áÐµ™½É•É½Õ¹ˆùíÑ• ¹Ñ¥Ñ±•ôð½ÍÁ…¸ø(€€€€€€€€€€€€€€ð½‰ÕÑÑ½¸ø(€€€€€€€€€€€€¤ì(€€€€€€€€€ô¥ô(€€€€€€€€ð½‘¥Øø((€€€€€€€íÁ…¹•±=Á•¸€˜˜Í•±•Ñ•‘Q•¡¹½±½ä€ü€ñ5¥ÍÍ¥½¹A…¹•°…¹¡½ÈõíÁ…¹•±¹¡½ÉôÑ•¡¹½±½äõíÍ•±•Ñ•‘Q•¡¹½±½åô¹½Üõí¹½Ýô½¹±½Í”õí±½Í•A…¹•±ô€¼ø€è¹Õ±±ô(€€€€€€ð½‘¥Øø(€€€€ð½‘¥Øø(€€¤ì)ô(

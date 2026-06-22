@@ -2,34 +2,109 @@ import type { Locale } from "./types";
 
 export const locales: { id: Locale; label: string }[] = [
   { id: "en", label: "English" },
-  { id: "cs", label: "Cestina" },
-  { id: "ru", label: "Русский" },
-  { id: "uk", label: "Українська" }
+  { id: "ru", label: "Русский" }
 ];
 
+const russian: Record<string, string> = {
+  "Life Strategy": "Стратегия жизни",
+  "Foundation Era": "Эпоха основ",
+  Tree: "Дерево",
+  Missions: "Миссии",
+  Stats: "Статистика",
+  Awards: "Награды",
+  Profile: "Профиль",
+  "Commander Profile": "Профиль стратега",
+  "Your profile represents real-life strategic development.": "Ваш профиль отражает реальное развитие вашей жизни.",
+  Level: "Уровень",
+  "Life Score": "Рейтинг жизни",
+  "Unlocked Technologies": "Открытые технологии",
+  Achievements: "Достижения",
+  "Streak Milestones": "Этапы серии",
+  Language: "Язык",
+  "Visual Style": "Визуальный стиль",
+  active: "активна",
+  preview: "предпросмотр",
+  locked: "закрыта",
+  "Unlock:": "Открывается:",
+  "Life Strategy Command": "Командный центр стратегии жизни",
+  "Unlock your life, one technology at a time.": "Развивайте свою жизнь — шаг за шагом.",
+  "Habidoo is not a todo list. Start missions, respect cooldowns, and turn real effort into Life Tree progress.": "Habidoo — не список дел. Выполняйте миссии и превращайте реальные усилия в развитие Дерева жизни.",
+  "Open Life Tree": "Открыть Дерево жизни",
+  "Life Tree": "Дерево жизни",
+  Streak: "Серия",
+  Today: "Сегодня",
+  days: "дней",
+  "XP to next level": "XP до следующего уровня",
+  "technologies unlocked": "технологий открыто",
+  "Current Era": "Текущая эпоха",
+  "Next unlockable technology": "Следующая доступная технология",
+  "Era mastery": "Освоение эпохи",
+  "Complete the remaining available branches.": "Завершите оставшиеся доступные ветви.",
+  "Active Missions": "Активные миссии",
+  "Life mission": "Жизненная миссия",
+  Started: "Начато",
+  now: "сейчас",
+  "No active mission": "Нет активной миссии",
+  "Open the Life Tree and start one focused action.": "Откройте Дерево жизни и начните одно конкретное действие.",
+  "Strategic Recommendation": "Стратегическая рекомендация",
+  "Inspect Tree": "Открыть дерево",
+  "Life Domains": "Сферы жизни",
+  Intelligence: "Аналитика",
+  Statistics: "Статистика",
+  "Progress history should show life development, not only task completion.": "История прогресса показывает развитие жизни, а не только выполненные задачи.",
+  "7 Day Progress": "Прогресс за 7 дней",
+  "Category Growth": "Развитие сфер",
+  "of": "из",
+  "Progress Archive": "Архив прогресса",
+  "Milestones should feel like evidence that your Life Tree is becoming real.": "Достижения показывают, как ваше Дерево жизни становится реальностью.",
+  "Built from unlocked technologies and milestone medals.": "Складывается из открытых технологий и наград за этапы.",
+  "Milestone Medals": "Награды за этапы",
+  "Morning System": "Утренняя система",
+  "Daily Command Center": "Дневной командный центр",
+  "Top 3 Missions": "Три главные миссии",
+  "Every mission should answer: what to do, what technology it progresses, and why it matters.": "Каждая миссия должна объяснять, что делать, какую технологию она развивает и зачем это нужно.",
+  "Tiny start:": "Первый шаг:",
+  "Progresses:": "Развивает:",
+  "Research timer:": "Таймер исследования:",
+  ready: "готова",
+  completed: "выполнена",
+  cooldown: "перезарядка",
+  Done: "Готово",
+  "24h Planner": "Планировщик на 24 часа",
+  "Assign a real-world action": "Назначьте реальное действие",
+  Start: "Начать",
+  Complete: "Завершить",
+  "Active mission": "Активная миссия",
+  "Another mission is already active.": "Другая миссия уже активна.",
+  "No technology": "Без технологии",
+  "The Awakening": "Пробуждение",
+  "Chapter 1 / 12 · about 30 days": "Глава 1 / 12 · около 30 дней",
+  "Research progress": "Прогресс исследования",
+  "Exact steps": "Точные шаги",
+  "What do I do now?": "Что делать сейчас?",
+  Duration: "Длительность",
+  Cooldown: "Перезарядка",
+  Personal: "Личная",
+  Global: "Общая",
+  "Branch mastery": "Освоение ветви",
+  "Complete Mission": "Завершить миссию",
+  "Start Mission": "Начать миссию",
+  "Technology completed": "Технология завершена",
+  Research: "Исследование",
+  Insight: "Озарение",
+  "Future reward": "Будущая награда",
+  "What counts": "Что засчитывается",
+  "Does not count": "Что не засчитывается",
+  "Next unlock": "Следующее открытие",
+  "Trial readiness": "Готовность к испытанию",
+  "Current readiness requirements met.": "Текущие требования выполнены."
+};
+
+export function translate(locale: Locale, text: string) {
+  return locale === "ru" ? russian[text] ?? text : text;
+}
+
 export const copy = {
-  en: {
-    product: "Habidoo",
-    category: "Life Strategy",
-    tree: "Life Technology Tree",
-    command: "Daily Command Center"
-  },
-  cs: {
-    product: "Habidoo",
-    category: "Zivotni strategie",
-    tree: "Strom zivotnich technologii",
-    command: "Denni velitelske centrum"
-  },
-  ru: {
-    product: "Habidoo",
-    category: "Стратегия жизни",
-    tree: "Дерево жизненных технологий",
-    command: "Дневной командный центр"
-  },
-  uk: {
-    product: "Habidoo",
-    category: "Стратегія життя",
-    tree: "Дерево життєвих технологій",
-    command: "Денний командний центр"
-  }
+  en: { product: "Habidoo", category: "Life Strategy", tree: "Life Technology Tree", command: "Daily Command Center" },
+  ru: { product: "Habidoo", category: "Стратегия жизни", tree: "Дерево жизненных технологий", command: "Дневной командный центр" }
 } satisfies Record<Locale, Record<string, string>>;

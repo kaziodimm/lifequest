@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { technologies } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { translate } from "@/lib/i18n";
 
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -25,6 +26,7 @@ export default function CommandPage() {
   const planner = useLifeStore((state) => state.planner);
   const updatePlannerBlock = useLifeStore((state) => state.updatePlannerBlock);
   const togglePlannerBlock = useLifeStore((state) => state.togglePlannerBlock);
+  const locale = useLifeStore((state) => state.locale);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 1000);
@@ -38,14 +40,14 @@ export default function CommandPage() {
   return (
     <AppShell>
       <div className="mb-4">
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">Morning System</p>
-        <h1 className="text-2xl font-black text-foreground">Daily Command Center</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Every mission should answer: what to do, what technology it progresses, and why it matters.</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">{translate(locale, "Morning System")}</p>
+        <h1 className="text-2xl font-black text-foreground">{translate(locale, "Daily Command Center")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{translate(locale, "Every mission should answer: what to do, what technology it progresses, and why it matters.")}</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Target size={18} className="text-primary" />Top 3 Missions</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Target size={18} className="text-primary" />{translate(locale, "Top 3 Missions")}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {missions.map((mission) => {
               const tech = technologies.find((item) => item.id === mission.technologyId);
@@ -61,31 +63,31 @@ export default function CommandPage() {
                     <div className="min-w-0">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <p className="font-bold text-foreground">{mission.title}</p>
-                        <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide", status === "active" ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>{status}</span>
+                        <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide", status === "active" ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>{translate(locale, status)}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Tiny start: {mission.tinyStep}</p>
-                      <p className="mt-2 text-xs font-semibold text-primary">Progresses: {tech?.title ?? "Life Tree"}</p>
+                      <p className="text-xs text-muted-foreground">{translate(locale, "Tiny start:")} {mission.tinyStep}</p>
+                      <p className="mt-2 text-xs font-semibold text-primary">{translate(locale, "Progresses:")} {tech?.title ?? translate(locale, "Life Tree")}</p>
                       {status === "active" ? (
-                        <p className="mt-2 text-xs font-bold text-strategy-gold">Research timer: {formatDuration(elapsedSeconds)} / {formatDuration(mission.minDurationSeconds)}</p>
+                        <p className="mt-2 text-xs font-bold text-strategy-gold">{translate(locale, "Research timer:")} {formatDuration(elapsedSeconds)} / {formatDuration(mission.minDurationSeconds)}</p>
                       ) : null}
                     </div>
                     {status === "completed" ? (
                       <Button size="sm" variant="secondary" disabled>
-                        <CheckCircle2 size={16} />Done
+                        <CheckCircle2 size={16} />{translate(locale, "Done")}
                       </Button>
                     ) : status === "active" ? (
                       <Button size="sm" onClick={() => completeMission(mission.id)} disabled={!canComplete}>
-                        <CheckCircle2 size={16} />{canComplete ? "Complete" : formatDuration(remainingSeconds)}
+                        <CheckCircle2 size={16} />{canComplete ? translate(locale, "Complete") : formatDuration(remainingSeconds)}
                       </Button>
                     ) : anotherMissionActive ? (
-                      <Button size="sm" disabled variant="outline" title="Another mission is already active."><ShieldAlert size={16} />Active mission</Button>
+                      <Button size="sm" disabled variant="outline" title={translate(locale, "Another mission is already active.")}><ShieldAlert size={16} />{translate(locale, "Active mission")}</Button>
                     ) : globalCooldownRemaining > 0 ? (
                       <Button size="sm" disabled variant="outline"><Clock size={16} />{formatDuration(globalCooldownRemaining)}</Button>
                     ) : (
-                      <Button size="sm" onClick={() => startMission(mission.id)}><Play size={16} />Start</Button>
+                      <Button size="sm" onClick={() => startMission(mission.id)}><Play size={16} />{translate(locale, "Start")}</Button>
                     )}
                   </div>
-                  {anotherMissionActive && status !== "active" && status !== "completed" ? <p className="mt-2 text-xs font-semibold text-muted-foreground">Another mission is already active.</p> : null}
+                  {anotherMissionActive && status !== "active" && status !== "completed" ? <p className="mt-2 text-xs font-semibold text-muted-foreground">{translate(locale, "Another mission is already active.")}</p> : null}
                 </div>
               );
             })}
@@ -93,7 +95,7 @@ export default function CommandPage() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Clock size={18} className="text-strategy-gold" />24h Planner</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Clock size={18} className="text-strategy-gold" />{translate(locale, "24h Planner")}</CardTitle></CardHeader>
           <CardContent className="grid max-h-[620px] gap-2 overflow-auto">
             {planner.map((block) => (
               <div key={block.hour} className={cn("grid gap-2 rounded-md border bg-muted/30 p-3 sm:grid-cols-[56px_1fr_190px_44px] sm:items-center", block.completed ? "border-primary/60 bg-primary/10" : "border-border")}>
@@ -101,7 +103,7 @@ export default function CommandPage() {
                 <input
                   className="h-10 rounded-md border border-border bg-background/60 px-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary"
                   value={block.plan}
-                  placeholder="Assign a real-world action"
+                  placeholder={translate(locale, "Assign a real-world action")}
                   onChange={(event) => updatePlannerBlock(block.hour, event.target.value, block.technologyId)}
                 />
                 <select
@@ -109,7 +111,7 @@ export default function CommandPage() {
                   value={block.technologyId ?? ""}
                   onChange={(event) => updatePlannerBlock(block.hour, block.plan, event.target.value || undefined)}
                 >
-                  <option value="">No technology</option>
+                  <option value="">{translate(locale, "No technology")}</option>
                   {technologies.map((tech) => (
                     <option key={tech.id} value={tech.id}>{tech.title}</option>
                   ))}

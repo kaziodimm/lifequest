@@ -6,7 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { locales } from "@/lib/i18n";
+import { locales, translate } from "@/lib/i18n";
 import { streakMilestones } from "@/lib/milestones";
 import { levelFromXp, lifeScore } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
@@ -31,28 +31,28 @@ export default function ProfilePage() {
   return (
     <AppShell>
       <div className="mb-4">
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">Commander Profile</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-primary">{translate(state.locale, "Commander Profile")}</p>
         <h1 className="text-2xl font-black text-foreground">{state.avatarName}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Your profile represents real-life strategic development.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{translate(state.locale, "Your profile represents real-life strategic development.")}</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Trophy size={18} className="text-strategy-gold" />Level {level.level}</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Trophy size={18} className="text-strategy-gold" />{translate(state.locale, "Level")} {level.level}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid aspect-square place-items-center rounded-lg border border-primary/30 bg-primary/10 text-6xl font-black text-primary shadow-node">H</div>
             <Progress value={level.progress} />
-            <p className="text-sm text-muted-foreground">Life Score: <span className="font-bold text-foreground">{score}</span></p>
+            <p className="text-sm text-muted-foreground">{translate(state.locale, "Life Score")}: <span className="font-bold text-foreground">{score}</span></p>
           </CardContent>
         </Card>
 
         <div className="grid gap-4">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><GitBranch size={18} className="text-primary" />Unlocked Technologies</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><GitBranch size={18} className="text-primary" />{translate(state.locale, "Unlocked Technologies")}</CardTitle></CardHeader>
             <CardContent><p className="text-3xl font-black">{state.completedTechnologyIds.length}</p></CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Award size={18} className="text-secondary" />Achievements</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Award size={18} className="text-secondary" />{translate(state.locale, "Achievements")}</CardTitle></CardHeader>
             <CardContent className="grid gap-2">
               {state.achievements.map((achievement) => (
                 <div key={achievement.id} className="rounded-md border border-border bg-muted/40 p-3">
@@ -63,7 +63,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Flame size={18} className="text-strategy-red" />Streak Milestones</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Flame size={18} className="text-strategy-red" />{translate(state.locale, "Streak Milestones")}</CardTitle></CardHeader>
             <CardContent className="grid gap-2">
               {streakMilestones.map((milestone) => {
                 const unlocked = state.streak >= milestone.days;
@@ -80,7 +80,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Languages size={18} className="text-primary" />Language</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Languages size={18} className="text-primary" />{translate(state.locale, "Language")}</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {locales.map((locale) => (
                 <Button key={locale.id} variant={state.locale === locale.id ? "default" : "outline"} size="sm" onClick={() => state.setLocale(locale.id as Locale)}>
@@ -90,7 +90,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Palette size={18} className="text-strategy-gold" />Visual Style</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Palette size={18} className="text-strategy-gold" />{translate(state.locale, "Visual Style")}</CardTitle></CardHeader>
             <CardContent className="grid gap-2">
               {treeThemes.map((theme) => (
                 <button
@@ -103,11 +103,11 @@ export default function ProfilePage() {
                     <p className="font-bold text-foreground">{theme.title}</p>
                     <span className="flex items-center gap-1 rounded bg-muted px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground">
                       {!state.unlockedTreeThemeIds.includes(theme.id) ? <LockKeyhole size={11} /> : null}
-                      {siteTheme === theme.id ? (state.unlockedTreeThemeIds.includes(theme.id) ? "active" : "preview") : state.unlockedTreeThemeIds.includes(theme.id) ? theme.shortTitle : "locked"}
+                      {siteTheme === theme.id ? translate(state.locale, state.unlockedTreeThemeIds.includes(theme.id) ? "active" : "preview") : state.unlockedTreeThemeIds.includes(theme.id) ? theme.shortTitle : translate(state.locale, "locked")}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{theme.description}</p>
-                  {!state.unlockedTreeThemeIds.includes(theme.id) && theme.unlock.rewardSource ? <p className="mt-2 text-[11px] font-semibold text-primary">Unlock: {theme.unlock.rewardSource}</p> : null}
+                  {!state.unlockedTreeThemeIds.includes(theme.id) && theme.unlock.rewardSource ? <p className="mt-2 text-[11px] font-semibold text-primary">{translate(state.locale, "Unlock:")} {theme.unlock.rewardSource}</p> : null}
                 </button>
               ))}
             </CardContent>

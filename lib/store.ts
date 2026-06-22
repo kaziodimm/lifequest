@@ -181,6 +181,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
   return {
     ...initialState,
     ...persisted,
+    locale: persisted?.locale === "ru" ? "ru" : "en",
     completedTechnologyIds: !savedCompletedIds || isLegacyDemo || hasRemovedTechnology ? initialState.completedTechnologyIds : savedCompletedIds,
     currentEra: persisted?.currentEra ?? initialState.currentEra,
     researchPoints: { ...emptyResearchPoints, ...(persisted?.researchPoints ?? {}) },
