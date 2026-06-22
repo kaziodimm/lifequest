@@ -47,6 +47,7 @@
 - Chapter 1 technology content is localized by ID in `lib/technology-i18n.ts`: titles, descriptions, requirements, actions and exact steps.
 - Dynamic Trial lock reasons and cooldown labels are localized as well.
 - When adding technologies, add their Russian content to `lib/technology-i18n.ts` at the same time.
+- If Git Data API ref updates do not trigger Vercel, create the final `main` commit through the GitHub Contents API so a normal push webhook is emitted.
 
 ## Verification checklist
 
@@ -66,3 +67,4 @@
 5. Add automated progression and visual regression tests.
 
 Read this file first when continuing in a new Codex thread.
+
