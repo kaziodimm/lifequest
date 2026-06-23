@@ -220,6 +220,14 @@ Supabase Auth dashboard setup:
   - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 35/35 passing.
   - `tsc --noEmit`: passing.
   - `next build`: passing.
-- Pending after commit/deploy: verify `https://www.habidoo.com` visually, then register/login again and click Tree/Missions/Stats/Profile from the real account.
+- Commit: `1263c01 fix: polish prelogin and loosen auth gate`.
+- Pushed to GitHub `main`.
+- Production deployment:
+  - Deployment id: `dpl_HLKmkLytQH2x4ujGhn1fVUxRfYjK`.
+  - Production URL: `https://lifequest-i6cab8rmm-kazi-s-projects3.vercel.app`.
+  - Aliases: `https://habidoo.com`, `https://www.habidoo.com`, `https://lifequest-gamma.vercel.app`.
+  - Deployment state: `READY`.
+  - Fetch checks: `https://www.habidoo.com/` returned HTTP `200`; `/tree` returned HTTP `200`.
+- Pending manual check: register/login again and click Tree/Missions/Stats/Profile from the real account.
 
 Read this file first when continuing in a new Codex thread.
