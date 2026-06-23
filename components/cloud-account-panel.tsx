@@ -157,8 +157,6 @@ export function CloudAccountPanel({ locale }: { locale?: Locale }) {
   const state = useLifeStore();
   const copy = accountCopy[locale ?? state.locale] ?? accountCopy.en;
   const restoreCloudState = useLifeStore((current) => current.restoreCloudState);
-  const grantBetaTesterReward = useLifeStore((current) => current.grantBetaTesterReward);
-  const betaTesterRewardGranted = useLifeStore((current) => current.betaTesterRewardGranted);
   const configured = isSupabaseConfigured();
   const supabase = useMemo(() => configured ? createSupabaseBrowserClient() : null, [configured]);
   const [user, setUser] = useState<User | null>(null);
@@ -225,11 +223,6 @@ export function CloudAccountPanel({ locale }: { locale?: Locale }) {
     return () => window.clearTimeout(syncTimer);
   }, [cloudLoaded, confirmed, profile, state, supabase, syncEnabled, user]);
 
-  useEffect(() => {
-    if (!confirmed || !profile || betaTesterRewardGranted) return;
-    grantBetaTesterReward();
-  }, [betaTesterRewardGranted, confirmed, grantBetaTesterReward, profile]);
-
   async function submitAuth() {
     if (!supabase || !email.trim() || !passwordReady) return;
     setBusy(true);
@@ -264,7 +257,6 @@ export function CloudAccountPanel({ locale }: { locale?: Locale }) {
       return;
     }
     setProfile(data as ProfileRow);
-    grantBetaTesterReward();
     window.dispatchEvent(new Event(accountProfileChangedEvent));
     const saved = await saveLocalProgress(user.id, true);
     setSyncEnabled(saved);

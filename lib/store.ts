@@ -3,11 +3,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
-import { createAchievementState, evaluateGameProgression, getInventoryItem } from "./game-shell";
 import { getGlobalCooldownSeconds, getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "./missions";
-import { getEraLevelFromXp, getTechnologyLockReasons } from "./progression";
+import { getTechnologyLockReasons } from "./progression";
 import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, reconcileActiveMissionState, sanitizeEvidenceAnswers } from "./mission-rules";
-import { ChapterSummary, DailyMission, InventoryItemType, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
+import { ChapterSummary, DailyMission, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
 
 const emptyResearchPoints: ResearchPointBalances = {
   health: 0,
@@ -29,20 +28,6 @@ function addResearchPoints(current: ResearchPointBalances, reward?: ProgressionR
 
 function addUnique(current: string[], value?: string) {
   return value && !current.includes(value) ? [...current, value] : current;
-}
-
-function gameProgressFields(state: PlayerState, now = Date.now()) {
-  const progression = evaluateGameProgression(state, now);
-  return {
-    achievements: progression.achievements,
-    unlockedInventoryItemIds: progression.unlockedInventoryItemIds,
-    earnedBadges: progression.earnedBadges,
-    earnedTitles: progression.earnedTitles,
-    unlockedNodeFrames: progression.unlockedNodeFrames,
-    equippedBadgeId: progression.equippedBadgeId,
-    equippedFrameId: progression.equippedFrameId,
-    equippedTitleId: progression.equippedTitleId
-  };
 }
 
 function answerText(value: MissionAnswer | undefined) {
@@ -151,13 +136,6 @@ const initialState: PlayerState = {
   earnedTitles: [],
   unlockedNodeFrames: [],
   unlockedBackgroundEffects: [],
-  unlockedInventoryItemIds: [],
-  equippedBadgeId: undefined,
-  equippedFrameId: undefined,
-  equippedTitleId: undefined,
-  betaTesterRewardGranted: false,
-  treeGuideSeen: false,
-  lastRewardEvent: undefined,
   streak: 0,
   completedTechnologyIds: initialCompletedTechnologyIds,
   technologyRuntime: createInitialTechnologyRuntime(initialCompletedTechnologyIds),
@@ -167,7 +145,10 @@ const initialState: PlayerState = {
   focusObjects: [],
   dailyMissions: [],
   planner: [],
-  achievements: createAchievementState(),
+  achievements: [
+    { id: "first-command", title: "First Command", description: "Complete the first daily mission.", unlocked: false },
+    { id: "three-day-streak", title: "3 Day Chain", description: "Reach a 3 day streak.", unlocked: false }
+  ],
   progressHistory: [],
   chapterSummaries: []
 };
@@ -234,7 +215,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     missionAttempts
   });
 
-  const normalizedState: PlayerState = {
+  return {
     ...initialState,
     ...persisted,
     locale: migrateLocale(persisted?.locale),
@@ -252,24 +233,16 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     earnedTitles: persisted?.earnedTitles ?? [],
     unlockedNodeFrames: persisted?.unlockedNodeFrames ?? [],
     unlockedBackgroundEffects: persisted?.unlockedBackgroundEffects ?? [],
-    unlockedInventoryItemIds: Array.isArray(persisted?.unlockedInventoryItemIds) ? persisted.unlockedInventoryItemIds : [],
-    equippedBadgeId: persisted?.equippedBadgeId,
-    equippedFrameId: persisted?.equippedFrameId,
-    equippedTitleId: persisted?.equippedTitleId,
-    betaTesterRewardGranted: persisted?.betaTesterRewardGranted === true,
-    treeGuideSeen: persisted?.treeGuideSeen === true,
-    lastRewardEvent: persisted?.lastRewardEvent,
     activeMissionAttemptId: activeMissionState.activeMissionAttemptId,
     missionAttempts,
     focusObjects,
     technologyRuntime: activeMissionState.technologyRuntime,
     dailyMissions: [],
     planner: [],
-    achievements: createAchievementState(persisted?.achievements),
+    achievements: persisted?.achievements ?? initialState.achievements,
     progressHistory: persisted?.progressHistory ?? initialState.progressHistory,
     chapterSummaries: Array.isArray(persisted?.chapterSummaries) ? persisted.chapterSummaries : []
   };
-  return { ...normalizedState, ...gameProgressFields(normalizedState) };
 }
 
 type LifeStore = PlayerState & {
@@ -283,11 +256,6 @@ type LifeStore = PlayerState & {
   completeTechnologyMission: (technologyId: string) => void;
   setMissionAnswer: (attemptId: string, inputId: string, value: MissionAnswer) => void;
   saveFocusObject: (focusObject: UserFocusObject) => void;
-  equipInventoryItem: (itemId: string) => void;
-  unequipInventoryType: (type: InventoryItemType) => void;
-  dismissRewardEvent: () => void;
-  markTreeGuideSeen: () => void;
-  grantBetaTesterReward: () => void;
   unlockTechnology: (technologyId: string) => void;
   resetBrokenActiveMission: (technologyId: string) => void;
   restoreCloudState: (state: Partial<PlayerState>) => void;
@@ -299,16 +267,12 @@ export const useLifeStore = create<LifeStore>()(
     (set, get) => ({
       ...initialState,
       completeOnboarding(locale, category, focusObject) {
-        set((state) => {
-          const nextState = {
-            ...state,
+        set((state) => ({
           locale,
           onboardingCompleted: true,
           primaryCategory: category,
           focusObjects: [...state.focusObjects.filter((item) => item.category !== category), focusObject]
-          };
-          return { ...nextState, ...gameProgressFields(nextState) };
-        });
+        }));
       },
       setLocale(locale) {
         set({ locale });
@@ -325,10 +289,8 @@ export const useLifeStore = create<LifeStore>()(
         }));
       },
       saveFocusObject(focusObject) {
-        set((state) => {
-          const nextState = {
-            ...state,
-            focusObjects: [
+        set((state) => ({
+          focusObjects: [
             ...state.focusObjects.filter((item) => item.category !== focusObject.category),
             {
               ...focusObject,
@@ -337,9 +299,7 @@ export const useLifeStore = create<LifeStore>()(
               updatedAt: Date.now()
             }
           ]
-          };
-          return { ...nextState, ...gameProgressFields(nextState) };
-        });
+        }));
       },
       startMission(missionId) {
         const mission = get().dailyMissions.find((item) => item.id === missionId);
@@ -348,52 +308,6 @@ export const useLifeStore = create<LifeStore>()(
       completeMission(missionId) {
         const mission = get().dailyMissions.find((item) => item.id === missionId);
         if (mission) get().completeTechnologyMission(mission.technologyId);
-      },
-      equipInventoryItem(itemId) {
-        const item = getInventoryItem(itemId);
-        if (!item || !get().unlockedInventoryItemIds.includes(itemId)) return;
-        if (item.type === "badge") set({ equippedBadgeId: itemId });
-        if (item.type === "profileFrame") set({ equippedFrameId: itemId });
-        if (item.type === "title") set({ equippedTitleId: itemId });
-      },
-      unequipInventoryType(type) {
-        if (type === "badge") set({ equippedBadgeId: undefined });
-        if (type === "profileFrame") set({ equippedFrameId: undefined });
-        if (type === "title") set({ equippedTitleId: undefined });
-      },
-      dismissRewardEvent() {
-        set({ lastRewardEvent: undefined });
-      },
-      markTreeGuideSeen() {
-        set({ treeGuideSeen: true });
-      },
-      grantBetaTesterReward() {
-        if (get().betaTesterRewardGranted) return;
-        const now = Date.now();
-        set((state) => {
-          const baseState: PlayerState = { ...state, betaTesterRewardGranted: true };
-          const progression = evaluateGameProgression(baseState, now);
-          return {
-            ...baseState,
-            achievements: progression.achievements,
-            unlockedInventoryItemIds: progression.unlockedInventoryItemIds,
-            earnedBadges: progression.earnedBadges,
-            earnedTitles: progression.earnedTitles,
-            unlockedNodeFrames: progression.unlockedNodeFrames,
-            equippedBadgeId: progression.equippedBadgeId,
-            equippedFrameId: progression.equippedFrameId,
-            equippedTitleId: progression.equippedTitleId,
-            lastRewardEvent: {
-              id: `reward:beta:${now}`,
-              kind: "account",
-              title: "Closed Beta Founder",
-              unlockedAchievementIds: progression.newlyUnlockedAchievementIds,
-              unlockedInventoryItemIds: progression.newlyUnlockedInventoryItemIds,
-              major: true,
-              createdAt: now
-            }
-          };
-        });
       },
       startTechnologyMission(technologyId) {
         const tech = technologies.find((item) => item.id === technologyId);
@@ -479,72 +393,40 @@ export const useLifeStore = create<LifeStore>()(
           evidenceSummary: evidence.summary
         } : undefined;
 
-        set((state) => {
-          const levelBefore = getEraLevelFromXp(state.totalXp);
-          const baseState: PlayerState = {
-            ...state,
-            totalXp: state.totalXp + missionXp,
-            researchPoints: addResearchPoints(state.researchPoints, { [tech.category]: researchGain }),
-            insightPoints: state.insightPoints + completionInsight,
-            unlockedTreeThemeIds: completedTechnology && tech.rewards.themeUnlock && !state.unlockedTreeThemeIds.includes(tech.rewards.themeUnlock) ? [...state.unlockedTreeThemeIds, tech.rewards.themeUnlock] : state.unlockedTreeThemeIds,
-            themeFragments: completedTechnology && tech.rewards.themeFragment ? { ...state.themeFragments, [tech.rewards.themeFragment]: (state.themeFragments[tech.rewards.themeFragment] ?? 0) + 1 } : state.themeFragments,
-            earnedBadges: completedTechnology ? addUnique(state.earnedBadges, tech.rewards.badge) : state.earnedBadges,
-            earnedTitles: completedTechnology ? addUnique(state.earnedTitles, tech.rewards.title) : state.earnedTitles,
-            unlockedNodeFrames: completedTechnology ? addUnique(state.unlockedNodeFrames, tech.rewards.nodeFrame) : state.unlockedNodeFrames,
-            unlockedBackgroundEffects: completedTechnology ? addUnique(state.unlockedBackgroundEffects, tech.rewards.backgroundEffect) : state.unlockedBackgroundEffects,
-            globalMissionCooldownUntil: globalCooldownUntil,
-            activeMissionAttemptId: undefined,
-            focusObjects: newFocusObject ? [...state.focusObjects.filter((item) => item.category !== tech.category), newFocusObject] : state.focusObjects,
-            chapterSummaries: chapterSummary ? [...state.chapterSummaries.filter((summary) => summary.chapterId !== chapterSummary.chapterId), chapterSummary] : state.chapterSummaries,
-            missionAttempts: state.missionAttempts.map((attempt) => attempt.id === activeAttempt.id ? {
-              ...attempt,
+        set((state) => ({
+          totalXp: state.totalXp + missionXp,
+          researchPoints: addResearchPoints(state.researchPoints, { [tech.category]: researchGain }),
+          insightPoints: state.insightPoints + completionInsight,
+          unlockedTreeThemeIds: completedTechnology && tech.rewards.themeUnlock && !state.unlockedTreeThemeIds.includes(tech.rewards.themeUnlock) ? [...state.unlockedTreeThemeIds, tech.rewards.themeUnlock] : state.unlockedTreeThemeIds,
+          themeFragments: completedTechnology && tech.rewards.themeFragment ? { ...state.themeFragments, [tech.rewards.themeFragment]: (state.themeFragments[tech.rewards.themeFragment] ?? 0) + 1 } : state.themeFragments,
+          earnedBadges: completedTechnology ? addUnique(state.earnedBadges, tech.rewards.badge) : state.earnedBadges,
+          earnedTitles: completedTechnology ? addUnique(state.earnedTitles, tech.rewards.title) : state.earnedTitles,
+          unlockedNodeFrames: completedTechnology ? addUnique(state.unlockedNodeFrames, tech.rewards.nodeFrame) : state.unlockedNodeFrames,
+          unlockedBackgroundEffects: completedTechnology ? addUnique(state.unlockedBackgroundEffects, tech.rewards.backgroundEffect) : state.unlockedBackgroundEffects,
+          globalMissionCooldownUntil: globalCooldownUntil,
+          activeMissionAttemptId: undefined,
+          focusObjects: newFocusObject ? [...state.focusObjects.filter((item) => item.category !== tech.category), newFocusObject] : state.focusObjects,
+          chapterSummaries: chapterSummary ? [...state.chapterSummaries.filter((summary) => summary.chapterId !== chapterSummary.chapterId), chapterSummary] : state.chapterSummaries,
+          missionAttempts: state.missionAttempts.map((attempt) => attempt.id === activeAttempt.id ? {
+            ...attempt,
+            completedAt: now,
+            elapsedSeconds,
+            selectedFocusObject: newFocusObject?.id ?? attempt.selectedFocusObject,
+            evidence,
+            earnedRewards: { xp: missionXp, researchPoints: { [tech.category]: researchGain }, insightPoints: completionInsight }
+          } : attempt),
+          completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
+          technologyRuntime: {
+            ...state.technologyRuntime,
+            [technologyId]: {
+              ...runtime,
+              progress: nextProgress,
+              status: completedTechnology ? "completed" : "cooldown",
               completedAt: now,
-              elapsedSeconds,
-              selectedFocusObject: newFocusObject?.id ?? attempt.selectedFocusObject,
-              evidence,
-              earnedRewards: { xp: missionXp, researchPoints: { [tech.category]: researchGain }, insightPoints: completionInsight }
-            } : attempt),
-            completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
-            technologyRuntime: {
-              ...state.technologyRuntime,
-              [technologyId]: {
-                ...runtime,
-                progress: nextProgress,
-                status: completedTechnology ? "completed" : "cooldown",
-                completedAt: now,
-                cooldownUntil: completedTechnology ? undefined : now + (mission.personalCooldownSeconds ?? mission.cooldownSeconds) * 1000
-              }
+              cooldownUntil: completedTechnology ? undefined : now + (mission.personalCooldownSeconds ?? mission.cooldownSeconds) * 1000
             }
-          };
-          const progression = evaluateGameProgression(baseState, now);
-          const levelAfter = getEraLevelFromXp(baseState.totalXp);
-          return {
-            ...baseState,
-            achievements: progression.achievements,
-            unlockedInventoryItemIds: progression.unlockedInventoryItemIds,
-            earnedBadges: progression.earnedBadges,
-            earnedTitles: progression.earnedTitles,
-            unlockedNodeFrames: progression.unlockedNodeFrames,
-            equippedBadgeId: progression.equippedBadgeId,
-            equippedFrameId: progression.equippedFrameId,
-            equippedTitleId: progression.equippedTitleId,
-            lastRewardEvent: {
-              id: `reward:${technologyId}:${now}`,
-              kind: "mission",
-              title: tech.title,
-              technologyId,
-              xp: missionXp,
-              researchPoints: { [tech.category]: researchGain },
-              insightPoints: completionInsight,
-              levelBefore,
-              levelAfter,
-              unlockedAchievementIds: progression.newlyUnlockedAchievementIds,
-              unlockedInventoryItemIds: progression.newlyUnlockedInventoryItemIds,
-              major: completedTechnology || tech.type === "milestone" || tech.type === "challenge" || technologyId === "awakening-trial",
-              createdAt: now
-            }
-          };
-        });
+          }
+        }));
       },
       unlockTechnology(technologyId) {
         get().startTechnologyMission(technologyId);
