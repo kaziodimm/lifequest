@@ -102,8 +102,12 @@ Implemented in the corrective stage:
   - `tsc --noEmit`: passing.
   - `next build`: passing.
   - Local browser smoke: `/tree` loads, mission can start, rating/text answers accept input, `/command` has no 24h Planner and shows the active mission.
-- Vercel Git deployment for `ece1068` is `BLOCKED` because GitHub still reports the commit as `unverified`.
-- Latest blocked deployment: `dpl_DhVPnb3y9Hkwc1DGk37AR9CgKmzo`.
-- Production `www.habidoo.com` has not been promoted to `ece1068` by Git integration. A direct Vercel CLI production deploy is still needed if the verification issue is not fixed.
+- Vercel Git deployments for `ece1068` and `86b5c6e` are `BLOCKED` because GitHub still reports commits as `unverified`.
+- Direct Vercel CLI production deploy succeeded after the Git block:
+  - Production deployment: `dpl_B2J3Ux4pwX5b6DFN6931psHic95F`.
+  - Production URL: `https://lifequest-hl8nmxl6s-kazi-s-projects3.vercel.app`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Domain checks: `https://www.habidoo.com/`, `/tree`, and `/command` returned HTTP `200`.
 
 Read this file first when continuing in a new Codex thread.
