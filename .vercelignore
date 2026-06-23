@@ -7,3 +7,5 @@ public/art/themes-v3/*/completed.webp
 public/art/themes-v3/*/ui-reference.webp
 *.log
 *.tsbuildinfo
+pnpm-lock.yaml
+pnpm-workspace.yaml
