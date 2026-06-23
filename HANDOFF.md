@@ -164,6 +164,10 @@ Supabase Auth dashboard setup:
   - Tool routes require a confirmed Supabase account, a Habid/profile row, and completed onboarding.
   - Confirmed users without Habid/profile are routed to `/profile`.
   - Verification: tests 35/35 passing, typecheck passing, Next production build passing.
+  - Production deployment: `dpl_92XiK2vi46S2A5nx1vLi8J4pSCCe`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Vercel fetch checks: `/` returned HTTP `200`; `/tree` unauthenticated returned the gated `Preparing Habidoo...` shell.
 
 ## Active mission state repair — 2026-06-23
 
