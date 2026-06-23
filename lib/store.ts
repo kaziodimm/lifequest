@@ -5,8 +5,8 @@ import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
 import { getGlobalCooldownSeconds, getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "./missions";
 import { getTechnologyLockReasons } from "./progression";
-import { canCompleteMissionAttempt, canStartMission, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData } from "./mission-rules";
-import { DailyMission, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
+import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, sanitizeEvidenceAnswers } from "./mission-rules";
+import { ChapterSummary, DailyMission, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
 
 const emptyResearchPoints: ResearchPointBalances = {
   health: 0,
@@ -39,7 +39,7 @@ function focusObjectFromAttempt(category: LifeCategory, answers: Record<string, 
   const values: Partial<Record<LifeCategory, { type: UserFocusObject["type"]; name: string; outcome: string }>> = {
     health: { type: "healthRoutine", name: "Body awareness", outcome: answerText(answers["body-factor"]) },
     mind: { type: "learningTopic", name: "Current focus", outcome: answerText(answers["next-step"]) },
-    finance: { type: "financialGoal", name: "Financial foundation", outcome: `Balance ${answerText(answers.balance)}; income ${answerText(answers.income)}` },
+    finance: { type: "financialGoal", name: "Money clarity", outcome: "A private money snapshot was saved for this chapter." },
     business: { type: "project", name: answerText(answers["project-name"]), outcome: answerText(answers["desired-result"]) },
     career: { type: "careerSkill", name: answerText(answers["career-target"]), outcome: "Create visible career progress this chapter." },
     relationships: { type: "relationship", name: answerText(answers["person-name"]), outcome: answerText(answers["connection-outcome"]) },
@@ -52,7 +52,7 @@ function focusObjectFromAttempt(category: LifeCategory, answers: Record<string, 
 
 function initialAnswersFromFocus(category: LifeCategory, focusObject: UserFocusObject | undefined): Record<string, MissionAnswer> {
   if (!focusObject) return {};
-  if (category === "business") return { "project-type": focusObject.name, "project-name": focusObject.name, "desired-result": focusObject.desiredOutcome };
+  if (category === "business") return { "project-name": focusObject.name, "desired-result": focusObject.desiredOutcome };
   if (category === "career") return { "career-target": focusObject.name };
   if (category === "relationships") return { "person-name": focusObject.name };
   if (category === "creativity") return { "creative-medium": focusObject.name };
@@ -120,6 +120,7 @@ const legacyCompletedTechnologyIds = ["health-root", "business-root"];
 const initialCompletedTechnologyIds: string[] = [];
 
 const initialState: PlayerState = {
+  storeVersion: 2,
   avatarName: "Strategist",
   onboardingCompleted: false,
   primaryCategory: undefined,
@@ -143,12 +144,13 @@ const initialState: PlayerState = {
   missionAttempts: [],
   focusObjects: [],
   dailyMissions: initialMissions,
-  planner: Array.from({ length: 24 }, (_, hour) => ({ hour, plan: "", completed: false })),
+  planner: [],
   achievements: [
     { id: "first-command", title: "First Command", description: "Complete the first daily mission.", unlocked: false },
     { id: "three-day-streak", title: "3 Day Chain", description: "Reach a 3 day streak.", unlocked: false }
   ],
-  progressHistory: [0, 0, 0, 0, 0, 0, 0]
+  progressHistory: [],
+  chapterSummaries: []
 };
 
 type PartialMission = Partial<DailyMission> & Pick<DailyMission, "id">;
@@ -215,7 +217,8 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     ...initialState,
     ...persisted,
     locale: migrateLocale(persisted?.locale),
-    onboardingCompleted: persisted?.onboardingCompleted ?? Boolean(persisted),
+    storeVersion: 2,
+    onboardingCompleted: persisted?.onboardingCompleted === true,
     primaryCategory: persisted?.primaryCategory,
     theme: migrateThemeId(persisted?.theme),
     completedTechnologyIds: !savedCompletedIds || isLegacyDemo || hasRemovedTechnology ? initialState.completedTechnologyIds : savedCompletedIds,
@@ -233,9 +236,10 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     focusObjects: (normalizedMissionData.focusObjects as PlayerState["focusObjects"]).filter((object) => object?.id && object?.type && object?.category && object?.name),
     technologyRuntime,
     dailyMissions: missions,
-    planner: persisted?.planner ?? initialState.planner,
+    planner: [],
     achievements: persisted?.achievements ?? initialState.achievements,
-    progressHistory: persisted?.progressHistory ?? initialState.progressHistory
+    progressHistory: persisted?.progressHistory ?? initialState.progressHistory,
+    chapterSummaries: Array.isArray(persisted?.chapterSummaries) ? persisted.chapterSummaries : []
   };
 }
 
@@ -251,8 +255,7 @@ type LifeStore = PlayerState & {
   setMissionAnswer: (attemptId: string, inputId: string, value: MissionAnswer) => void;
   saveFocusObject: (focusObject: UserFocusObject) => void;
   unlockTechnology: (technologyId: string) => void;
-  updatePlannerBlock: (hour: number, plan: string, technologyId?: string) => void;
-  togglePlannerBlock: (hour: number) => void;
+  resetLocalProgress: () => void;
 };
 
 export const useLifeStore = create<LifeStore>()(
@@ -283,9 +286,15 @@ export const useLifeStore = create<LifeStore>()(
       },
       saveFocusObject(focusObject) {
         set((state) => ({
-          focusObjects: state.focusObjects.some((item) => item.id === focusObject.id)
-            ? state.focusObjects.map((item) => item.id === focusObject.id ? { ...focusObject, updatedAt: Date.now() } : item)
-            : [...state.focusObjects, focusObject]
+          focusObjects: [
+            ...state.focusObjects.filter((item) => item.category !== focusObject.category),
+            {
+              ...focusObject,
+              id: findReusableFocusObject(state.focusObjects, focusObject.category)?.id ?? focusObject.id,
+              createdAt: findReusableFocusObject(state.focusObjects, focusObject.category)?.createdAt ?? focusObject.createdAt,
+              updatedAt: Date.now()
+            }
+          ]
         }));
       },
       startMission(missionId) {
@@ -354,8 +363,31 @@ export const useLifeStore = create<LifeStore>()(
         const categoryReward = tech.rewards.researchPoints?.[tech.category] ?? 0;
         const researchGain = completedTechnology ? categoryReward : Math.max(1, Math.round(categoryReward / target));
         const completionInsight = completedTechnology && !alreadyCompleted ? tech.rewards.insightPoints ?? 0 : 0;
+        if (technologyId === "awakening-trial" && !canCompleteAwakeningTrial(stateBeforeCompletion, technologies, activeAttempt)) return;
+
         const existingFocusObject = findReusableFocusObject(stateBeforeCompletion.focusObjects, tech.category);
-        const newFocusObject = tech.parents.length === 0 && !existingFocusObject ? focusObjectFromAttempt(tech.category, activeAttempt.answers, now) : undefined;
+        const rootFocusObject = tech.parents.length === 0 ? focusObjectFromAttempt(tech.category, activeAttempt.answers, now) : undefined;
+        const newFocusObject = rootFocusObject ? {
+          ...rootFocusObject,
+          id: existingFocusObject?.id ?? rootFocusObject.id,
+          createdAt: existingFocusObject?.createdAt ?? rootFocusObject.createdAt,
+          updatedAt: now
+        } : undefined;
+        const evidence: MissionCompletionEvidence = {
+          summary: buildEvidenceSummary(definition, activeAttempt.answers),
+          answers: sanitizeEvidenceAnswers(activeAttempt.answers),
+          confirmedAt: now
+        };
+        const selectedPracticeIds = activeAttempt.answers["carried-practices"];
+        const chapterSummary: ChapterSummary | undefined = technologyId === "awakening-trial" ? {
+          chapterId: "the-awakening",
+          completedAt: now,
+          reviewedBranchCategories: completedBranchCategories(stateBeforeCompletion, technologies),
+          carriedPracticeAttemptIds: Array.isArray(selectedPracticeIds) ? selectedPracticeIds.slice(0, 3) : [],
+          personalRule: answerText(activeAttempt.answers["personal-rule"]),
+          weeklyStandard: answerText(activeAttempt.answers["weekly-standard"]),
+          evidenceSummary: evidence.summary
+        } : undefined;
 
         set((state) => ({
           totalXp: state.totalXp + missionXp,
@@ -370,12 +402,13 @@ export const useLifeStore = create<LifeStore>()(
           globalMissionCooldownUntil: globalCooldownUntil,
           activeMissionAttemptId: undefined,
           focusObjects: newFocusObject ? [...state.focusObjects.filter((item) => item.category !== tech.category), newFocusObject] : state.focusObjects,
+          chapterSummaries: chapterSummary ? [...state.chapterSummaries.filter((summary) => summary.chapterId !== chapterSummary.chapterId), chapterSummary] : state.chapterSummaries,
           missionAttempts: state.missionAttempts.map((attempt) => attempt.id === activeAttempt.id ? {
             ...attempt,
             completedAt: now,
             elapsedSeconds,
             selectedFocusObject: newFocusObject?.id ?? attempt.selectedFocusObject,
-            evidence: { summary: answerText(activeAttempt.answers.result) || definition.concreteOutcome, confirmedAt: now } satisfies MissionCompletionEvidence,
+            evidence,
             earnedRewards: { xp: missionXp, researchPoints: { [tech.category]: researchGain }, insightPoints: completionInsight }
           } : attempt),
           completedTechnologyIds: completedTechnology && !alreadyCompleted ? [...state.completedTechnologyIds, technologyId] : state.completedTechnologyIds,
@@ -394,21 +427,18 @@ export const useLifeStore = create<LifeStore>()(
       unlockTechnology(technologyId) {
         get().startTechnologyMission(technologyId);
       },
-      updatePlannerBlock(hour, plan, technologyId) {
-        set((state) => ({
-          planner: state.planner.map((block) => (block.hour === hour ? { ...block, plan, technologyId } : block))
-        }));
-      },
-      togglePlannerBlock(hour) {
-        const block = get().planner.find((item) => item.hour === hour);
-        if (!block || !block.plan.trim()) return;
-        set((state) => ({
-          planner: state.planner.map((item) => (item.hour === hour ? { ...item, completed: !item.completed } : item))
-        }));
+      resetLocalProgress() {
+        set({
+          ...initialState,
+          locale: get().locale,
+          theme: get().theme
+        });
       }
     }),
     {
       name: "habidoo-life-strategy-v1",
+      version: 2,
+      migrate: (persisted) => normalizeState(persisted as Partial<PlayerState> | undefined),
       merge: (persisted, current) => ({
         ...current,
         ...normalizeState(persisted as Partial<PlayerState> | undefined)

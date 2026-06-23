@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Award, BarChart3, GitBranch, Radar, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,8 +22,11 @@ const nav = [
 
 export function AppShell({ children, immersive = false, hideNavigation = false }: { children: React.ReactNode; immersive?: boolean; hideNavigation?: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
   const locale = useLifeStore((state) => state.locale);
+  const onboardingCompleted = useLifeStore((state) => state.onboardingCompleted);
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const saved = readSiteTheme();
@@ -36,6 +40,21 @@ export function AppShell({ children, immersive = false, hideNavigation = false }
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+
+  useEffect(() => {
+    setHydrated(useLifeStore.persist.hasHydrated());
+    return useLifeStore.persist.onFinishHydration(() => setHydrated(true));
+  }, []);
+
+  const protectedRoute = ["/tree", "/command", "/stats", "/profile", "/achievements"].includes(pathname);
+
+  useEffect(() => {
+    if (hydrated && protectedRoute && !onboardingCompleted) router.replace("/");
+  }, [hydrated, onboardingCompleted, protectedRoute, router]);
+
+  if (protectedRoute && (!hydrated || !onboardingCompleted)) {
+    return <main className="app-theme-shell grid min-h-screen place-items-center p-6 text-sm font-bold text-muted-foreground" data-site-theme={themeId}>{translate(locale, "Preparing Habidoo...")}</main>;
+  }
 
   return (
     <main className={cn("app-theme-shell min-h-screen", immersive || hideNavigation ? "overflow-hidden pb-0" : "pb-24")} data-site-theme={themeId}>

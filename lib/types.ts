@@ -8,7 +8,7 @@ export type MissionStatus = "ready" | "active" | "cooldown" | "completed";
 export type TechnologyNodeType = "technology" | "milestone" | "challenge";
 export type GlobalCooldownType = "micro" | "standard" | "deep";
 export type MissionDepth = GlobalCooldownType | "trial";
-export type MissionInputType = "singleChoice" | "multiChoice" | "shortText" | "number" | "rating" | "checklist" | "dateOrTime" | "link" | "confirmation";
+export type MissionInputType = "singleChoice" | "multiChoice" | "checklist" | "rating" | "confirmation" | "number" | "shortText" | "text" | "link" | "dateOrTime" | "date" | "time";
 export type FocusObjectType = "project" | "careerSkill" | "financialGoal" | "relationship" | "creativeMedium" | "learningTopic" | "healthRoutine";
 
 export type Locale = "en" | "ru" | "cs" | "uk";
@@ -75,6 +75,7 @@ export type MissionCompletionEvidence = {
   summary: string;
   note?: string;
   link?: string;
+  answers: Record<string, MissionAnswer>;
   confirmedAt: number;
 };
 
@@ -91,6 +92,16 @@ export type MissionAttempt = {
   selectedFocusObject?: string;
   evidence?: MissionCompletionEvidence;
   earnedRewards?: ProgressionReward;
+};
+
+export type ChapterSummary = {
+  chapterId: string;
+  completedAt: number;
+  reviewedBranchCategories: LifeCategory[];
+  carriedPracticeAttemptIds: string[];
+  personalRule: string;
+  weeklyStandard: string;
+  evidenceSummary: string;
 };
 
 export type MissionDefinition = {
@@ -199,6 +210,7 @@ export type Achievement = {
 };
 
 export type PlayerState = {
+  storeVersion: number;
   avatarName: string;
   onboardingCompleted: boolean;
   primaryCategory?: LifeCategory;
@@ -225,4 +237,5 @@ export type PlayerState = {
   planner: PlannerBlock[];
   achievements: Achievement[];
   progressHistory: number[];
+  chapterSummaries: ChapterSummary[];
 };

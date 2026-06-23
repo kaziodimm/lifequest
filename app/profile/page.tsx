@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Award, Flame, GitBranch, Languages, LockKeyhole, Palette, Trophy } from "lucide-react";
+import { AlertTriangle, GitBranch, Languages, LockKeyhole, Palette, RotateCcw, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { locales, translate } from "@/lib/i18n";
-import { streakMilestones } from "@/lib/milestones";
 import { levelFromXp, lifeScore } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
 import { Locale } from "@/lib/types";
@@ -20,6 +19,7 @@ export default function ProfilePage() {
   const level = levelFromXp(state.totalXp);
   const score = lifeScore(state);
   const [siteTheme, setSiteTheme] = useState<TreeThemeId>(defaultTreeThemeId);
+  const [resetArmed, setResetArmed] = useState(false);
 
   useEffect(() => setSiteTheme(readSiteTheme()), []);
 
@@ -52,34 +52,6 @@ export default function ProfilePage() {
             <CardContent><p className="text-3xl font-black">{state.completedTechnologyIds.length}</p></CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Award size={18} className="text-secondary" />{translate(state.locale, "Achievements")}</CardTitle></CardHeader>
-            <CardContent className="grid gap-2">
-              {state.achievements.map((achievement) => (
-                <div key={achievement.id} className="rounded-md border border-border bg-muted/40 p-3">
-                  <p className="font-bold text-foreground">{translate(state.locale, achievement.title)}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, achievement.description)}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Flame size={18} className="text-strategy-red" />{translate(state.locale, "Streak Milestones")}</CardTitle></CardHeader>
-            <CardContent className="grid gap-2">
-              {streakMilestones.map((milestone) => {
-                const unlocked = state.streak >= milestone.days;
-                return (
-                  <div key={milestone.days} className={cn("rounded-md border p-3", unlocked ? "border-strategy-red/60 bg-strategy-red/10" : "border-border bg-muted/30") }>
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-bold text-foreground">{translate(state.locale, milestone.title)}</p>
-                      <span className="text-xs font-black text-muted-foreground">{milestone.days}d</span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{translate(state.locale, milestone.description)}</p>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-          <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Languages size={18} className="text-primary" />{translate(state.locale, "Language")}</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {locales.map((locale) => (
@@ -110,6 +82,13 @@ export default function ProfilePage() {
                   {!state.unlockedTreeThemeIds.includes(theme.id) && theme.unlock.rewardSource ? <p className="mt-2 text-[11px] font-semibold text-primary">{translate(state.locale, "Unlock:")} {translate(state.locale, theme.unlock.rewardSource)}</p> : null}
                 </button>
               ))}
+            </CardContent>
+          </Card>
+          <Card className="border-destructive/35">
+            <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle size={18} className="text-destructive" />{translate(state.locale, "Reset local progress")}</CardTitle></CardHeader>
+            <CardContent className="grid gap-3">
+              <p className="text-sm leading-6 text-muted-foreground">{translate(state.locale, "This deletes local onboarding, missions, attempts, focus objects, XP, Research, Insight, awards and statistics on this device.")}</p>
+              {!resetArmed ? <Button variant="outline" onClick={() => setResetArmed(true)}><RotateCcw size={16} />{translate(state.locale, "I want to reset")}</Button> : <div className="grid gap-2 sm:grid-cols-2"><Button variant="outline" className="border-destructive text-destructive hover:bg-destructive/10" onClick={() => { state.resetLocalProgress(); window.location.href = "/"; }}><RotateCcw size={16} />{translate(state.locale, "Confirm reset")}</Button><Button variant="outline" onClick={() => setResetArmed(false)}>{translate(state.locale, "Cancel")}</Button></div>}
             </CardContent>
           </Card>
         </div>

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { lifeEras } from "@/lib/eras";
 import { technologies, categoryColors, categoryLabels } from "@/lib/life-tree";
-import { getMissionDefinition, getTechnologyMission, getTechnologyTarget, hasRequiredMissionAnswers } from "@/lib/missions";
+import { getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "@/lib/missions";
+import { completedBranchCategories, completedPracticeAttempts, validateMissionAnswers } from "@/lib/mission-rules";
 import { getTechnologyLockReasons } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
 import type { LifeCategory, LifeTechnology, MissionAnswer, MissionInput, TechStatus } from "@/lib/types";
@@ -198,9 +199,21 @@ function MissionInputControl({ input, value, onChange, otherLabel }: { input: Mi
       {input.allowCustomChoice ? <input className="h-10 rounded-md border border-border bg-background/60 px-3 text-xs outline-none focus:border-primary" placeholder={otherLabel} value={typeof value === "string" && !choices.some((choice) => choice.id === value) ? value : ""} onChange={(event) => onChange(event.target.value)} /> : null}
     </div>
   );
+  if (input.type === "multiChoice" || input.type === "checklist") {
+    const selected = Array.isArray(value) ? value : [];
+    return (
+      <div className="grid gap-2">
+        {choices.map((choice) => {
+          const active = selected.includes(choice.id);
+          return <button key={choice.id} type="button" className={cn("flex min-h-10 items-start gap-2 rounded-md border p-2.5 text-left text-xs transition", active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-background/45 text-muted-foreground")} onClick={() => onChange(active ? selected.filter((id) => id !== choice.id) : [...selected, choice.id])}><span className={cn("mt-0.5 grid size-4 shrink-0 place-items-center rounded border", active ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{active ? <Check size={11} /> : null}</span><span><span className="font-bold">{choice.label}</span>{choice.description ? <span className="mt-1 block">{choice.description}</span> : null}</span></button>;
+        })}
+      </div>
+    );
+  }
   if (input.type === "rating") return <div className="grid grid-cols-5 gap-2">{Array.from({ length: (input.max ?? 5) - (input.min ?? 1) + 1 }, (_, index) => index + (input.min ?? 1)).map((rating) => <button key={rating} type="button" className={cn("min-h-10 rounded-md border text-sm font-black", value === rating ? "border-primary bg-primary/15 text-primary" : "border-border bg-background/45 text-muted-foreground")} onClick={() => onChange(rating)}>{rating}</button>)}</div>;
   if (input.type === "confirmation") return <button type="button" className={cn("flex min-h-11 w-full items-center gap-3 rounded-md border p-3 text-left text-xs", value === true ? "border-primary bg-primary/10 text-foreground" : "border-border bg-background/45 text-muted-foreground")} onClick={() => onChange(value !== true)}><span className={cn("grid size-5 shrink-0 place-items-center rounded border", value === true ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{value === true ? <Check size={13} /> : null}</span>{input.label}</button>;
-  return <input type={input.type === "number" ? "number" : input.type === "dateOrTime" ? "datetime-local" : input.type === "link" ? "url" : "text"} className="h-10 w-full rounded-md border border-border bg-background/60 px-3 text-xs outline-none focus:border-primary" placeholder={input.placeholder ?? input.example} value={typeof value === "string" || typeof value === "number" ? value : ""} onChange={(event) => onChange(input.type === "number" ? Number(event.target.value) : event.target.value)} />;
+  if (input.type === "text") return <textarea className="min-h-20 w-full rounded-md border border-border bg-background/60 px-3 py-2 text-xs outline-none focus:border-primary" placeholder={input.placeholder ?? input.example} value={typeof value === "string" ? value : ""} onChange={(event) => onChange(event.target.value)} />;
+  return <input type={input.type === "number" ? "number" : input.type === "dateOrTime" ? "datetime-local" : input.type === "date" ? "date" : input.type === "time" ? "time" : input.type === "link" ? "url" : "text"} className="h-10 w-full rounded-md border border-border bg-background/60 px-3 text-xs outline-none focus:border-primary" placeholder={input.placeholder ?? input.example} value={typeof value === "string" || typeof value === "number" ? value : ""} onChange={(event) => input.type === "number" ? onChange(event.target.value === "" ? "" : Number(event.target.value)) : onChange(event.target.value)} />;
 }
 
 function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAnchor; technology: LifeTechnology; now: number; onClose: () => void }) {
@@ -215,6 +228,8 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const locale = useLifeStore((state) => state.locale);
   const activeAttemptId = useLifeStore((state) => state.activeMissionAttemptId);
   const activeAttempt = useLifeStore((state) => state.missionAttempts.find((attempt) => attempt.id === state.activeMissionAttemptId && attempt.technologyId === technology.id));
+  const allAttempts = useLifeStore((state) => state.missionAttempts);
+  const focusObjects = useLifeStore((state) => state.focusObjects);
   const focusObject = useLifeStore((state) => state.focusObjects.find((item) => item.category === technology.category));
   const setMissionAnswer = useLifeStore((state) => state.setMissionAnswer);
   const localizedTechnology = localizeTechnology(technology, locale);
@@ -230,7 +245,17 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const cooldownRemaining = runtime?.cooldownUntil ? Math.max(0, Math.floor((runtime.cooldownUntil - now) / 1000)) : 0;
   const globalCooldownRemaining = globalMissionCooldownUntil ? Math.max(0, Math.floor((globalMissionCooldownUntil - now) / 1000)) : 0;
   const anotherMissionActive = Object.entries(technologyRuntime).some(([id, item]) => id !== technology.id && item.status === "active");
-  const answersReady = activeAttempt ? hasRequiredMissionAnswers(definition, activeAttempt.answers) : false;
+  const trialBranchChoices = completedBranchCategories({ missionAttempts: allAttempts, completedTechnologyIds: completedIds }, technologies).map((category) => ({ id: category, label: translate(locale, categoryLabels[category]) }));
+  const trialPracticeChoices = completedPracticeAttempts({ missionAttempts: allAttempts }).slice(-12).map((attempt) => {
+    const item = technologies.find((candidate) => candidate.id === attempt.technologyId);
+    return { id: attempt.id, label: item ? localizeTechnology(item, locale).title : attempt.technologyId, description: attempt.evidence?.summary };
+  });
+  const effectiveDefinition = technology.id === "awakening-trial" ? {
+    ...definition,
+    inputSchema: definition.inputSchema.map((input) => input.id === "reviewed-branches" ? { ...input, choices: trialBranchChoices } : input.id === "carried-practices" ? { ...input, choices: trialPracticeChoices } : input)
+  } : definition;
+  const validation = activeAttempt ? validateMissionAnswers(effectiveDefinition, activeAttempt.answers) : { valid: false, errors: {} };
+  const answersReady = validation.valid;
   const canComplete = runtime?.status === "active" && remainingSeconds === 0 && answersReady;
   const nextUnlocks = technology.unlocks.map((id) => {
     const item = technologies.find((candidate) => candidate.id === id);
@@ -238,7 +263,8 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   }).filter(Boolean);
   const color = categoryColors[technology.category];
   const researchReward = technology.rewards.researchPoints?.[technology.category] ?? 0;
-  const futureRewards = [technology.rewards.badge && `${translate(locale, "Badge")}: ${technology.rewards.badge}`, technology.rewards.title && `${translate(locale, "Title")}: ${technology.rewards.title}`, technology.rewards.themeUnlock && `${translate(locale, "Theme")}: ${technology.rewards.themeUnlock}`].filter(Boolean);
+  const showSpecialRewards = technology.type === "challenge" || technology.type === "milestone" || technology.id === "awakening-trial";
+  const futureRewards = showSpecialRewards ? [technology.rewards.badge && `${translate(locale, "Badge")}: ${technology.rewards.badge}`, technology.rewards.title && `${translate(locale, "Title")}: ${technology.rewards.title}`, technology.rewards.themeUnlock && `${translate(locale, "Theme")}: ${technology.rewards.themeUnlock}`].filter(Boolean) : [];
 
   return (
     <aside
@@ -268,27 +294,30 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
 
       <div className="mt-3 rounded-md border border-border bg-muted/35 p-3">
         <p className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-primary"><Sparkles size={14} /> {translate(locale, "What do I do now?")}</p>
-        <p className="font-black text-foreground">{definition.actionTitle}</p>
+        <p className="font-black text-foreground">{effectiveDefinition.actionTitle}</p>
       </div>
 
       <div className="mt-3 rounded-md border border-primary/25 bg-primary/5 p-3">
         <p className="text-[10px] font-black uppercase tracking-wide text-primary">{translate(locale, "Concrete result")}</p>
-        <p className="mt-1 text-sm font-bold text-foreground">{definition.concreteOutcome}</p>
-        {definition.recommendedChoice ? <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">{translate(locale, "Recommended")}:</strong> {definition.recommendedChoice}</p> : null}
-        {definition.exampleResult ? <p className="mt-1 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">{translate(locale, "Example")}:</strong> {definition.exampleResult}</p> : null}
+        <p className="mt-1 text-sm font-bold text-foreground">{effectiveDefinition.concreteOutcome}</p>
+        {effectiveDefinition.recommendedChoice ? <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">{translate(locale, "Recommended")}:</strong> {effectiveDefinition.recommendedChoice}</p> : null}
+        {effectiveDefinition.exampleResult ? <p className="mt-1 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">{translate(locale, "Example")}:</strong> {effectiveDefinition.exampleResult}</p> : null}
       </div>
+
+      {technology.id === "awakening-trial" ? <div className="mt-3 rounded-md border border-border bg-background/45 p-3 text-xs leading-5 text-muted-foreground"><p className="font-black uppercase tracking-wide text-primary">{translate(locale, "Chapter evidence")}</p><p className="mt-1">{translate(locale, "Completed branch results")}: {trialBranchChoices.length}/4</p><p>{translate(locale, "Saved practices")}: {trialPracticeChoices.length}</p><p>{translate(locale, "Focus objects")}: {focusObjects.length}</p></div> : null}
 
       {status === "available" && !anotherMissionActive && globalCooldownRemaining <= 0 && cooldownRemaining <= 0 ? <Button className="mt-3 w-full" onClick={() => startTechnologyMission(technology.id)}><Play size={16} />{translate(locale, "Start Mission")}</Button> : null}
 
       {runtime?.status === "active" ? <div className="mt-3 rounded-md border border-primary/35 bg-primary/10 p-3"><p className="text-xs font-bold text-muted-foreground">{translate(locale, "Research timer:")}</p><p className="mt-1 text-xl font-black text-primary">{formatDuration(elapsedSeconds)} / {formatDuration(mission.minDurationSeconds)}</p></div> : null}
 
-      {runtime?.status === "active" && definition.inputSchema.length ? (
+      {runtime?.status === "active" && effectiveDefinition.inputSchema.length ? (
         <div className="mt-3 grid gap-3 rounded-md border border-border bg-background/55 p-3">
           <div><p className="text-xs font-black uppercase tracking-wide text-primary">{translate(locale, "Save the result")}</p><p className="mt-1 text-xs text-muted-foreground">{translate(locale, "Required answers stay in Habidoo and become part of this mission attempt.")}</p></div>
-          {definition.inputSchema.map((input) => (
+          {effectiveDefinition.inputSchema.map((input) => (
             <label key={input.id} className="grid gap-2 text-xs font-bold text-foreground">
               {input.type === "confirmation" ? null : <span>{input.label}{input.required ? " *" : ""}</span>}
               <MissionInputControl input={input} value={activeAttempt?.answers[input.id]} otherLabel={translate(locale, "Other option")} onChange={(value) => activeAttemptId && setMissionAnswer(activeAttemptId, input.id, value)} />
+              {validation.errors[input.id] ? <span className="font-normal text-destructive">{translate(locale, validation.errors[input.id])}</span> : null}
               {input.helpText ? <span className="font-normal text-muted-foreground">{input.helpText}</span> : null}
             </label>
           ))}
@@ -329,15 +358,11 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
             <p className="mt-1 text-[10px] text-muted-foreground">{translate(locale, "Global")} {translate(locale, mission.globalCooldownType ?? "standard")}</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">XP</p><p className="mt-1 font-black text-foreground">+{technology.rewards.xp}</p></div>
           <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">{translate(locale, "Research")}</p><p className="mt-1 font-black text-foreground">+{researchReward}</p></div>
-          <div className="rounded-md border border-border bg-muted/35 p-3"><p className="text-[10px] font-black uppercase text-muted-foreground">{translate(locale, "Insight")}</p><p className="mt-1 font-black text-foreground">+{technology.rewards.insightPoints ?? 0}</p></div>
         </div>
-        <div className="rounded-md border border-border bg-muted/35 p-3 text-xs">
-          <p className="font-black uppercase tracking-wide text-muted-foreground">{translate(locale, "Future reward")}</p>
-          <p className="mt-1 leading-5 text-foreground">{futureRewards.length ? futureRewards.join(" · ") : translate(locale, "Cosmetic reward slot prepared")}</p>
-        </div>
+        {futureRewards.length ? <div className="rounded-md border border-border bg-muted/35 p-3 text-xs"><p className="font-black uppercase tracking-wide text-muted-foreground">{translate(locale, "Special reward")}</p><p className="mt-1 leading-5 text-foreground">{futureRewards.join(" · ")}</p></div> : null}
       </div>
       </details>
 
@@ -422,8 +447,8 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
     if (!initialTechnologyId || initialFocusDoneRef.current) return;
     const technology = technologies.find((item) => item.id === initialTechnologyId);
     if (!technology) return;
-    initialFocusDoneRef.current = true;
     const frame = window.requestAnimationFrame(() => {
+      initialFocusDoneRef.current = true;
       setReturnView({ zoom: overviewZoom, pan: { x: 0, y: 0 } });
       focusTechnology(technology);
     });

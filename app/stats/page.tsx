@@ -11,7 +11,12 @@ import { translate } from "@/lib/i18n";
 
 export default function StatsPage() {
   const state = useLifeStore();
-  const data = state.progressHistory.map((value, index) => ({ day: `D${index + 1}`, progress: value }));
+  const now = Date.now();
+  const data = Array.from({ length: 7 }, (_, index) => {
+    const start = now - (6 - index) * 24 * 60 * 60 * 1000;
+    const end = start + 24 * 60 * 60 * 1000;
+    return { day: `D${index + 1}`, progress: state.missionAttempts.filter((attempt) => attempt.completedAt && attempt.completedAt >= start && attempt.completedAt < end).length };
+  });
   const categories = categoryProgress(state);
 
   return (

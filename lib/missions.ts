@@ -38,12 +38,12 @@ const guidedRootMissions: Record<string, Partial<MissionDefinition>> = {
     actionTitle: "Set the project for this chapter",
     concreteOutcome: "One current project and its desired visible result are saved as your focus object.",
     recommendedChoice: "Choose the project already closest to a useful visible version.",
-    exampleResult: "Taskovo — a working registration screen ready to show.",
+    exampleResult: "My project — a working registration screen ready to show.",
     inputSchema: [
       { id: "project-type", type: "singleChoice", label: "What will you work on?", required: true, allowCustomChoice: true, choices: [
         { id: "site-app", label: "Website or application" }, { id: "document-process", label: "Work document or process" }, { id: "service-business", label: "Service or business idea" }, { id: "creative-project", label: "Creative project" }
       ] },
-      { id: "project-name", type: "shortText", label: "Project name", placeholder: "For example: Taskovo", required: true },
+      { id: "project-name", type: "shortText", label: "Project name", placeholder: "For example: my project", required: true },
       { id: "desired-result", type: "shortText", label: "What visible result should exist?", example: "A working registration screen ready to show.", required: true }
     ]
   },
@@ -158,6 +158,19 @@ const guidedRootMissions: Record<string, Partial<MissionDefinition>> = {
         { id: "article", label: "Article or text" }, { id: "design", label: "Design or illustration" }, { id: "video", label: "Video or photo" }, { id: "book", label: "Book or long-form work" }
       ] },
       { id: "principle", type: "shortText", label: "Which principle will you try in your own work?", placeholder: "One specific principle", required: true }
+    ]
+  },
+  "awakening-trial": {
+    actionTitle: "Complete the chapter review",
+    concreteOutcome: "A Chapter Summary is saved from real completed branches and practices.",
+    recommendedChoice: "Choose practices you actually completed and can repeat next week.",
+    exampleResult: "Three carried practices, one personal rule and one weekly standard saved.",
+    inputSchema: [
+      { id: "reviewed-branches", type: "checklist", label: "Reviewed completed branches", required: true },
+      { id: "carried-practices", type: "multiChoice", label: "Three practices to carry forward", required: true },
+      { id: "personal-rule", type: "text", label: "One personal rule for the next chapter", placeholder: "When X happens, I will do Y.", required: true },
+      { id: "weekly-standard", type: "text", label: "Realistic weekly standard", placeholder: "Minimum repeatable standard for a normal week.", required: true },
+      { id: "chapter-confirmed", type: "confirmation", label: "This summary is realistic enough to carry into the next chapter.", required: true }
     ]
   }
 };
