@@ -127,7 +127,15 @@ Supabase Auth dashboard setup:
   - RLS verified enabled on `profiles` and `user_game_state`.
   - Policies verified: own-row `SELECT`, `INSERT`, `UPDATE` via `(select auth.uid()) = user_id`.
   - Grants verified: no `anon` grants; `authenticated` has table-level `SELECT/INSERT` and column-level `UPDATE` only for allowed update columns.
-- Vercel production env was checked after Supabase setup and is currently empty. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, then redeploy.
+- Vercel production env added:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- Production redeploy after env setup:
+  - Deployment: `dpl_8NttKBTc5ymH2RS2v3eyr6CAFVXR`.
+  - Production URL: `https://lifequest-itq414tjo-kazi-s-projects3.vercel.app`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
 
 ## Active mission state repair — 2026-06-23
 
