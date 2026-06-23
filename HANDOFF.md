@@ -316,6 +316,14 @@ Supabase Auth dashboard setup:
   - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 39/39 passing.
   - `tsc --noEmit`: passing.
   - `next build`: passing.
+- Commit: `db925fd feat: add closed beta game shell`.
+- Pushed to GitHub `main`.
+- Production deployment:
+  - Deployment id: `dpl_mFcDmVkqYPZZQggq7wJ1gJDYWqRc`.
+  - Production URL: `https://lifequest-1wbp44hfn-kazi-s-projects3.vercel.app`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Fetch checks: `/`, `/icon.svg`, `/terms`, `/privacy`, `/rules`, `/rewards`, `/profile`, and `/tree` returned HTTP `200`.
 - Manual checks still recommended after deploy:
   - confirmed account -> Habid -> beta reward visible/equippable;
   - start/complete mission -> reward banner;
