@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, completeAttemptOnce, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, recommendUnlocked, sanitizeEvidenceAnswers, validateMissionAnswers } from "../lib/mission-rules.ts";
+import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, completeAttemptOnce, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, recommendUnlocked, reconcileActiveMissionState, sanitizeEvidenceAnswers, validateMissionAnswers } from "../lib/mission-rules.ts";
 import { technologies } from "../lib/life-tree.ts";
 import { localizeMissionDefinition } from "../lib/mission-i18n.ts";
 import { getMissionDefinition } from "../lib/missions.ts";
@@ -36,6 +36,38 @@ test("recommendation prefers primary category and focus context", () => {
 test("legacy persisted state gets safe mission collections", () => assert.deepEqual(normalizePersistedMissionData({ totalXp: 10 }), { missionAttempts: [], focusObjects: [] }));
 test("supported locale survives migration", () => assert.equal(migrateLocale("uk"), "uk"));
 test("old theme ids migrate to canonical ids", () => assert.equal(migrateThemeId("pixel-quest"), "arcade-codex"));
+
+test("active runtime without matching attempt repairs to ready", () => {
+  const repaired = reconcileActiveMissionState({
+    technologyRuntime: { "health-root": { progress: 0, status: "active", startedAt: 1000 } },
+    activeMissionAttemptId: "missing",
+    missionAttempts: []
+  });
+  assert.equal(repaired.activeMissionAttemptId, undefined);
+  assert.equal(repaired.technologyRuntime["health-root"].status, "ready");
+  assert.equal(repaired.technologyRuntime["health-root"].startedAt, undefined);
+});
+
+test("valid active runtime with matching attempt is preserved", () => {
+  const repaired = reconcileActiveMissionState({
+    technologyRuntime: { "health-root": { progress: 0, status: "active", startedAt: 1000 } },
+    activeMissionAttemptId: "attempt-1",
+    missionAttempts: [{ ...attempt, id: "attempt-1", technologyId: "health-root" }]
+  });
+  assert.equal(repaired.activeMissionAttemptId, "attempt-1");
+  assert.equal(repaired.technologyRuntime["health-root"].status, "active");
+  assert.equal(repaired.technologyRuntime["health-root"].startedAt, 1000);
+});
+
+test("active attempt for another technology repairs active runtime to ready", () => {
+  const repaired = reconcileActiveMissionState({
+    technologyRuntime: { "health-root": { progress: 0, status: "active", startedAt: 1000 } },
+    activeMissionAttemptId: "attempt-1",
+    missionAttempts: [{ ...attempt, id: "attempt-1", technologyId: "mind-root" }]
+  });
+  assert.equal(repaired.activeMissionAttemptId, undefined);
+  assert.equal(repaired.technologyRuntime["health-root"].status, "ready");
+});
 
 test("validation rejects bad numbers, invalid choices, blank text and bad links", () => {
   const strict = { ...definition, inputSchema: [
@@ -91,6 +123,13 @@ test("reward placeholders are absent from mission panel UI", () => {
   assert.equal(panel.includes("Future reward"), false);
   assert.equal(panel.includes("Cosmetic reward slot prepared"), false);
   assert.equal(panel.includes("Insight\")}</p><p className=\"mt-1 font-black text-foreground\">+{technology.rewards.insightPoints ?? 0}"), false);
+});
+
+test("mission panel has a recovery state for broken active attempts", () => {
+  const panel = readFileSync("components/life-tree.tsx", "utf8");
+  assert.equal(panel.includes("Mission state needs repair"), true);
+  assert.equal(panel.includes("Reset active mission"), true);
+  assert.equal(panel.includes("missionNeedsRepair"), true);
 });
 
 test("the first mission after each root is guided", () => {

@@ -166,3 +166,34 @@ export function normalizePersistedMissionData(value: unknown) {
     focusObjects: Array.isArray(persisted.focusObjects) ? persisted.focusObjects : []
   };
 }
+
+function resetActiveRuntime(runtime: TechnologyRuntime): TechnologyRuntime {
+  const { startedAt: _startedAt, ...rest } = runtime;
+  return { ...rest, status: "ready" };
+}
+
+export function reconcileActiveMissionState(options: { technologyRuntime: Record<string, TechnologyRuntime>; activeMissionAttemptId?: string; missionAttempts: MissionAttempt[] }) {
+  const activeRuntimeIds = Object.entries(options.technologyRuntime)
+    .filter(([, runtime]) => runtime.status === "active")
+    .map(([technologyId]) => technologyId);
+  if (activeRuntimeIds.length === 0) return { technologyRuntime: options.technologyRuntime, activeMissionAttemptId: undefined };
+
+  const activeAttempt = options.activeMissionAttemptId
+    ? options.missionAttempts.find((attempt) => attempt.id === options.activeMissionAttemptId)
+    : undefined;
+  const validActiveTechnologyId = activeAttempt && activeRuntimeIds.includes(activeAttempt.technologyId)
+    ? activeAttempt.technologyId
+    : undefined;
+
+  const technologyRuntime = { ...options.technologyRuntime };
+  activeRuntimeIds.forEach((technologyId) => {
+    if (technologyId !== validActiveTechnologyId) {
+      technologyRuntime[technologyId] = resetActiveRuntime(technologyRuntime[technologyId]);
+    }
+  });
+
+  return {
+    technologyRuntime,
+    activeMissionAttemptId: validActiveTechnologyId ? options.activeMissionAttemptId : undefined
+  };
+}

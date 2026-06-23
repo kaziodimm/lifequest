@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent, WheelEvent } from "react";
-import { Check, ChevronLeft, ChevronRight, Clock3, LocateFixed, Lock, Play, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clock3, LocateFixed, Lock, Play, RotateCcw, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
 import { TechnologyGlyph } from "@/components/technology-glyph";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -221,6 +221,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const completedIds = useLifeStore((state) => state.completedTechnologyIds);
   const startTechnologyMission = useLifeStore((state) => state.startTechnologyMission);
   const completeTechnologyMission = useLifeStore((state) => state.completeTechnologyMission);
+  const resetBrokenActiveMission = useLifeStore((state) => state.resetBrokenActiveMission);
   const technologyRuntime = useLifeStore((state) => state.technologyRuntime);
   const globalMissionCooldownUntil = useLifeStore((state) => state.globalMissionCooldownUntil);
   const totalXp = useLifeStore((state) => state.totalXp);
@@ -255,8 +256,9 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
     inputSchema: definition.inputSchema.map((input) => input.id === "reviewed-branches" ? { ...input, choices: trialBranchChoices } : input.id === "carried-practices" ? { ...input, choices: trialPracticeChoices } : input)
   } : definition;
   const validation = activeAttempt ? validateMissionAnswers(effectiveDefinition, activeAttempt.answers) : { valid: false, errors: {} };
+  const missionNeedsRepair = runtime?.status === "active" && !activeAttempt;
   const answersReady = validation.valid;
-  const canComplete = runtime?.status === "active" && remainingSeconds === 0 && answersReady;
+  const canComplete = runtime?.status === "active" && !missionNeedsRepair && remainingSeconds === 0 && answersReady;
   const nextUnlocks = technology.unlocks.map((id) => {
     const item = technologies.find((candidate) => candidate.id === id);
     return item ? localizeTechnology(item, locale).title : undefined;
@@ -308,9 +310,17 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
 
       {status === "available" && !anotherMissionActive && globalCooldownRemaining <= 0 && cooldownRemaining <= 0 ? <Button className="mt-3 w-full" onClick={() => startTechnologyMission(technology.id)}><Play size={16} />{translate(locale, "Start Mission")}</Button> : null}
 
-      {runtime?.status === "active" ? <div className="mt-3 rounded-md border border-primary/35 bg-primary/10 p-3"><p className="text-xs font-bold text-muted-foreground">{translate(locale, "Research timer:")}</p><p className="mt-1 text-xl font-black text-primary">{formatDuration(elapsedSeconds)} / {formatDuration(mission.minDurationSeconds)}</p></div> : null}
+      {runtime?.status === "active" && !missionNeedsRepair ? <div className="mt-3 rounded-md border border-primary/35 bg-primary/10 p-3"><p className="text-xs font-bold text-muted-foreground">{translate(locale, "Research timer:")}</p><p className="mt-1 text-xl font-black text-primary">{formatDuration(elapsedSeconds)} / {formatDuration(mission.minDurationSeconds)}</p></div> : null}
 
-      {runtime?.status === "active" && effectiveDefinition.inputSchema.length ? (
+      {missionNeedsRepair ? (
+        <div className="mt-3 rounded-md border border-destructive/35 bg-destructive/10 p-3">
+          <p className="text-xs font-black uppercase tracking-wide text-destructive">{translate(locale, "Mission state needs repair")}</p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">{translate(locale, "This mission is marked active, but its saved attempt is missing. Reset only this mission and start it again.")}</p>
+          <Button className="mt-3 w-full" variant="outline" onClick={() => resetBrokenActiveMission(technology.id)}>
+            <RotateCcw size={16} /> {translate(locale, "Reset active mission")}
+          </Button>
+        </div>
+      ) : runtime?.status === "active" && effectiveDefinition.inputSchema.length ? (
         <div className="mt-3 grid gap-3 rounded-md border border-border bg-background/55 p-3">
           <div><p className="text-xs font-black uppercase tracking-wide text-primary">{translate(locale, "Save the result")}</p><p className="mt-1 text-xs text-muted-foreground">{translate(locale, "Required answers stay in Habidoo and become part of this mission attempt.")}</p></div>
           {effectiveDefinition.inputSchema.map((input) => (
@@ -324,7 +334,7 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
         </div>
       ) : null}
 
-      {runtime?.status === "active" ? <Button className="mt-3 w-full" disabled={!canComplete} onClick={() => completeTechnologyMission(technology.id)}><Check size={16} />{canComplete ? translate(locale, "Complete Mission") : remainingSeconds > 0 ? `${translate(locale, "Keep going")} ${formatDuration(remainingSeconds)}` : translate(locale, "Complete required answers")}</Button> : null}
+      {runtime?.status === "active" && !missionNeedsRepair ? <Button className="mt-3 w-full" disabled={!canComplete} onClick={() => completeTechnologyMission(technology.id)}><Check size={16} />{canComplete ? translate(locale, "Complete Mission") : remainingSeconds > 0 ? `${translate(locale, "Keep going")} ${formatDuration(remainingSeconds)}` : translate(locale, "Complete required answers")}</Button> : null}
 
       <details className="mt-4 rounded-md border border-border bg-background/35 p-3">
         <summary className="cursor-pointer text-xs font-black uppercase tracking-wide text-muted-foreground">{translate(locale, "Details")}</summary>

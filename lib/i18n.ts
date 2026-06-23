@@ -412,6 +412,24 @@ const editorialOverrides: Partial<Record<Locale, Record<string, string>>> = {
   }
 };
 
+Object.assign(editorialOverrides.ru ??= {}, {
+  "Mission state needs repair": "Состояние миссии нужно восстановить",
+  "This mission is marked active, but its saved attempt is missing. Reset only this mission and start it again.": "Эта миссия отмечена активной, но сохранённая попытка отсутствует. Сбросьте только эту миссию и начните её заново.",
+  "Reset active mission": "Сбросить активную миссию"
+});
+
+Object.assign(editorialOverrides.cs ??= {}, {
+  "Mission state needs repair": "Stav mise je potřeba opravit",
+  "This mission is marked active, but its saved attempt is missing. Reset only this mission and start it again.": "Tato mise je označená jako aktivní, ale uložený pokus chybí. Resetujte jen tuto misi a spusťte ji znovu.",
+  "Reset active mission": "Resetovat aktivní misi"
+});
+
+Object.assign(editorialOverrides.uk ??= {}, {
+  "Mission state needs repair": "Стан місії потрібно відновити",
+  "This mission is marked active, but its saved attempt is missing. Reset only this mission and start it again.": "Ця місія позначена активною, але збережена спроба відсутня. Скиньте лише цю місію і почніть її знову.",
+  "Reset active mission": "Скинути активну місію"
+});
+
 export function translate(locale: Locale, text: string) {
   const override = editorialOverrides[locale]?.[text];
   if (override) return override;

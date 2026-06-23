@@ -233,7 +233,9 @@ export type PlayerState = {
   activeMissionAttemptId?: string;
   missionAttempts: MissionAttempt[];
   focusObjects: UserFocusObject[];
+  /** @deprecated Legacy bridge only. MVP progress is technologyRuntime + missionAttempts + focusObjects + chapterSummaries. */
   dailyMissions: DailyMission[];
+  /** @deprecated Accepted from older persisted states only; not an active progression model. */
   planner: PlannerBlock[];
   achievements: Achievement[];
   progressHistory: number[];

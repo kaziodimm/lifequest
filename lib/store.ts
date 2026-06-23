@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
 import { getGlobalCooldownSeconds, getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "./missions";
 import { getTechnologyLockReasons } from "./progression";
-import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, sanitizeEvidenceAnswers } from "./mission-rules";
+import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, reconcileActiveMissionState, sanitizeEvidenceAnswers } from "./mission-rules";
 import { ChapterSummary, DailyMission, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
 
 const emptyResearchPoints: ResearchPointBalances = {
@@ -143,7 +143,7 @@ const initialState: PlayerState = {
   activeMissionAttemptId: undefined,
   missionAttempts: [],
   focusObjects: [],
-  dailyMissions: initialMissions,
+  dailyMissions: [],
   planner: [],
   achievements: [
     { id: "first-command", title: "First Command", description: "Complete the first daily mission.", unlocked: false },
@@ -196,21 +196,17 @@ function normalizeTechnologyRuntime(persisted: Partial<PlayerState> | undefined)
 
 function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerState {
   const normalizedMissionData = normalizePersistedMissionData(persisted);
-  const missions = (persisted?.dailyMissions ?? initialState.dailyMissions).map((mission) => {
-    const normalized = normalizeMission(mission);
-    return normalized.status === "active" ? { ...normalized, status: "ready" as const, startedAt: undefined } : normalized;
-  });
+  const missionAttempts = (normalizedMissionData.missionAttempts as PlayerState["missionAttempts"]).filter((attempt) => attempt?.id && attempt?.missionId && attempt?.technologyId && attempt?.startedAt);
+  const focusObjects = (normalizedMissionData.focusObjects as PlayerState["focusObjects"]).filter((object) => object?.id && object?.type && object?.category && object?.name);
   const savedCompletedIds = persisted?.completedTechnologyIds;
   const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
   const validIds = new Set(technologies.map((technology) => technology.id));
   const hasRemovedTechnology = savedCompletedIds?.some((id) => !validIds.has(id));
 
-  const technologyRuntime = normalizeTechnologyRuntime(persisted);
-  let activeMissionClaimed = false;
-  Object.keys(technologyRuntime).forEach((technologyId) => {
-    if (technologyRuntime[technologyId].status !== "active") return;
-    if (activeMissionClaimed) technologyRuntime[technologyId] = { ...technologyRuntime[technologyId], status: "ready", startedAt: undefined };
-    else activeMissionClaimed = true;
+  const activeMissionState = reconcileActiveMissionState({
+    technologyRuntime: normalizeTechnologyRuntime(persisted),
+    activeMissionAttemptId: persisted?.activeMissionAttemptId,
+    missionAttempts
   });
 
   return {
@@ -231,11 +227,11 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     earnedTitles: persisted?.earnedTitles ?? [],
     unlockedNodeFrames: persisted?.unlockedNodeFrames ?? [],
     unlockedBackgroundEffects: persisted?.unlockedBackgroundEffects ?? [],
-    activeMissionAttemptId: persisted?.activeMissionAttemptId,
-    missionAttempts: (normalizedMissionData.missionAttempts as PlayerState["missionAttempts"]).filter((attempt) => attempt?.id && attempt?.missionId && attempt?.technologyId && attempt?.startedAt),
-    focusObjects: (normalizedMissionData.focusObjects as PlayerState["focusObjects"]).filter((object) => object?.id && object?.type && object?.category && object?.name),
-    technologyRuntime,
-    dailyMissions: missions,
+    activeMissionAttemptId: activeMissionState.activeMissionAttemptId,
+    missionAttempts,
+    focusObjects,
+    technologyRuntime: activeMissionState.technologyRuntime,
+    dailyMissions: [],
     planner: [],
     achievements: persisted?.achievements ?? initialState.achievements,
     progressHistory: persisted?.progressHistory ?? initialState.progressHistory,
@@ -255,6 +251,7 @@ type LifeStore = PlayerState & {
   setMissionAnswer: (attemptId: string, inputId: string, value: MissionAnswer) => void;
   saveFocusObject: (focusObject: UserFocusObject) => void;
   unlockTechnology: (technologyId: string) => void;
+  resetBrokenActiveMission: (technologyId: string) => void;
   resetLocalProgress: () => void;
 };
 
@@ -426,6 +423,23 @@ export const useLifeStore = create<LifeStore>()(
       },
       unlockTechnology(technologyId) {
         get().startTechnologyMission(technologyId);
+      },
+      resetBrokenActiveMission(technologyId) {
+        const state = get();
+        const runtime = state.technologyRuntime[technologyId];
+        if (runtime?.status !== "active") return;
+        const activeAttempt = state.activeMissionAttemptId
+          ? state.missionAttempts.find((attempt) => attempt.id === state.activeMissionAttemptId)
+          : undefined;
+        if (activeAttempt?.technologyId === technologyId) return;
+        const { startedAt: _startedAt, ...rest } = runtime;
+        set({
+          activeMissionAttemptId: undefined,
+          technologyRuntime: {
+            ...state.technologyRuntime,
+            [technologyId]: { ...rest, status: "ready" }
+          }
+        });
       },
       resetLocalProgress() {
         set({

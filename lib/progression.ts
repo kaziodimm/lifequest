@@ -22,10 +22,10 @@ export function levelFromXp(totalXp: number) {
 }
 
 export function dailyCompletionPercent(state: PlayerState) {
-  const missionCount = state.dailyMissions.length;
-  if (missionCount === 0) return 0;
-  const done = state.dailyMissions.filter((mission) => mission.completed).length;
-  return Math.round((done / missionCount) * 100);
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const completedToday = state.missionAttempts.filter((attempt) => attempt.completedAt && attempt.completedAt >= dayStart.getTime()).length;
+  return Math.min(100, completedToday * 25);
 }
 
 export function lifeScore(state: PlayerState) {
