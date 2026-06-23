@@ -35,6 +35,53 @@ const onboardingCopy: Record<Locale, { eyebrow: string; title: string; intro: st
   uk: { eyebrow: "Стратегічна гра життя", title: "Оберіть шлях. Почніть одну реальну місію.", intro: "Habidoo перетворює реальні дії на видимий прогрес Дерева життя.", language: "Оберіть мову", category: "Яку сферу покращити першою?", focus: "На чому зосередитися в цій главі?", next: "Продовжити", enter: "Перейти до Дерева життя", other: "Свій об’єкт фокусу" }
 };
 
+const preLoginCopy: Record<Locale, { eyebrow: string; title: string; intro: string; language: string; pillars: string[]; steps: string[]; visualTitle: string; visualSubtitle: string; promise: string }> = {
+  en: {
+    eyebrow: "Foundation Era",
+    title: "Turn self-improvement into a living progression system.",
+    intro: "Habidoo replaces scattered routines with guided missions, focus objects, visible progress and account-based sync. Your life tree grows only from real actions.",
+    language: "Language",
+    pillars: ["Guided missions instead of vague habits", "A Life Tree that shows what is unlocked next", "Stats, rewards and evidence tied to your account"],
+    steps: ["Create account", "Choose your first focus", "Complete real missions", "Watch progress become visible"],
+    visualTitle: "Life Tree begins here",
+    visualSubtitle: "Foundation Era connects identity, missions and measurable progress.",
+    promise: "No guest mode. Your progress belongs to your account from the start."
+  },
+  ru: {
+    eyebrow: "Эпоха основ",
+    title: "Преврати улучшение жизни в живую систему прогресса.",
+    intro: "Habidoo заменяет разрозненные привычки понятными миссиями, объектами фокуса, видимым прогрессом и аккаунтом, где всё сохраняется автоматически.",
+    language: "Язык",
+    pillars: ["Конкретные миссии вместо туманной рутины", "Дерево жизни показывает следующий шаг", "Статистика, награды и доказательства привязаны к аккаунту"],
+    steps: ["Создай аккаунт", "Выбери первый фокус", "Выполняй реальные миссии", "Смотри, как растёт прогресс"],
+    visualTitle: "Дерево жизни начинается здесь",
+    visualSubtitle: "Эпоха основ соединяет личность, миссии и измеримый прогресс.",
+    promise: "Без гостевого режима. Прогресс принадлежит аккаунту с самого начала."
+  },
+  cs: {
+    eyebrow: "Éra základů",
+    title: "Proměňte seberozvoj v živý systém postupu.",
+    intro: "Habidoo nahrazuje roztříštěné rutiny vedenými misemi, objekty soustředění, viditelným postupem a účtem, kde se vše automaticky ukládá.",
+    language: "Jazyk",
+    pillars: ["Konkrétní mise místo neurčitých návyků", "Strom života ukazuje další krok", "Statistiky, odměny a důkazy jsou spojené s účtem"],
+    steps: ["Vytvořte účet", "Zvolte první zaměření", "Plňte skutečné mise", "Sledujte viditelný postup"],
+    visualTitle: "Strom života začíná zde",
+    visualSubtitle: "Éra základů propojuje identitu, mise a měřitelný postup.",
+    promise: "Žádný hostovský režim. Postup patří k účtu od začátku."
+  },
+  uk: {
+    eyebrow: "Епоха основ",
+    title: "Перетвори саморозвиток на живу систему прогресу.",
+    intro: "Habidoo замінює розрізнені рутини керованими місіями, об’єктами фокусу, видимим прогресом і акаунтом, де все зберігається автоматично.",
+    language: "Мова",
+    pillars: ["Конкретні місії замість нечітких звичок", "Дерево життя показує наступний крок", "Статистика, нагороди й докази прив’язані до акаунта"],
+    steps: ["Створи акаунт", "Обери перший фокус", "Виконуй реальні місії", "Дивись, як зростає прогрес"],
+    visualTitle: "Дерево життя починається тут",
+    visualSubtitle: "Епоха основ поєднує особистість, місії та вимірюваний прогрес.",
+    promise: "Без гостьового режиму. Прогрес належить акаунту з самого початку."
+  }
+};
+
 const focusTypes: Record<LifeCategory, FocusObjectType> = { health: "healthRoutine", mind: "learningTopic", finance: "financialGoal", business: "project", career: "careerSkill", relationships: "relationship", creativity: "creativeMedium" };
 const desiredOutcomeCopy: Record<Locale, string> = { en: "Create one visible result in this chapter.", ru: "Создать один видимый результат в этой главе.", cs: "Vytvořit v této kapitole jeden viditelný výsledek.", uk: "Створити один видимий результат у цій главі." };
 const rootIds: Record<LifeCategory, string> = { health: "health-root", mind: "mind-root", finance: "finance-root", business: "business-root", career: "career-root", relationships: "relationships-root", creativity: "creativity-root" };
@@ -52,11 +99,15 @@ export default function HomePage() {
   const [focus, setFocus] = useState("");
   const finishingRef = useRef(false);
   const copy = onboardingCopy[locale];
+  const landing = preLoginCopy[locale];
 
   useEffect(() => {
     setHydrated(useLifeStore.persist.hasHydrated());
     return useLifeStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
+  useEffect(() => {
+    if (hydrated) setLocale(useLifeStore.getState().locale);
+  }, [hydrated]);
   useEffect(() => {
     if (!hydrated || auth.status !== "authenticated" || !auth.profileLoaded || finishingRef.current) return;
     if (!auth.hasProfile) {
@@ -72,18 +123,54 @@ export default function HomePage() {
   if (auth.status !== "authenticated") {
     return (
       <AppShell hideNavigation>
-        <div className="mx-auto grid min-h-[72vh] max-w-5xl items-center gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="mx-auto grid min-h-[78vh] max-w-6xl gap-6 py-4 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <section className="grid gap-5">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Life Strategy Game</p>
-            <h1 className="text-4xl font-black leading-tight text-foreground sm:text-5xl">Build your life like a living progression tree.</h1>
-            <p className="max-w-2xl text-base leading-7 text-muted-foreground">Habidoo turns real habits, missions, focus objects and progress into one account-based system. Create an account to enter your tree and keep progress synced.</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{landing.eyebrow}</p>
+              <div className="flex rounded-full border border-border bg-card/70 p-1">
+                {locales.map((item) => (
+                  <button key={item.id} type="button" onClick={() => { setLocale(item.id); setStoredLocale(item.id); }} className={cn("rounded-full px-3 py-1 text-xs font-black", locale === item.id ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{item.id.toUpperCase()}</button>
+                ))}
+              </div>
+            </div>
+            <h1 className="text-4xl font-black leading-tight text-foreground sm:text-6xl">{landing.title}</h1>
+            <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">{landing.intro}</p>
             <div className="grid gap-3 text-sm font-bold text-muted-foreground sm:grid-cols-3">
-              <div className="rounded-lg border border-border bg-card/70 p-4">Guided missions</div>
-              <div className="rounded-lg border border-border bg-card/70 p-4">Life tree progress</div>
-              <div className="rounded-lg border border-border bg-card/70 p-4">Stats and rewards</div>
+              {landing.pillars.map((pillar) => <div key={pillar} className="rounded-xl border border-border bg-card/75 p-4 shadow-sm">{pillar}</div>)}
+            </div>
+            <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
+              <p className="text-sm font-black text-foreground">{landing.promise}</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-4">
+                {landing.steps.map((stepItem, index) => <div key={stepItem} className="rounded-lg border border-border bg-background/45 p-3 text-xs font-bold text-muted-foreground"><span className="mr-2 text-primary">0{index + 1}</span>{stepItem}</div>)}
+              </div>
             </div>
           </section>
-          <CloudAccountPanel />
+          <aside className="grid gap-4">
+            <div className="relative overflow-hidden rounded-[2rem] border border-primary/25 bg-card/80 p-6 shadow-node">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(143,181,255,.22),transparent_34%),radial-gradient(circle_at_80%_70%,rgba(255,205,120,.14),transparent_30%)]" />
+              <div className="relative grid gap-5">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{landing.visualTitle}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{landing.visualSubtitle}</p>
+                </div>
+                <div className="relative mx-auto h-64 w-full max-w-sm">
+                  <div className="absolute left-1/2 top-8 h-44 w-px -translate-x-1/2 bg-primary/35" />
+                  <div className="absolute left-[24%] top-24 h-px w-[52%] bg-primary/35" />
+                  <div className="absolute left-[30%] top-36 h-px w-[40%] bg-primary/25" />
+                  {[
+                    ["Account", "left-1/2 top-2 -translate-x-1/2 border-primary/60 bg-primary/20"],
+                    ["Focus", "left-[8%] top-20 border-sky-400/50 bg-sky-400/10"],
+                    ["Mission", "right-[8%] top-20 border-amber-300/50 bg-amber-300/10"],
+                    ["Tree", "left-[22%] bottom-10 border-emerald-300/50 bg-emerald-300/10"],
+                    ["Stats", "right-[20%] bottom-10 border-violet-300/50 bg-violet-300/10"]
+                  ].map(([label, className]) => (
+                    <div key={label} className={cn("absolute grid size-20 place-items-center rounded-2xl border text-center text-xs font-black text-foreground shadow-node backdrop-blur", className)}>{label}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <CloudAccountPanel />
+          </aside>
         </div>
       </AppShell>
     );

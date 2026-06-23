@@ -168,6 +168,11 @@ Supabase Auth dashboard setup:
   - Alias: `https://www.habidoo.com`.
   - Deployment state: `READY`.
   - Vercel fetch checks: `/` returned HTTP `200`; `/tree` unauthenticated returned the gated `Preparing Habidoo...` shell.
+- Pre-login and post-Habid fix:
+  - `/` pre-login page now has language switching, richer product copy, Foundation Era visual, product steps, and account form.
+  - Fixed post-login/profile gate bug by dispatching and listening for `habidoo:account-profile-changed` after Habid creation.
+  - This prevents the app from bouncing the user back to Profile after Habid creation when clicking Tree/Missions/Stats.
+  - Verification: tests 35/35 passing, typecheck passing, Next production build passing.
 
 ## Active mission state repair — 2026-06-23
 

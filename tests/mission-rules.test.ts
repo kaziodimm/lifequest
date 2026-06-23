@@ -79,7 +79,7 @@ test("tool routes require authenticated account profile", () => {
   assert.equal(shell.includes("useAuthState"), true);
   assert.equal(shell.includes("auth.status !== \"authenticated\""), true);
   assert.equal(shell.includes("!auth.hasProfile"), true);
-  assert.equal(home.includes("Build your life like a living progression tree."), true);
+  assert.equal(home.includes("Turn self-improvement into a living progression system."), true);
   assert.equal(home.includes("<CloudAccountPanel />"), true);
 });
 

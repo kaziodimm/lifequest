@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export type AuthStatus = "loading" | "guest" | "unconfirmed" | "authenticated";
+export const accountProfileChangedEvent = "habidoo:account-profile-changed";
 
 export function isConfirmedUser(user: User | null) {
   return Boolean(user?.email_confirmed_at || user?.confirmed_at);
@@ -47,13 +48,21 @@ export function useAuthState() {
       return;
     }
     let cancelled = false;
-    setProfileLoaded(false);
-    supabase.from("profiles").select("user_id").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+    const client = supabase;
+    const currentUserId = user.id;
+    async function loadProfile() {
+      setProfileLoaded(false);
+      const { data } = await client.from("profiles").select("user_id").eq("user_id", currentUserId).maybeSingle();
       if (cancelled) return;
       setHasProfile(Boolean(data));
       setProfileLoaded(true);
-    });
-    return () => { cancelled = true; };
+    }
+    loadProfile();
+    window.addEventListener(accountProfileChangedEvent, loadProfile);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(accountProfileChangedEvent, loadProfile);
+    };
   }, [supabase, user]);
 
   const status: AuthStatus = !loaded ? "loading" : !user ? "guest" : isConfirmedUser(user) ? "authenticated" : "unconfirmed";

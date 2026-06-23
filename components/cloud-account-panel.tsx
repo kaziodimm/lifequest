@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createPlayerStateSnapshot, useLifeStore } from "@/lib/store";
+import { accountProfileChangedEvent } from "@/lib/auth-state";
 import type { Locale, PlayerState } from "@/lib/types";
 import { normalizeHabid, validateHabid } from "@/lib/habid";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -122,6 +123,7 @@ export function CloudAccountPanel() {
       return;
     }
     setProfile(data as ProfileRow);
+    window.dispatchEvent(new Event(accountProfileChangedEvent));
     const saved = await saveLocalProgress(user.id, true);
     setSyncEnabled(saved);
     if (saved) setMessage("Habid created. Your progress now syncs automatically.");
