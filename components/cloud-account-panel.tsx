@@ -35,6 +35,7 @@ export function CloudAccountPanel() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [cloudLoaded, setCloudLoaded] = useState(false);
+  const [syncEnabled, setSyncEnabled] = useState(false);
   const confirmed = Boolean(user?.email_confirmed_at || user?.confirmed_at);
   const habidValidation = validateHabid(habidInput);
   const passwordReady = password.length >= 8 && (authMode === "login" || password === passwordConfirm);
@@ -57,6 +58,7 @@ export function CloudAccountPanel() {
       setProfile(null);
       setCloudState(null);
       setCloudLoaded(false);
+      setSyncEnabled(false);
       return;
     }
     let cancelled = false;
@@ -71,11 +73,20 @@ export function CloudAccountPanel() {
       if (cancelled) return;
       setProfile((profileData as ProfileRow | null) ?? null);
       setCloudState((cloudData as CloudStateRow | null) ?? null);
+      setSyncEnabled(!cloudData);
       setCloudLoaded(true);
     }
     loadAccount();
     return () => { cancelled = true; };
   }, [confirmed, supabase, user]);
+
+  useEffect(() => {
+    if (!supabase || !user || !confirmed || !profile || !cloudLoaded || !syncEnabled) return;
+    const syncTimer = window.setTimeout(() => {
+      void saveLocalProgress(user.id, true);
+    }, 900);
+    return () => window.clearTimeout(syncTimer);
+  }, [cloudLoaded, confirmed, profile, state, supabase, syncEnabled, user]);
 
   async function submitAuth() {
     if (!supabase || !email.trim() || !passwordReady) return;
@@ -111,13 +122,15 @@ export function CloudAccountPanel() {
       return;
     }
     setProfile(data as ProfileRow);
-    await saveLocalProgress(user.id, true);
+    const saved = await saveLocalProgress(user.id, true);
+    setSyncEnabled(saved);
+    if (saved) setMessage("Habid created. Your progress now syncs automatically.");
     setBusy(false);
   }
 
   async function saveLocalProgress(userId = user?.id, silent = false) {
-    if (!supabase || !userId || !confirmed) return;
-    setBusy(true);
+    if (!supabase || !userId || !confirmed) return false;
+    if (!silent) setBusy(true);
     if (!silent) setMessage("");
     const snapshot = createPlayerStateSnapshot(useLifeStore.getState());
     const { data, error } = await supabase.from("user_game_state").upsert({
@@ -126,18 +139,20 @@ export function CloudAccountPanel() {
       state_version: snapshot.storeVersion,
       updated_at: new Date().toISOString()
     }, { onConflict: "user_id" }).select("user_id, state, state_version, updated_at").single();
-    setBusy(false);
+    if (!silent) setBusy(false);
     if (error) {
       if (!silent) setMessage(error.message);
-      return;
+      return false;
     }
     setCloudState(data as CloudStateRow);
-    setMessage(silent ? "Habid created and this device progress is saved to your account." : "This device progress is saved to your account.");
+    if (!silent) setMessage("This device progress is now used for your account.");
+    return true;
   }
 
   async function useCloudProgress() {
     if (!cloudState?.state) return;
     restoreCloudState(cloudState.state);
+    setSyncEnabled(true);
     setMessage("Account progress restored on this device.");
   }
 
@@ -149,6 +164,7 @@ export function CloudAccountPanel() {
     setProfile(null);
     setCloudState(null);
     setCloudLoaded(false);
+    setSyncEnabled(false);
     setBusy(false);
   }
 
@@ -209,17 +225,18 @@ export function CloudAccountPanel() {
               <p className="text-sm font-black text-foreground">@{profile.habid}</p>
               <p className="mt-1 text-xs text-muted-foreground">{user.email}</p>
             </div>
-            {cloudLoaded && cloudState ? (
+            {cloudLoaded && cloudState && !syncEnabled ? (
               <div className="grid gap-2 rounded-md border border-primary/25 bg-primary/5 p-3 text-sm">
                 <p className="font-bold text-foreground">Account progress found.</p>
                 <p className="text-xs text-muted-foreground">Updated {new Date(cloudState.updated_at).toLocaleString()}.</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <Button variant="outline" disabled={busy} onClick={useCloudProgress}>Use account progress</Button>
-                  <Button disabled={busy} onClick={() => saveLocalProgress()}><Save size={16} />Keep this device progress</Button>
+                  <Button disabled={busy} onClick={async () => { if (await saveLocalProgress()) setSyncEnabled(true); }}><Save size={16} />Keep this device progress</Button>
                 </div>
               </div>
             ) : null}
-            {cloudLoaded && !cloudState ? <Button disabled={busy} onClick={() => saveLocalProgress()}><Save size={16} />Save progress to account</Button> : null}
+            {cloudLoaded && !cloudState ? <div className="rounded-md border border-primary/25 bg-primary/5 p-3 text-sm font-bold text-foreground">Progress sync is active.</div> : null}
+            {cloudLoaded && cloudState && syncEnabled ? <div className="rounded-md border border-primary/25 bg-primary/5 p-3 text-sm font-bold text-foreground">Progress sync is active.</div> : null}
             <Button variant="outline" disabled={busy} onClick={signOut}><LogOut size={16} />Log out</Button>
           </>
         )}

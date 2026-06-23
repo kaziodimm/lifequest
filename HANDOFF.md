@@ -149,6 +149,11 @@ Supabase Auth dashboard setup:
   - Alias: `https://www.habidoo.com`.
   - Deployment state: `READY`.
   - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
+- Account autosync correction:
+  - Removed manual `Save progress to account` CTA.
+  - After Habid/profile creation, progress sync starts automatically.
+  - If account progress already exists on login, the user still chooses `Use account progress` or `Keep this device progress`; after that choice autosync starts.
+  - Verification: tests 34/34 passing, typecheck passing, Next production build passing.
 
 ## Active mission state repair — 2026-06-23
 

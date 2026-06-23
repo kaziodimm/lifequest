@@ -69,6 +69,8 @@ test("profile uses account wording instead of cloud-save-first wording", () => {
   assert.equal(panel.includes("Create account"), true);
   assert.equal(panel.includes("Log in"), true);
   assert.equal(panel.includes("Cloud save"), false);
+  assert.equal(panel.includes("Save progress to account"), false);
+  assert.equal(panel.includes("Progress sync is active."), true);
 });
 
 test("active runtime without matching attempt repairs to ready", () => {
