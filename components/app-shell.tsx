@@ -11,6 +11,7 @@ import { defaultTreeThemeId, type TreeThemeId } from "@/lib/tree-themes";
 import { applySiteTheme, readSiteTheme, siteThemeEvent } from "@/lib/site-theme";
 import { translate } from "@/lib/i18n";
 import { useLifeStore } from "@/lib/store";
+import { useAuthState } from "@/lib/auth-state";
 
 const nav = [
   { href: "/tree", label: "Tree", icon: GitBranch },
@@ -27,6 +28,7 @@ export function AppShell({ children, immersive = false, hideNavigation = false }
   const onboardingCompleted = useLifeStore((state) => state.onboardingCompleted);
   const [themeId, setThemeId] = useState<TreeThemeId>(defaultTreeThemeId);
   const [hydrated, setHydrated] = useState(false);
+  const auth = useAuthState();
 
   useEffect(() => {
     const saved = readSiteTheme();
@@ -47,12 +49,22 @@ export function AppShell({ children, immersive = false, hideNavigation = false }
   }, []);
 
   const protectedRoute = ["/tree", "/command", "/stats", "/profile", "/achievements"].includes(pathname);
+  const toolRoute = ["/tree", "/command", "/stats", "/achievements"].includes(pathname);
 
   useEffect(() => {
-    if (hydrated && protectedRoute && !onboardingCompleted) router.replace("/");
-  }, [hydrated, onboardingCompleted, protectedRoute, router]);
+    if (!hydrated || !protectedRoute || auth.status === "loading" || !auth.profileLoaded) return;
+    if (auth.status !== "authenticated") {
+      router.replace("/");
+      return;
+    }
+    if (toolRoute && !auth.hasProfile) {
+      router.replace("/profile");
+      return;
+    }
+    if (toolRoute && !onboardingCompleted) router.replace("/");
+  }, [auth.hasProfile, auth.profileLoaded, auth.status, hydrated, onboardingCompleted, protectedRoute, router, toolRoute]);
 
-  if (protectedRoute && (!hydrated || !onboardingCompleted)) {
+  if (protectedRoute && (!hydrated || auth.status === "loading" || !auth.profileLoaded || auth.status !== "authenticated" || (toolRoute && (!auth.hasProfile || !onboardingCompleted)))) {
     return <main className="app-theme-shell grid min-h-screen place-items-center p-6 text-sm font-bold text-muted-foreground" data-site-theme={themeId}>{translate(locale, "Preparing Habidoo...")}</main>;
   }
 

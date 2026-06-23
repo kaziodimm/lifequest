@@ -158,6 +158,12 @@ Supabase Auth dashboard setup:
   - Alias: `https://www.habidoo.com`.
   - Deployment state: `READY`.
   - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
+- Account-first access gate:
+  - Unauthenticated users no longer see Tree, Missions, Stats, Awards, or Profile.
+  - `/` is now a pre-login landing page with Habidoo positioning and account signup/login.
+  - Tool routes require a confirmed Supabase account, a Habid/profile row, and completed onboarding.
+  - Confirmed users without Habid/profile are routed to `/profile`.
+  - Verification: tests 35/35 passing, typecheck passing, Next production build passing.
 
 ## Active mission state repair — 2026-06-23
 

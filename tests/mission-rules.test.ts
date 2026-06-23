@@ -73,6 +73,16 @@ test("profile uses account wording instead of cloud-save-first wording", () => {
   assert.equal(panel.includes("Progress sync is active."), true);
 });
 
+test("tool routes require authenticated account profile", () => {
+  const shell = readFileSync("components/app-shell.tsx", "utf8");
+  const home = readFileSync("app/page.tsx", "utf8");
+  assert.equal(shell.includes("useAuthState"), true);
+  assert.equal(shell.includes("auth.status !== \"authenticated\""), true);
+  assert.equal(shell.includes("!auth.hasProfile"), true);
+  assert.equal(home.includes("Build your life like a living progression tree."), true);
+  assert.equal(home.includes("<CloudAccountPanel />"), true);
+});
+
 test("active runtime without matching attempt repairs to ready", () => {
   const repaired = reconcileActiveMissionState({
     technologyRuntime: { "health-root": { progress: 0, status: "active", startedAt: 1000 } },

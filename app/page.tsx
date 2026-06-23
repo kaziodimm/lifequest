@@ -4,8 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, GitBranch } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { CloudAccountPanel } from "@/components/cloud-account-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuthState } from "@/lib/auth-state";
 import { locales } from "@/lib/i18n";
 import { categoryColors } from "@/lib/life-tree";
 import { useLifeStore } from "@/lib/store";
@@ -42,6 +44,7 @@ export default function HomePage() {
   const onboardingCompleted = useLifeStore((state) => state.onboardingCompleted);
   const completeOnboarding = useLifeStore((state) => state.completeOnboarding);
   const setStoredLocale = useLifeStore((state) => state.setLocale);
+  const auth = useAuthState();
   const [hydrated, setHydrated] = useState(false);
   const [step, setStep] = useState(0);
   const [locale, setLocale] = useState<Locale>("en");
@@ -54,10 +57,37 @@ export default function HomePage() {
     setHydrated(useLifeStore.persist.hasHydrated());
     return useLifeStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
-  useEffect(() => { if (hydrated && onboardingCompleted && !finishingRef.current) router.replace("/tree"); }, [hydrated, onboardingCompleted, router]);
+  useEffect(() => {
+    if (!hydrated || auth.status !== "authenticated" || !auth.profileLoaded || finishingRef.current) return;
+    if (!auth.hasProfile) {
+      router.replace("/profile");
+      return;
+    }
+    if (onboardingCompleted) router.replace("/tree");
+  }, [auth.hasProfile, auth.profileLoaded, auth.status, hydrated, onboardingCompleted, router]);
   const suggestions = useMemo(() => category ? focusSuggestions[locale][category] : [], [category, locale]);
 
-  if (!hydrated || onboardingCompleted) return <main className="min-h-screen bg-background" />;
+  if (!hydrated || auth.status === "loading" || (auth.status === "authenticated" && (!auth.profileLoaded || !auth.hasProfile || onboardingCompleted))) return <main className="min-h-screen bg-background" />;
+
+  if (auth.status !== "authenticated") {
+    return (
+      <AppShell hideNavigation>
+        <div className="mx-auto grid min-h-[72vh] max-w-5xl items-center gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="grid gap-5">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Life Strategy Game</p>
+            <h1 className="text-4xl font-black leading-tight text-foreground sm:text-5xl">Build your life like a living progression tree.</h1>
+            <p className="max-w-2xl text-base leading-7 text-muted-foreground">Habidoo turns real habits, missions, focus objects and progress into one account-based system. Create an account to enter your tree and keep progress synced.</p>
+            <div className="grid gap-3 text-sm font-bold text-muted-foreground sm:grid-cols-3">
+              <div className="rounded-lg border border-border bg-card/70 p-4">Guided missions</div>
+              <div className="rounded-lg border border-border bg-card/70 p-4">Life tree progress</div>
+              <div className="rounded-lg border border-border bg-card/70 p-4">Stats and rewards</div>
+            </div>
+          </section>
+          <CloudAccountPanel />
+        </div>
+      </AppShell>
+    );
+  }
 
   function finish() {
     if (!category || !focus.trim()) return;
