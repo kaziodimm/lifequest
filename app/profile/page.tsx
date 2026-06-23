@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, GitBranch, Languages, LockKeyhole, Palette, RotateCcw, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { CloudAccountPanel } from "@/components/cloud-account-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -47,6 +48,7 @@ export default function ProfilePage() {
         </Card>
 
         <div className="grid gap-4">
+          <CloudAccountPanel />
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><GitBranch size={18} className="text-primary" />{translate(state.locale, "Unlocked Technologies")}</CardTitle></CardHeader>
             <CardContent><p className="text-3xl font-black">{state.completedTechnologyIds.length}</p></CardContent>

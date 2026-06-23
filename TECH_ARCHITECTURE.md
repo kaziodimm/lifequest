@@ -310,19 +310,16 @@ Main metric:
 
 ## Environment Variables
 
-Version 1 does not need env vars.
+Local-only progress works without backend variables.
 
-Future variables:
+Cloud accounts require:
 
 ```txt
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-RESEND_API_KEY=
-NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-Do not commit secrets.
+Do not commit secrets. Never expose a Supabase `service_role` or secret key in browser code or `NEXT_PUBLIC_*` variables.
 
 ## Quality Rules
 

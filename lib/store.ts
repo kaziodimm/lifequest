@@ -153,6 +153,12 @@ const initialState: PlayerState = {
   chapterSummaries: []
 };
 
+export const playerStateKeys = Object.keys(initialState) as (keyof PlayerState)[];
+
+export function createPlayerStateSnapshot(state: PlayerState): PlayerState {
+  return Object.fromEntries(playerStateKeys.map((key) => [key, state[key]])) as PlayerState;
+}
+
 type PartialMission = Partial<DailyMission> & Pick<DailyMission, "id">;
 
 function normalizeMission(mission: PartialMission): DailyMission {
@@ -252,6 +258,7 @@ type LifeStore = PlayerState & {
   saveFocusObject: (focusObject: UserFocusObject) => void;
   unlockTechnology: (technologyId: string) => void;
   resetBrokenActiveMission: (technologyId: string) => void;
+  restoreCloudState: (state: Partial<PlayerState>) => void;
   resetLocalProgress: () => void;
 };
 
@@ -440,6 +447,9 @@ export const useLifeStore = create<LifeStore>()(
             [technologyId]: { ...rest, status: "ready" }
           }
         });
+      },
+      restoreCloudState(statePayload) {
+        set(normalizeState(statePayload));
       },
       resetLocalProgress() {
         set({

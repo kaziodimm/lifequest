@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const canonicalHost = "www.habidoo.com";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const host = request.headers.get("host")?.split(":")[0]?.toLowerCase();
   const isProductionAlias = host === "habidoo.com" || host?.endsWith(".vercel.app");
 
@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  return NextResponse.next();
+  return NextResponse.next({ request });
 }
 
 export const config = {

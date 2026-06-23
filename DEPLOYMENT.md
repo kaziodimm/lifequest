@@ -24,19 +24,26 @@ Build verification should happen first through Vercel deployment logs. After the
 
 ## Environment Variables
 
-Version 1 does not need backend environment variables.
+Local-only progress works without backend variables.
 
-Future variables:
+Cloud accounts require:
 
 ```txt
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-RESEND_API_KEY=
-NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-Do not add these until Supabase/Resend are actually introduced.
+Do not add Supabase `service_role` or secret keys to `NEXT_PUBLIC_*` variables.
+
+Supabase dashboard checklist:
+
+- Apply `supabase/migrations/20260623150000_auth_cloud_save_mvp.sql`.
+- Auth Site URL: `https://www.habidoo.com`.
+- Redirect allow list: `https://www.habidoo.com/auth/confirm`, plus `http://localhost:3000/auth/confirm` for local testing.
+- Enable email confirmation.
+- Configure custom SMTP with Resend using the verified Habidoo sending domain. Resend credentials stay in Supabase, not in this repository.
+- Paste `supabase/email-templates/habidoo-magic-link.html` into the Magic Link email template.
+- Configure Auth rate limits in Supabase before public traffic; enable Turnstile/hCaptcha in the dashboard when a provider key is ready.
 
 ## First Deployment Checklist
 

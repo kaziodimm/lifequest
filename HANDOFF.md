@@ -83,6 +83,34 @@ Implemented in the corrective stage:
 - Real-device iOS Safari and Android Chrome testing remains recommended.
 - Content beyond Chapter 1 is intentionally not implemented.
 
+## Supabase/Auth MVP setup notes
+
+Supabase/Auth work must not change the frozen tree visual direction or the XP/Research/Insight economy.
+
+Required production environment variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+
+Do not add a Supabase `service_role`/secret key to the browser or to any `NEXT_PUBLIC_*` variable.
+
+Database migration:
+
+- `supabase/migrations/20260623150000_auth_cloud_save_mvp.sql`
+- Tables: `public.profiles`, `public.user_game_state`.
+- RLS: enabled on both tables; `anon` access revoked; authenticated users can select/insert/update only their own rows via `(select auth.uid()) = user_id`.
+- `profiles.habid` is unique, lowercase, 3-24 chars, starts with a letter/number, allows only `a-z`, `0-9`, `_`, and blocks reserved names.
+- Profile updates intentionally do not grant column permission for `habid`, so the MVP locks Habid after creation.
+
+Supabase Auth dashboard setup:
+
+- Site URL: `https://www.habidoo.com`
+- Redirect allow list: `https://www.habidoo.com/auth/confirm` and local dev `http://localhost:3000/auth/confirm`.
+- Enable email confirmations.
+- Configure custom SMTP with Resend in Supabase Auth settings. Use Resend SMTP credentials from the verified Habidoo sending domain; never commit the Resend API key.
+- Use `supabase/email-templates/habidoo-magic-link.html` as the branded Magic Link/confirmation template. The button routes to `/auth/confirm` and then back to `/profile`.
+- Configure Auth rate limits in the Supabase dashboard. Add Turnstile/hCaptcha there before public launch if abuse appears; the app currently has no committed CAPTCHA secret.
+
 ## Active mission state repair — 2026-06-23
 
 - Implementation commit: `ece1068 fix: repair broken active mission state`.

@@ -6,6 +6,7 @@ import { technologies } from "../lib/life-tree.ts";
 import { localizeMissionDefinition } from "../lib/mission-i18n.ts";
 import { getMissionDefinition } from "../lib/missions.ts";
 import { getUiTranslationSourceKeys, translate } from "../lib/i18n.ts";
+import { validateHabid } from "../lib/habid.ts";
 import { localizeTechnology } from "../lib/technology-i18n.ts";
 import type { MissionAttempt, MissionDefinition, PlayerState, UserFocusObject } from "../lib/types.ts";
 
@@ -36,6 +37,31 @@ test("recommendation prefers primary category and focus context", () => {
 test("legacy persisted state gets safe mission collections", () => assert.deepEqual(normalizePersistedMissionData({ totalXp: 10 }), { missionAttempts: [], focusObjects: [] }));
 test("supported locale survives migration", () => assert.equal(migrateLocale("uk"), "uk"));
 test("old theme ids migrate to canonical ids", () => assert.equal(migrateThemeId("pixel-quest"), "arcade-codex"));
+
+test("Habid validation accepts the public username MVP rules", () => {
+  assert.deepEqual(validateHabid("life_pilot42"), { valid: true, habid: "life_pilot42", error: undefined });
+  assert.equal(validateHabid("UserName").habid, "username");
+  assert.equal(validateHabid("ab").valid, false);
+  assert.equal(validateHabid("_pilot").valid, false);
+  assert.equal(validateHabid("life pilot").valid, false);
+  assert.equal(validateHabid("support").valid, false);
+});
+
+test("Supabase migration enables own-row RLS without anon writes", () => {
+  const migration = readFileSync("supabase/migrations/20260623150000_auth_cloud_save_mvp.sql", "utf8");
+  assert.match(migration, /alter table public\.profiles enable row level security/i);
+  assert.match(migration, /alter table public\.user_game_state enable row level security/i);
+  assert.match(migration, /revoke all on public\.profiles from anon/i);
+  assert.match(migration, /revoke all on public\.user_game_state from anon/i);
+  assert.match(migration, /to authenticated\s+using \(\(select auth\.uid\(\)\) = user_id\)/i);
+  assert.doesNotMatch(migration, /auth\.role\(\)/i);
+});
+
+test("client code does not expose a Supabase service role key", () => {
+  const files = ["lib/supabase/client.ts", "lib/supabase/server.ts", "components/cloud-account-panel.tsx"].map((file) => readFileSync(file, "utf8")).join("\n");
+  assert.equal(files.includes("service_role"), false);
+  assert.equal(files.includes("SERVICE_ROLE"), false);
+});
 
 test("active runtime without matching attempt repairs to ready", () => {
   const repaired = reconcileActiveMissionState({
