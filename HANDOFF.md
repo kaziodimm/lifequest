@@ -173,6 +173,10 @@ Supabase Auth dashboard setup:
   - Fixed post-login/profile gate bug by dispatching and listening for `habidoo:account-profile-changed` after Habid creation.
   - This prevents the app from bouncing the user back to Profile after Habid creation when clicking Tree/Missions/Stats.
   - Verification: tests 35/35 passing, typecheck passing, Next production build passing.
+  - Production deployment: `dpl_5iDbrJSD9VXfVrMyogRQNpVNxKEd`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Vercel fetch check: `/` returned HTTP `200`.
 
 ## Active mission state repair — 2026-06-23
 
