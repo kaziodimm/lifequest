@@ -83,4 +83,27 @@ Implemented in the corrective stage:
 - Real-device iOS Safari and Android Chrome testing remains recommended.
 - Content beyond Chapter 1 is intentionally not implemented.
 
+## Active mission state repair — 2026-06-23
+
+- Implementation commit: `ece1068 fix: repair broken active mission state`.
+- Pushed to GitHub `main`: `ece1068c17b5a69786aecb04905d2ff4ada1aa89`.
+- Added active mission reconciliation for persisted state:
+  - active technology runtime must have an `activeMissionAttemptId`;
+  - that attempt must exist in `missionAttempts`;
+  - the attempt must belong to the same technology;
+  - invalid active runtimes are safely reset to `ready` with `startedAt` cleared;
+  - no fake attempt is created during migration.
+- Added MissionPanel recovery UI for broken active missions:
+  - shows “Mission state needs repair” instead of an empty non-saving form;
+  - “Reset active mission” resets only the broken active runtime, not all local progress.
+- Legacy `dailyMissions` and `planner` are now treated as migration/deprecated fields; active MVP progress is `technologyRuntime + missionAttempts + focusObjects + chapterSummaries`.
+- Verification:
+  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 30/30 passing.
+  - `tsc --noEmit`: passing.
+  - `next build`: passing.
+  - Local browser smoke: `/tree` loads, mission can start, rating/text answers accept input, `/command` has no 24h Planner and shows the active mission.
+- Vercel Git deployment for `ece1068` is `BLOCKED` because GitHub still reports the commit as `unverified`.
+- Latest blocked deployment: `dpl_DhVPnb3y9Hkwc1DGk37AR9CgKmzo`.
+- Production `www.habidoo.com` has not been promoted to `ece1068` by Git integration. A direct Vercel CLI production deploy is still needed if the verification issue is not fixed.
+
 Read this file first when continuing in a new Codex thread.
