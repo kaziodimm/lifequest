@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Confirm your Habidoo account</title>
+  </head>
+  <body style="margin:0;background:#0f1724;font-family:Inter,Segoe UI,Arial,sans-serif;color:#eef4ff;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0f1724;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;border-radius:30px;overflow:hidden;background:#162033;border:1px solid rgba(143,181,255,.28);box-shadow:0 28px 90px rgba(0,0,0,.38);">
+            <tr>
+              <td style="padding:34px 34px 12px;">
+                <div style="display:inline-block;border-radius:999px;background:rgba(143,181,255,.12);border:1px solid rgba(143,181,255,.35);padding:8px 12px;font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#9fc1ff;">Habidoo</div>
+                <h1 style="margin:18px 0 0;font-size:32px;line-height:1.12;color:#ffffff;">Confirm your account</h1>
+                <p style="margin:16px 0 0;font-size:16px;line-height:1.7;color:#cbd7ea;">Welcome to Habidoo. Confirm this email to activate your account, protect your progress, and continue building your life tree across devices.</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:22px 34px 28px;">
+                <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=/profile" style="display:inline-block;border-radius:999px;background:#9fc1ff;color:#101827;text-decoration:none;font-size:16px;font-weight:900;padding:16px 26px;">Confirm and enter Habidoo</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 34px 34px;">
+                <div style="border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:16px;">
+                  <p style="margin:0;font-size:13px;line-height:1.7;color:#a9b8ce;">This confirmation link is temporary. If the button does not work, copy this fallback link into your browser:</p>
+                  <p style="margin:12px 0 0;font-size:12px;line-height:1.7;word-break:break-all;color:#dbe7ff;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=/profile</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

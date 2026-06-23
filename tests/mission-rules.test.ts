@@ -63,6 +63,14 @@ test("client code does not expose a Supabase service role key", () => {
   assert.equal(files.includes("SERVICE_ROLE"), false);
 });
 
+test("profile uses account wording instead of cloud-save-first wording", () => {
+  const panel = readFileSync("components/cloud-account-panel.tsx", "utf8");
+  assert.equal(panel.includes("Habidoo account"), true);
+  assert.equal(panel.includes("Create account"), true);
+  assert.equal(panel.includes("Log in"), true);
+  assert.equal(panel.includes("Cloud save"), false);
+});
+
 test("active runtime without matching attempt repairs to ready", () => {
   const repaired = reconcileActiveMissionState({
     technologyRuntime: { "health-root": { progress: 0, status: "active", startedAt: 1000 } },

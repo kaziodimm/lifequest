@@ -136,6 +136,14 @@ Supabase Auth dashboard setup:
   - Alias: `https://www.habidoo.com`.
   - Deployment state: `READY`.
   - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
+- Test account cleanup:
+  - Removed the only auth user (`kaziodimm@gmail.com`) after the first signup test.
+  - Verified `auth.users` count returned `0`.
+- Account UX correction:
+  - Profile now presents `Habidoo account` with `Create account` / `Log in`, not `Cloud save` as the primary concept.
+  - Signup now uses email + password with email confirmation.
+  - Login uses email + password.
+  - Added branded `Confirm signup` email template at `supabase/email-templates/habidoo-confirm-signup.html`; Supabase dashboard must use this template for signup confirmation emails.
 
 ## Active mission state repair — 2026-06-23
 
