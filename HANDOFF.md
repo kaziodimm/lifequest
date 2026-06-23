@@ -47,15 +47,19 @@ The artistic direction is frozen. Do not generate new themes, backgrounds, icons
 ## Correction stage status — 2026-06-23
 
 - Corrective implementation commit: `581415a fix: tighten guided mission correction stage`.
-- Pushed to GitHub `main`: `581415a12ec79fc453b703b46f3d65227d0931cf`.
+- Deployment guardrail commit: `a8fad2a chore: ignore local pnpm workspace artifacts`.
+- Pushed to GitHub `main`: `a8fad2a09af2e7cf0ad6c03bb31fef65307d4c99`.
 - Local verification after corrections:
   - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 26/26 passing.
   - `tsc --noEmit`: passing.
   - `next build`: passing.
   - Browser QA on local dev server: onboarding guard, onboarding, tree auto-focus, mission panel, Command Center, profile reset, desktop/mobile overflow checked; browser console errors: 0.
-- Vercel Git deployment for `581415a` exists but is `BLOCKED`: `dpl_37y6G7zK7rKURXCe1hp8Ujdnm3JJ`.
-- Direct CLI deploy was attempted via `pnpm dlx vercel@latest --prod --yes`, but the local/CLI auth token is invalid: `The specified token is not valid`.
-- Production `www.habidoo.com` may still point to the previous READY direct deployment until Vercel auth/Git verification is fixed or a valid Vercel CLI token is supplied.
+- Vercel Git deployments are still `BLOCKED` because GitHub reports commits as `unverified`, but direct CLI production deploy succeeded using a valid Vercel token.
+- Production deployment: `dpl_GRwADfRfanYELNfqjGuftEqDmN5D`.
+- Production URL: `https://lifequest-porh5ulr9-kazi-s-projects3.vercel.app`.
+- Alias: `https://www.habidoo.com`.
+- Deployment state: `READY`.
+- Domain check: `https://www.habidoo.com/` returned HTTP `200`.
 
 Implemented in the corrective stage:
 
