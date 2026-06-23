@@ -52,19 +52,15 @@ export function AppShell({ children, immersive = false, hideNavigation = false }
   const toolRoute = ["/tree", "/command", "/stats", "/achievements"].includes(pathname);
 
   useEffect(() => {
-    if (!hydrated || !protectedRoute || auth.status === "loading" || !auth.profileLoaded) return;
+    if (!hydrated || !protectedRoute || auth.status === "loading") return;
     if (auth.status !== "authenticated") {
       router.replace("/");
       return;
     }
-    if (toolRoute && !auth.hasProfile) {
-      router.replace("/profile");
-      return;
-    }
     if (toolRoute && !onboardingCompleted) router.replace("/");
-  }, [auth.hasProfile, auth.profileLoaded, auth.status, hydrated, onboardingCompleted, protectedRoute, router, toolRoute]);
+  }, [auth.status, hydrated, onboardingCompleted, protectedRoute, router, toolRoute]);
 
-  if (protectedRoute && (!hydrated || auth.status === "loading" || !auth.profileLoaded || auth.status !== "authenticated" || (toolRoute && (!auth.hasProfile || !onboardingCompleted)))) {
+  if (protectedRoute && (!hydrated || auth.status === "loading" || auth.status !== "authenticated" || (toolRoute && !onboardingCompleted))) {
     return <main className="app-theme-shell grid min-h-screen place-items-center p-6 text-sm font-bold text-muted-foreground" data-site-theme={themeId}>{translate(locale, "Preparing Habidoo...")}</main>;
   }
 

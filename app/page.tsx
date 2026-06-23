@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, GitBranch } from "lucide-react";
+import { ArrowRight, Check, GitBranch, Lock, ShieldCheck, Sparkles, Target, Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { CloudAccountPanel } from "@/components/cloud-account-panel";
 import { Button } from "@/components/ui/button";
@@ -109,63 +109,85 @@ export default function HomePage() {
     if (hydrated) setLocale(useLifeStore.getState().locale);
   }, [hydrated]);
   useEffect(() => {
-    if (!hydrated || auth.status !== "authenticated" || !auth.profileLoaded || finishingRef.current) return;
-    if (!auth.hasProfile) {
-      router.replace("/profile");
-      return;
-    }
+    if (!hydrated || auth.status !== "authenticated" || finishingRef.current) return;
     if (onboardingCompleted) router.replace("/tree");
-  }, [auth.hasProfile, auth.profileLoaded, auth.status, hydrated, onboardingCompleted, router]);
+  }, [auth.status, hydrated, onboardingCompleted, router]);
   const suggestions = useMemo(() => category ? focusSuggestions[locale][category] : [], [category, locale]);
 
-  if (!hydrated || auth.status === "loading" || (auth.status === "authenticated" && (!auth.profileLoaded || !auth.hasProfile || onboardingCompleted))) return <main className="min-h-screen bg-background" />;
+  if (!hydrated || auth.status === "loading" || (auth.status === "authenticated" && onboardingCompleted)) return <main className="min-h-screen bg-background" />;
 
   if (auth.status !== "authenticated") {
     return (
       <AppShell hideNavigation>
-        <div className="mx-auto grid min-h-[78vh] max-w-6xl gap-6 py-4 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-          <section className="grid gap-5">
+        <div className="mx-auto grid min-h-[78vh] max-w-6xl gap-6 py-4 lg:grid-cols-[1.06fr_0.94fr] lg:items-center">
+          <section className="relative grid gap-5 overflow-hidden rounded-[2rem] border border-border/80 bg-card/65 p-5 shadow-node backdrop-blur sm:p-7">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_10%,rgba(255,216,137,.20),transparent_30%),radial-gradient(circle_at_85%_25%,rgba(126,165,255,.18),transparent_32%),linear-gradient(135deg,rgba(255,255,255,.06),transparent_48%)]" />
+            <div className="relative grid gap-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{landing.eyebrow}</p>
-              <div className="flex rounded-full border border-border bg-card/70 p-1">
+              <p className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-primary">
+                <Sparkles size={14} />{landing.eyebrow}
+              </p>
+              <div className="flex rounded-full border border-border bg-background/65 p-1 shadow-sm">
                 {locales.map((item) => (
                   <button key={item.id} type="button" onClick={() => { setLocale(item.id); setStoredLocale(item.id); }} className={cn("rounded-full px-3 py-1 text-xs font-black", locale === item.id ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{item.id.toUpperCase()}</button>
                 ))}
               </div>
             </div>
-            <h1 className="text-4xl font-black leading-tight text-foreground sm:text-6xl">{landing.title}</h1>
+            <h1 className="text-4xl font-black leading-[0.98] text-foreground sm:text-6xl">{landing.title}</h1>
             <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">{landing.intro}</p>
             <div className="grid gap-3 text-sm font-bold text-muted-foreground sm:grid-cols-3">
-              {landing.pillars.map((pillar) => <div key={pillar} className="rounded-xl border border-border bg-card/75 p-4 shadow-sm">{pillar}</div>)}
+              {landing.pillars.map((pillar, index) => {
+                const icons = [Target, Trophy, ShieldCheck];
+                const PillarIcon = icons[index] ?? Target;
+                return (
+                  <div key={pillar} className="rounded-2xl border border-border bg-background/55 p-4 shadow-sm">
+                    <PillarIcon className="mb-3 text-primary" size={19} />
+                    {pillar}
+                  </div>
+                );
+              })}
             </div>
-            <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
-              <p className="text-sm font-black text-foreground">{landing.promise}</p>
+            <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4">
+              <p className="flex items-start gap-2 text-sm font-black text-foreground"><Lock className="mt-0.5 shrink-0 text-primary" size={16} />{landing.promise}</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-4">
-                {landing.steps.map((stepItem, index) => <div key={stepItem} className="rounded-lg border border-border bg-background/45 p-3 text-xs font-bold text-muted-foreground"><span className="mr-2 text-primary">0{index + 1}</span>{stepItem}</div>)}
+                {landing.steps.map((stepItem, index) => <div key={stepItem} className="rounded-xl border border-border bg-background/55 p-3 text-xs font-bold text-muted-foreground"><span className="mr-2 text-primary">0{index + 1}</span>{stepItem}</div>)}
               </div>
+            </div>
             </div>
           </section>
           <aside className="grid gap-4">
-            <div className="relative overflow-hidden rounded-[2rem] border border-primary/25 bg-card/80 p-6 shadow-node">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(143,181,255,.22),transparent_34%),radial-gradient(circle_at_80%_70%,rgba(255,205,120,.14),transparent_30%)]" />
+            <div className="relative overflow-hidden rounded-[2.25rem] border border-primary/25 bg-[#10131c] p-5 text-white shadow-node sm:p-6">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_18%,rgba(255,215,140,.30),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(117,160,255,.28),transparent_30%),radial-gradient(circle_at_50%_92%,rgba(72,211,156,.18),transparent_34%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,0)_42%)]" />
+              <div className="absolute inset-x-10 top-28 h-40 rounded-full bg-primary/20 blur-3xl" />
               <div className="relative grid gap-5">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{landing.visualTitle}</p>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{landing.visualSubtitle}</p>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">{landing.visualTitle}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/70">{landing.visualSubtitle}</p>
                 </div>
-                <div className="relative mx-auto h-64 w-full max-w-sm">
-                  <div className="absolute left-1/2 top-8 h-44 w-px -translate-x-1/2 bg-primary/35" />
-                  <div className="absolute left-[24%] top-24 h-px w-[52%] bg-primary/35" />
-                  <div className="absolute left-[30%] top-36 h-px w-[40%] bg-primary/25" />
+                <div className="relative mx-auto h-72 w-full max-w-sm">
+                  <div className="absolute left-1/2 top-1/2 size-52 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+                  <div className="absolute left-1/2 top-1/2 size-36 -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-200/20" />
+                  <div className="absolute left-1/2 top-9 h-52 w-px -translate-x-1/2 bg-gradient-to-b from-amber-200/60 via-white/20 to-emerald-200/45" />
+                  <div className="absolute left-[15%] top-28 h-px w-[70%] bg-gradient-to-r from-transparent via-sky-200/50 to-transparent" />
+                  <div className="absolute left-[24%] top-44 h-px w-[52%] bg-gradient-to-r from-transparent via-emerald-200/45 to-transparent" />
+                  <div className="absolute left-1/2 top-1/2 grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.7rem] border border-amber-200/40 bg-white/12 text-center text-[11px] font-black shadow-[0_0_44px_rgba(255,211,125,.22)] backdrop-blur">
+                    HABIDOO
+                    <span className="mt-1 block text-[10px] font-bold text-white/55">life OS</span>
+                  </div>
                   {[
-                    ["Account", "left-1/2 top-2 -translate-x-1/2 border-primary/60 bg-primary/20"],
-                    ["Focus", "left-[8%] top-20 border-sky-400/50 bg-sky-400/10"],
-                    ["Mission", "right-[8%] top-20 border-amber-300/50 bg-amber-300/10"],
-                    ["Tree", "left-[22%] bottom-10 border-emerald-300/50 bg-emerald-300/10"],
-                    ["Stats", "right-[20%] bottom-10 border-violet-300/50 bg-violet-300/10"]
+                    ["Account", "left-1/2 top-0 -translate-x-1/2 border-amber-200/45 bg-amber-200/12"],
+                    ["Focus", "left-0 top-24 border-sky-300/45 bg-sky-300/12"],
+                    ["Mission", "right-0 top-24 border-orange-300/45 bg-orange-300/12"],
+                    ["Tree", "left-[12%] bottom-4 border-emerald-300/45 bg-emerald-300/12"],
+                    ["Stats", "right-[12%] bottom-4 border-violet-300/45 bg-violet-300/12"]
                   ].map(([label, className]) => (
-                    <div key={label} className={cn("absolute grid size-20 place-items-center rounded-2xl border text-center text-xs font-black text-foreground shadow-node backdrop-blur", className)}>{label}</div>
+                    <div key={label} className={cn("absolute grid size-20 place-items-center rounded-2xl border text-center text-xs font-black text-white shadow-[0_18px_40px_rgba(0,0,0,.28)] backdrop-blur", className)}>{label}</div>
                   ))}
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-black text-white/70">
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-3">Real action</div>
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-3">Saved progress</div>
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-3">Clear next step</div>
                 </div>
               </div>
             </div>

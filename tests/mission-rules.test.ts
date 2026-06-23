@@ -73,12 +73,11 @@ test("profile uses account wording instead of cloud-save-first wording", () => {
   assert.equal(panel.includes("Progress sync is active."), true);
 });
 
-test("tool routes require authenticated account profile", () => {
+test("tool routes require an authenticated account", () => {
   const shell = readFileSync("components/app-shell.tsx", "utf8");
   const home = readFileSync("app/page.tsx", "utf8");
   assert.equal(shell.includes("useAuthState"), true);
   assert.equal(shell.includes("auth.status !== \"authenticated\""), true);
-  assert.equal(shell.includes("!auth.hasProfile"), true);
   assert.equal(home.includes("Turn self-improvement into a living progression system."), true);
   assert.equal(home.includes("<CloudAccountPanel />"), true);
 });

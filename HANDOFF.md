@@ -205,4 +205,21 @@ Supabase Auth dashboard setup:
   - Deployment state: `READY`.
   - Domain checks: `https://www.habidoo.com/`, `/tree`, and `/command` returned HTTP `200`.
 
+## Pre-login polish and profile-bounce fix — 2026-06-23
+
+- Fixed the post-login navigation bug where clicking Tree/Missions/Stats could flash `Preparing Habidoo...` and return to Profile.
+- Cause: protected tool routes were hard-gated on the async `hasProfile/profileLoaded` check. If the local session was authenticated but profile hydration was late/stale, AppShell treated the account as not ready and redirected back to `/profile`.
+- Change: protected app routes now require an authenticated account; tool routes additionally require completed onboarding. Habid/profile state remains available for account UI and sync, but it is no longer a brittle navigation blocker.
+- Improved `/` pre-login page:
+  - richer Foundation Era hero section;
+  - visible language switcher;
+  - product promise/steps;
+  - stronger account-first messaging;
+  - code-generated Habidoo product visual with account, focus, mission, tree and stats nodes.
+- Verification:
+  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 35/35 passing.
+  - `tsc --noEmit`: passing.
+  - `next build`: passing.
+- Pending after commit/deploy: verify `https://www.habidoo.com` visually, then register/login again and click Tree/Missions/Stats/Profile from the real account.
+
 Read this file first when continuing in a new Codex thread.
