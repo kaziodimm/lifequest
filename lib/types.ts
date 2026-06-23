@@ -35,6 +35,33 @@ export type ProgressionReward = {
   backgroundEffect?: string;
 };
 
+export type InventoryItemType = "badge" | "title" | "profileFrame" | "profileEffect";
+export type InventoryItemRarity = "beta" | "common" | "rare" | "epic" | "trial";
+
+export type InventoryItem = {
+  id: string;
+  type: InventoryItemType;
+  rarity: InventoryItemRarity;
+  title: string;
+  description: string;
+};
+
+export type RewardEvent = {
+  id: string;
+  kind: "mission" | "achievement" | "account";
+  title: string;
+  technologyId?: string;
+  xp?: number;
+  researchPoints?: Partial<ResearchPointBalances>;
+  insightPoints?: number;
+  levelBefore?: number;
+  levelAfter?: number;
+  unlockedAchievementIds: string[];
+  unlockedInventoryItemIds: string[];
+  major: boolean;
+  createdAt: number;
+};
+
 export type MissionChoice = {
   id: string;
   label: string;
@@ -206,7 +233,12 @@ export type Achievement = {
   id: string;
   title: string;
   description: string;
+  type?: "foundation" | "mission" | "account" | "trial";
+  rarity?: InventoryItemRarity;
+  hiddenReward?: boolean;
+  rewardItemIds?: string[];
   unlocked: boolean;
+  unlockedAt?: number;
 };
 
 export type PlayerState = {
@@ -226,6 +258,13 @@ export type PlayerState = {
   earnedTitles: string[];
   unlockedNodeFrames: string[];
   unlockedBackgroundEffects: string[];
+  unlockedInventoryItemIds: string[];
+  equippedBadgeId?: string;
+  equippedFrameId?: string;
+  equippedTitleId?: string;
+  betaTesterRewardGranted?: boolean;
+  treeGuideSeen?: boolean;
+  lastRewardEvent?: RewardEvent;
   streak: number;
   completedTechnologyIds: string[];
   technologyRuntime: Record<string, TechnologyRuntime>;

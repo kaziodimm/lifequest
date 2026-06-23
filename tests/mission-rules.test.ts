@@ -8,6 +8,8 @@ import { getMissionDefinition } from "../lib/missions.ts";
 import { getUiTranslationSourceKeys, translate } from "../lib/i18n.ts";
 import { validateHabid } from "../lib/habid.ts";
 import { localizeTechnology } from "../lib/technology-i18n.ts";
+import { createAchievementState, evaluateGameProgression, inventoryCatalog } from "../lib/game-shell.ts";
+import { getEraLevelFromXp, getFoundationLevelXpThreshold, getLevelProgress, getNextLevelXp } from "../lib/foundation-levels.ts";
 import type { MissionAttempt, MissionDefinition, PlayerState, UserFocusObject } from "../lib/types.ts";
 
 const definition = { minimumDurationSeconds: 60, inputSchema: [{ id: "result", type: "shortText", label: "Result", required: true }], technologyId: "health-root" } as MissionDefinition;
@@ -37,6 +39,61 @@ test("recommendation prefers primary category and focus context", () => {
 test("legacy persisted state gets safe mission collections", () => assert.deepEqual(normalizePersistedMissionData({ totalXp: 10 }), { missionAttempts: [], focusObjects: [] }));
 test("supported locale survives migration", () => assert.equal(migrateLocale("uk"), "uk"));
 test("old theme ids migrate to canonical ids", () => assert.equal(migrateThemeId("pixel-quest"), "arcade-codex"));
+
+test("Foundation level helpers expose a 1-100 curve", () => {
+  assert.equal(getEraLevelFromXp(0), 1);
+  assert.equal(getEraLevelFromXp(getFoundationLevelXpThreshold(2)), 2);
+  assert.equal(getEraLevelFromXp(999_999_999), 100);
+  assert.equal(getNextLevelXp(0) > 0, true);
+  assert.equal(getLevelProgress(0).progress, 0);
+});
+
+test("achievement evaluation unlocks Foundation achievements and inventory", () => {
+  const state = {
+    achievements: createAchievementState(),
+    missionAttempts: [{ id: "m1", missionId: "technology:health-root", technologyId: "health-root", startedAt: 1, completedAt: 2, answers: {} }],
+    focusObjects: [{ id: "f1", type: "healthRoutine", category: "health", name: "Sleep", desiredOutcome: "Rest", createdAt: 1 }],
+    completedTechnologyIds: ["health-root"],
+    unlockedInventoryItemIds: [],
+    earnedBadges: [],
+    earnedTitles: [],
+    unlockedNodeFrames: [],
+    betaTesterRewardGranted: false
+  } as unknown as PlayerState;
+  const evaluated = evaluateGameProgression(state, 1000);
+  assert.equal(evaluated.achievements.find((item) => item.id === "first_mission_completed")?.unlocked, true);
+  assert.equal(evaluated.achievements.find((item) => item.id === "first_focus_object_created")?.unlocked, true);
+  assert.equal(evaluated.achievements.find((item) => item.id === "first_branch_root_completed")?.unlocked, true);
+  assert.equal(evaluated.unlockedInventoryItemIds.includes("first_mission_badge"), true);
+  assert.equal(evaluated.unlockedInventoryItemIds.includes("focus_seed_badge"), true);
+});
+
+test("beta tester reward grants inventory once", () => {
+  const state = {
+    achievements: createAchievementState(),
+    missionAttempts: [],
+    focusObjects: [],
+    completedTechnologyIds: [],
+    unlockedInventoryItemIds: [],
+    earnedBadges: [],
+    earnedTitles: [],
+    unlockedNodeFrames: [],
+    betaTesterRewardGranted: true
+  } as unknown as PlayerState;
+  const first = evaluateGameProgression(state, 1000);
+  assert.deepEqual(first.newlyUnlockedInventoryItemIds.sort(), ["beta_tester_badge", "beta_tester_frame"].sort());
+  const second = evaluateGameProgression({ ...state, achievements: first.achievements, unlockedInventoryItemIds: first.unlockedInventoryItemIds, earnedBadges: first.earnedBadges, earnedTitles: first.earnedTitles, unlockedNodeFrames: first.unlockedNodeFrames } as PlayerState, 2000);
+  assert.deepEqual(second.newlyUnlockedInventoryItemIds, []);
+});
+
+test("inventory catalog contains equippable profile item types", () => {
+  assert.equal(inventoryCatalog.some((item) => item.type === "badge"), true);
+  assert.equal(inventoryCatalog.some((item) => item.type === "title"), true);
+  assert.equal(inventoryCatalog.some((item) => item.type === "profileFrame"), true);
+  const profile = readFileSync("app/profile/page.tsx", "utf8");
+  assert.equal(profile.includes("equipInventoryItem"), true);
+  assert.equal(profile.includes("unequipInventoryType"), true);
+});
 
 test("Habid validation accepts the public username MVP rules", () => {
   assert.deepEqual(validateHabid("life_pilot42"), { valid: true, habid: "life_pilot42", error: undefined });

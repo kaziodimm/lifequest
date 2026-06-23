@@ -48,8 +48,8 @@ export function AppShell({ children, immersive = false, hideNavigation = false }
     return useLifeStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
 
-  const protectedRoute = ["/tree", "/command", "/stats", "/profile", "/achievements"].includes(pathname);
-  const toolRoute = ["/tree", "/command", "/stats", "/achievements"].includes(pathname);
+  const protectedRoute = ["/tree", "/command", "/stats", "/profile", "/achievements", "/rewards"].includes(pathname);
+  const toolRoute = ["/tree", "/command", "/stats", "/achievements", "/rewards"].includes(pathname);
 
   useEffect(() => {
     if (!hydrated || !protectedRoute || auth.status === "loading") return;
@@ -72,8 +72,8 @@ export function AppShell({ children, immersive = false, hideNavigation = false }
         <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
           <header className="app-header mb-5 flex items-center justify-between border border-border px-4 py-3">
             <Link href="/" className="flex items-center gap-3">
-              <div className="app-brand-mark grid size-10 place-items-center bg-primary text-primary-foreground shadow-node">
-                <GitBranch size={20} />
+              <div className="app-brand-mark grid size-10 place-items-center overflow-hidden bg-background shadow-node">
+                <Image src="/icon.svg" alt="Habidoo" width={40} height={40} priority />
               </div>
               <div>
                 <p className="text-sm font-black uppercase tracking-wide text-foreground">Habidoo</p>

@@ -7,12 +7,14 @@ import { TechnologyGlyph } from "@/components/technology-glyph";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { lifeEras } from "@/lib/eras";
+import { getInventoryItem } from "@/lib/game-shell";
+import { gameShellT, itemText } from "@/lib/game-shell-copy";
 import { technologies, categoryColors, categoryLabels } from "@/lib/life-tree";
 import { getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "@/lib/missions";
 import { completedBranchCategories, completedPracticeAttempts, validateMissionAnswers } from "@/lib/mission-rules";
 import { getTechnologyLockReasons } from "@/lib/progression";
 import { useLifeStore } from "@/lib/store";
-import type { LifeCategory, LifeTechnology, MissionAnswer, MissionInput, TechStatus } from "@/lib/types";
+import type { LifeCategory, LifeTechnology, Locale, MissionAnswer, MissionInput, RewardEvent, TechStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { translate, translateDynamic } from "@/lib/i18n";
 import { localizeTechnology } from "@/lib/technology-i18n";
@@ -421,6 +423,58 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   );
 }
 
+function RewardBanner({ event, locale, onDismiss }: { event?: RewardEvent; locale: Locale; onDismiss: () => void }) {
+  if (!event) return null;
+  const unlockedItems = event.unlockedInventoryItemIds.map(getInventoryItem).filter((item): item is NonNullable<ReturnType<typeof getInventoryItem>> => Boolean(item));
+  const levelUp = event.levelAfter && event.levelBefore && event.levelAfter > event.levelBefore;
+  return (
+    <div className={cn("pointer-events-auto absolute left-1/2 top-24 z-[70] w-[min(92vw,440px)] -translate-x-1/2 rounded-2xl border bg-card/95 p-4 shadow-node backdrop-blur", event.major ? "border-primary/55" : "border-border")}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{gameShellT(locale, "Mission Complete")}</p>
+          <h3 className="mt-1 text-lg font-black text-foreground">{event.title}</h3>
+        </div>
+        <button type="button" className="rounded-full border border-border bg-background/60 p-1 text-muted-foreground" aria-label={translate(locale, "Close mission panel")} onClick={onDismiss}><CloseIcon size={14} /></button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+        {event.xp ? <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">+{event.xp} XP</span> : null}
+        {event.researchPoints ? Object.values(event.researchPoints).map((amount, index) => amount ? <span key={index} className="rounded-full bg-muted px-3 py-1 text-foreground">+{amount} {translate(locale, "Research")}</span> : null) : null}
+        {event.insightPoints ? <span className="rounded-full bg-muted px-3 py-1 text-foreground">+{event.insightPoints} {translate(locale, "Insight")}</span> : null}
+        {levelUp ? <span className="rounded-full bg-strategy-gold/20 px-3 py-1 text-strategy-gold">{gameShellT(locale, "Level up")} {event.levelAfter}</span> : null}
+      </div>
+      {(event.unlockedAchievementIds.length || unlockedItems.length) ? (
+        <div className="mt-3 rounded-xl border border-primary/25 bg-primary/5 p-3 text-xs leading-5 text-muted-foreground">
+          {event.unlockedAchievementIds.length ? <p><strong className="text-foreground">{gameShellT(locale, "New achievement")}:</strong> {event.unlockedAchievementIds.length}</p> : null}
+          {unlockedItems.length ? <p><strong className="text-foreground">{gameShellT(locale, "New item")}:</strong> {unlockedItems.map((item) => itemText(locale, item).title).join(", ")}</p> : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function FirstRunTreeGuide({ locale, onDone }: { locale: Locale; onDone: () => void }) {
+  const steps = [
+    gameShellT(locale, "Start the highlighted root mission."),
+    gameShellT(locale, "Save evidence inside the mission panel."),
+    gameShellT(locale, "Return later and complete it after the timer."),
+    gameShellT(locale, "This guide stays small. The Tree is for action.")
+  ];
+  return (
+    <div className="pointer-events-auto absolute left-3 top-28 z-[60] w-[min(92vw,360px)] rounded-2xl border border-primary/35 bg-card/95 p-4 shadow-node backdrop-blur md:left-5">
+      <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{gameShellT(locale, "Start here")}</p>
+      <div className="mt-3 grid gap-2">
+        {steps.map((step, index) => (
+          <div key={step} className="flex gap-2 rounded-xl border border-border bg-background/45 p-2 text-xs leading-5 text-muted-foreground">
+            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/15 text-[10px] font-black text-primary">{index + 1}</span>
+            <p>{step}</p>
+          </div>
+        ))}
+      </div>
+      <Button className="mt-3 w-full" size="sm" onClick={onDone}>{gameShellT(locale, "Got it")}</Button>
+    </div>
+  );
+}
+
 export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string | null }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -443,6 +497,10 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
   const totalXp = useLifeStore((state) => state.totalXp);
   const insightPoints = useLifeStore((state) => state.insightPoints);
   const locale = useLifeStore((state) => state.locale);
+  const treeGuideSeen = useLifeStore((state) => state.treeGuideSeen);
+  const markTreeGuideSeen = useLifeStore((state) => state.markTreeGuideSeen);
+  const lastRewardEvent = useLifeStore((state) => state.lastRewardEvent);
+  const dismissRewardEvent = useLifeStore((state) => state.dismissRewardEvent);
   const activeTechnology = technologies.find((technology) => technologyRuntime[technology.id]?.status === "active");
   const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
   const rootTechnologies = useMemo(() => technologies.filter((tech) => tech.parents.length === 0), []);
@@ -635,6 +693,8 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
+        {!treeGuideSeen ? <FirstRunTreeGuide locale={locale} onDone={markTreeGuideSeen} /> : null}
+        <RewardBanner event={lastRewardEvent} locale={locale} onDismiss={dismissRewardEvent} />
         <div ref={artLayerRef} className="life-tree-art-layer" aria-hidden="true">
           <div className="life-tree-art-image" />
           <div className="life-tree-art-atmosphere" />

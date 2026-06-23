@@ -1,23 +1,16 @@
 import { technologies } from "./life-tree";
+import { getLevelProgress } from "./foundation-levels";
 import type { LifeCategory, LifeTechnology, PlayerState } from "./types";
 
+export { getEraLevelFromXp, getFoundationLevelXpThreshold, getLevelProgress, getNextLevelXp, maxFoundationLevel } from "./foundation-levels";
+
 export function levelFromXp(totalXp: number) {
-  const thresholds = [0, 100, 250, 500, 900, 1400, 2100, 3000, 4200, 5800];
-  let level = 1;
-
-  for (let index = 1; index < thresholds.length; index += 1) {
-    if (totalXp >= thresholds[index]) level = index + 1;
-  }
-
-  const currentThreshold = thresholds[level - 1] ?? 0;
-  const nextThreshold = thresholds[level] ?? currentThreshold + level * 900;
-  const progress = Math.round(((totalXp - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
-
+  const progress = getLevelProgress(totalXp);
   return {
-    level,
-    current: totalXp - currentThreshold,
-    needed: nextThreshold - currentThreshold,
-    progress: Math.min(100, Math.max(0, progress))
+    level: progress.level,
+    current: progress.current,
+    needed: progress.needed,
+    progress: progress.progress
   };
 }
 
