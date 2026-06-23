@@ -247,6 +247,14 @@ Supabase Auth dashboard setup:
   - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 35/35 passing.
   - `tsc --noEmit`: passing.
   - `next build`: passing.
+- Commit: `6136a23 feat: polish public landing and legal pages`.
+- Pushed to GitHub `main`.
+- Production deployment:
+  - Deployment id: `dpl_HPUkedZ2nEchp8zGc864vK8zy9BF`.
+  - Production URL: `https://lifequest-cwyvxyfg3-kazi-s-projects3.vercel.app`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Fetch checks: `/`, `/terms`, `/privacy`, `/rules`, and `/art/landing/habidoo-life-system-hero.png` returned HTTP `200`.
 - Note: global `lib/i18n.ts` still contains legacy mojibake in older translated keys. The public pre-login/onboarding/auth path now bypasses that with clean local copy; a later technical cleanup can re-encode/replace the full global dictionary.
 
 Read this file first when continuing in a new Codex thread.
