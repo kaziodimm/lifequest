@@ -144,6 +144,11 @@ Supabase Auth dashboard setup:
   - Signup now uses email + password with email confirmation.
   - Login uses email + password.
   - Added branded `Confirm signup` email template at `supabase/email-templates/habidoo-confirm-signup.html`; Supabase dashboard must use this template for signup confirmation emails.
+  - Verification: tests 34/34 passing, typecheck passing, Next production build passing.
+  - Production deployment: `dpl_G55txkyFHutqcxKp8yNFYYzM6DHL`.
+  - Alias: `https://www.habidoo.com`.
+  - Deployment state: `READY`.
+  - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
 
 ## Active mission state repair — 2026-06-23
 
