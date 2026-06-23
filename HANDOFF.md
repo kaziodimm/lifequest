@@ -110,6 +110,11 @@ Supabase Auth dashboard setup:
 - Configure custom SMTP with Resend in Supabase Auth settings. Use Resend SMTP credentials from the verified Habidoo sending domain; never commit the Resend API key.
 - Use `supabase/email-templates/habidoo-magic-link.html` as the branded Magic Link/confirmation template. The button routes to `/auth/confirm` and then back to `/profile`.
 - Configure Auth rate limits in the Supabase dashboard. Add Turnstile/hCaptcha there before public launch if abuse appears; the app currently has no committed CAPTCHA secret.
+- Implementation commit: `1d25bdf feat: add supabase cloud auth mvp`.
+- Pushed to GitHub `main`: `1d25bdfec50e4f592b0b7602139231fab72f76bb`.
+- Vercel Git deployment for this commit is `BLOCKED` because GitHub still reports `githubCommitVerification: unverified`.
+- Direct CLI deploy was not run in this thread because this machine currently has no local Vercel auth, no `VERCEL_TOKEN` environment variable, and no `vercel`/`npx` CLI available.
+- Supabase connector currently shows only `taskovo-dev`; the Habidoo migration was not applied there to avoid mutating the wrong project.
 
 ## Active mission state repair — 2026-06-23
 
