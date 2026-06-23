@@ -230,4 +230,23 @@ Supabase Auth dashboard setup:
   - Fetch checks: `https://www.habidoo.com/` returned HTTP `200`; `/tree` returned HTTP `200`.
 - Pending manual check: register/login again and click Tree/Missions/Stats/Profile from the real account.
 
+## Public landing, localization, legal pages — 2026-06-23
+
+- Improved the public pre-login page toward a Habitica-like product landing structure, but with Habidoo's mature life-progress positioning instead of RPG/pixel art.
+- Generated and added a new hero image:
+  - `public/art/landing/habidoo-life-system-hero.png`
+  - Prompt goal: premium modern self-improvement product visual showing a living life tree, guided missions, focus areas, progress and stats.
+- `/` now uses the generated hero image and localized landing/onboarding/auth copy for EN/RU/CS/UK on the public and first-user path.
+- `CloudAccountPanel` accepts an optional `locale` prop and localizes account/signup/login/Habid/sync messages for EN/RU/CS/UK.
+- Added public legal/info pages:
+  - `/terms` — Terms of Use MVP text.
+  - `/privacy` — Privacy Policy MVP text.
+  - `/rules` — Rules of Use MVP text.
+- Added footer links from the landing page to Rules, Terms and Privacy.
+- Verification:
+  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 35/35 passing.
+  - `tsc --noEmit`: passing.
+  - `next build`: passing.
+- Note: global `lib/i18n.ts` still contains legacy mojibake in older translated keys. The public pre-login/onboarding/auth path now bypasses that with clean local copy; a later technical cleanup can re-encode/replace the full global dictionary.
+
 Read this file first when continuing in a new Codex thread.

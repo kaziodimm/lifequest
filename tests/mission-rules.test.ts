@@ -79,7 +79,7 @@ test("tool routes require an authenticated account", () => {
   assert.equal(shell.includes("useAuthState"), true);
   assert.equal(shell.includes("auth.status !== \"authenticated\""), true);
   assert.equal(home.includes("Turn self-improvement into a living progression system."), true);
-  assert.equal(home.includes("<CloudAccountPanel />"), true);
+  assert.equal(home.includes("<CloudAccountPanel"), true);
 });
 
 test("active runtime without matching attempt repairs to ready", () => {
