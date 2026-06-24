@@ -177,6 +177,36 @@ test("mission panel has a recovery state for broken active attempts", () => {
   assert.equal(panel.includes("missionNeedsRepair"), true);
 });
 
+test("root missions are action-first and require concrete evidence", () => {
+  const rootIds = ["health-root", "mind-root", "finance-root", "business-root", "career-root", "relationships-root", "creativity-root"];
+  const reflectiveFirstInputs = new Set(["rating", "text"]);
+  rootIds.forEach((id) => {
+    const technology = technologies.find((item) => item.id === id);
+    assert.ok(technology);
+    const mission = getMissionDefinition(technology);
+    assert.ok(mission.inputSchema.length >= 2, id);
+    assert.equal(mission.inputSchema.every((input) => input.required), true, id);
+    assert.equal(reflectiveFirstInputs.has(mission.inputSchema[0]!.type), false, id);
+    assert.match(`${mission.actionTitle} ${mission.recommendedChoice} ${mission.concreteOutcome}`, /open|stand|drink|close|clear|start|send|draft|create|save|вод|встан/i, id);
+  });
+});
+
+test("first-session guide state is persisted and safely normalized", () => {
+  const types = readFileSync("lib/types.ts", "utf8");
+  const store = readFileSync("lib/store.ts", "utf8");
+  assert.equal(types.includes("firstSessionGuideDismissed?: boolean"), true);
+  assert.equal(types.includes("firstMissionCompletedAt?: number"), true);
+  assert.equal(types.includes("firstPostMissionHintSeen?: boolean"), true);
+  assert.equal(store.includes("firstSessionGuideDismissed: persisted?.firstSessionGuideDismissed === true"), true);
+  assert.equal(store.includes('typeof persisted?.firstMissionCompletedAt === "number"'), true);
+});
+
+test("first-session guide and cooldown explanation copy are localized", () => {
+  ["First session guide", "Mission complete", "You are not blocked.", "What can I do now?"].forEach((key) => {
+    (["ru", "cs", "uk"] as const).forEach((locale) => assert.notEqual(translate(locale, key), key, `${locale}/${key}`));
+  });
+});
+
 test("the first mission after each root is guided", () => {
   const guidedIds = ["morning-walk", "reading-ritual", "expense-tracking", "project-definition", "opportunity-scan", "weekly-check-in", "reference-study"];
   guidedIds.forEach((id) => {

@@ -231,6 +231,9 @@ export type PlayerState = {
   technologyRuntime: Record<string, TechnologyRuntime>;
   globalMissionCooldownUntil?: number;
   activeMissionAttemptId?: string;
+  firstSessionGuideDismissed?: boolean;
+  firstMissionCompletedAt?: number;
+  firstPostMissionHintSeen?: boolean;
   missionAttempts: MissionAttempt[];
   focusObjects: UserFocusObject[];
   /** @deprecated Legacy bridge only. MVP progress is technologyRuntime + missionAttempts + focusObjects + chapterSummaries. */
