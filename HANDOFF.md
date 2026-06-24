@@ -1,291 +1,256 @@
 # Habidoo — current handoff
 
-## Repository
+Last updated: 2026-06-24
+
+## Start here
+
+Every new Codex thread must read these files first:
+
+1. `HANDOFF.md`
+2. `docs/product/HABIDOO_Product_Logic_v3_RU.md`
+3. `docs/product/HABIDOO_Progression_Rewards_Level_100_RU.md`
+
+`docs/product/HABIDOO_Product_Logic_v3_RU.md` is the current product source of truth.
+
+If older Product Bible / progression documents conflict with v3, follow v3.
+
+## Repository and production
 
 - Repository: `kaziodimm/lifequest`
 - Production branch: `main`
-- Canonical production URL: https://www.habidoo.com
-- `habidoo.com` and production Vercel aliases redirect to the canonical `www` origin so browser-local progress is not split across entry domains.
-- Product source of truth: Product Bible documents in the repository.
+- Canonical production URL: `https://www.habidoo.com`
+- Supabase project: `habidoo-prod`
+- Supabase project ref: `oywbykuqvdvqsybwpkig`
+- Supabase API URL: `https://oywbykuqvdvqsybwpkig.supabase.co`
 
 ## Current product stage
 
-The artistic direction is frozen. Do not generate new themes, backgrounds, icons, decorative effects, or future-era structures. Work is focused on guided missions, persisted evidence, Focus Objects, first-user flow, honest progression, and mobile stability.
+Habidoo is not ready for beta yet. The current focus is product hardening, not adding new eras or visual theme generations.
 
-## Guided mission system
+The artistic direction is frozen. Do not generate new tree themes, future-era visuals, large decorative effects, new backgrounds, or new icon sets unless explicitly requested.
 
-- `MissionDefinition` is the shared contract for Tree and Command Center missions.
-- `MissionAttempt`, answers, evidence, rewards, and selected Focus Object persist in Zustand/localStorage.
-- Only one technology mission can be active. Legacy Daily Mission actions delegate to the same technology mission flow.
-- Completion requires minimum elapsed time and all required answers; rewards are issued once.
-- Root missions and the first mission after each root in all seven branches use prepared choices or structured fields instead of empty prompts.
-- Later missions reuse the branch Focus Object automatically.
-- The planner can link to a mission but no longer grants XP for arbitrary checkbox completion.
+Current goal: bring the product from demo/MVP feeling toward beta-quality product foundation.
 
-## First-user flow
+## Superseded logic / do not continue
 
-- New users choose language, one branch, and one prepared Focus Object.
-- Onboarding sends them directly to the relevant root node with its mission panel open.
-- Existing persisted users are redirected from `/` to `/tree`.
-- Onboarding navigation is hidden so the first mission remains the only primary path.
+Do not continue implementing these older patterns:
 
-## Localization
+1. `Technology Node = repeat one mission N times`.
+2. Root/start missions as repeat-count tasks.
+3. First completed mission leading mainly into cooldown explanation.
+4. Profile as a mixed page for language, reset, theme selection, account, inventory and status.
+5. Theme picker taking large space in Profile.
+6. Cloud sync that only runs when `CloudAccountPanel` is mounted on Profile.
+7. Reward slots/future rewards shown on every normal mission.
+8. 24h Planner as a central product mechanic.
+9. Habitica-style todo-list mechanics.
+10. New-user tasks based on vague reflection before the user understands the product.
 
-- Supported locales: English, Russian, Czech, Ukrainian.
-- Onboarding, missions, Command Center, profile, accessibility controls, and shared UI text exist in all four locales.
-- Russian, Czech, and Ukrainian Chapter 1 content is localized by ID. The audit covers all 65 technology titles, descriptions, actions, outcomes, and mission steps.
-- Czech and Ukrainian include static fallback translations for every one of the 207 shared UI source keys; curated product terminology overrides the generated baseline.
+## Current product logic v3
 
-## Verification completed
+Correct mission architecture:
 
-- Mission rule, localization-coverage, and content-contract tests: 17/17 passing.
-- TypeScript typecheck: passing.
-- Next.js production build: passing.
-- Browser flow checked at 390×844 and 1440×900: onboarding, Russian, Czech, and Ukrainian locales, branch/focus selection, focused mission panel, no horizontal page overflow.
-- Mobile mission panel is opaque and its entry animation is disabled to avoid the temporary translucent/flickering state.
+```text
+Technology Node = Lesson Chain + Gold/Mastery Step
+```
 
-## Correction stage status — 2026-06-23
+A node should not ask the user to repeat the same action 5 times. It should progress through related but different steps:
 
-- Corrective implementation commit: `581415a fix: tighten guided mission correction stage`.
-- Deployment guardrail commit: `a8fad2a chore: ignore local pnpm workspace artifacts`.
-- Pushed to GitHub `main`: `a8fad2a09af2e7cf0ad6c03bb31fef65307d4c99`.
-- Local verification after corrections:
-  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 26/26 passing.
-  - `tsc --noEmit`: passing.
-  - `next build`: passing.
-  - Browser QA on local dev server: onboarding guard, onboarding, tree auto-focus, mission panel, Command Center, profile reset, desktop/mobile overflow checked; browser console errors: 0.
-- Vercel Git deployments are still `BLOCKED` because GitHub reports commits as `unverified`, but direct CLI production deploy succeeded using a valid Vercel token.
-- Production deployment: `dpl_GRwADfRfanYELNfqjGuftEqDmN5D`.
-- Production URL: `https://lifequest-porh5ulr9-kazi-s-projects3.vercel.app`.
-- Alias: `https://www.habidoo.com`.
-- Deployment state: `READY`.
-- Domain check: `https://www.habidoo.com/` returned HTTP `200`.
+```text
+Step 1 — First action
+Step 2 — Similar but different action
+Step 3 — Real-world application
+Step 4 — Proof / evidence
+Step 5 — Gold / Mastery challenge
+```
 
-Implemented in the corrective stage:
+Repeated actions are acceptable only where repetition has real-life meaning: walking, training, reading, focus sessions, routines, weekly reviews.
 
-- Removed the 24h Planner UI from Command Center and replaced it with active mission, recommended mission, alternatives, weekly state and nearest milestone.
-- Recommendation now scores primary category, focus object, progress/milestone context and cooldown instead of taking the first array items.
-- Normal mission reward display now shows XP and Research only; placeholder/future reward slots are gone from the mission panel.
-- `Taskovo` was removed from product source examples/placeholders/translations.
-- Focus Object reuse now selects the latest object per category; root missions update/replace the category object.
-- Evidence now stores normalized summaries from user answers and sanitized full answers; sensitive finance fields are excluded from evidence answers.
-- Awakening Trial now has real completion gates: at least four completed branches, three real completed practices, a personal rule, a weekly standard and saved focus data.
-- Mission input validation covers single/multi choice, checklist, rating, confirmation, number, text, link and date/time cases.
-- Profile now has controlled local reset with warning and two-step confirmation.
-- Protected pages now have a client-side onboarding guard after hydration.
-- Old dead achievements/streak UI was removed from profile/awards surfaces; stats now derive weekly chart data from MissionAttempts.
-- Added integration tests for the correction points.
+Root/start nodes should feel like progression, not repetition.
 
-## Remaining MVP limitations
+## Priority backlog before beta
 
-- Persistence and timestamps remain client-side and are not authoritative.
-- Czech and Ukrainian catalogue text has complete coverage, but native-speaker editorial review remains recommended for final publication quality.
-- Real-device iOS Safari and Android Chrome testing remains recommended.
-- Content beyond Chapter 1 is intentionally not implemented.
+P0 — must happen first:
 
-## Supabase/Auth MVP setup notes
+1. Global cloud sync across devices.
+   - Progress completed on desktop must appear on phone and the other way around.
+   - Sync must not depend on opening Profile.
+   - Implement a global `CloudSyncProvider` or equivalent.
+   - Prevent empty local state from overwriting newer server state.
+   - Add conflict-safe restore/upload logic.
 
-Supabase/Auth work must not change the frozen tree visual direction or the XP/Research/Insight economy.
+P1 — first-user product flow:
 
-Required production environment variables:
+2. Strong guide system for new users.
+   - Visible and primary, not a small side hint.
+   - User can skip/refuse, but the guide must be clearly presented first.
+   - Guide step has no cooldown.
+   - Guide leads to first real lesson-chain mission.
+   - Reward/animation after guide completion must make user feel progress started.
+
+3. Convert root/start missions to lesson chains.
+   - Replace repeat-count mission progress with different lesson steps.
+   - Add visible node progress and Gold/Mastery state.
+
+P2 — visible product maturity:
+
+4. Completion banners, visible progress, restrained animations.
+5. Recalculate XP, Research, Insight, achievements and rewards around lesson-chain logic.
+6. Redesign Missions/Command, Stats and Awards pages using clearer game/product references.
+7. Improve layout quality on mobile and desktop: no clipping, no hidden important controls, no text overflow.
+8. Separate Profile, Inventory and Settings.
+9. Add in-app notifications and reminders.
+10. Improve pre-login landing page so it explains and sells the product.
+11. Polish legal/rules/privacy/account maturity.
+
+## Page architecture target
+
+```text
+Profile = player identity/status.
+Inventory = owned cosmetics and equipped items.
+Settings = language, password, email, notifications, privacy, reset, delete/export data.
+Tree = tree progress + quick theme slots.
+Command/Missions = active mission, next step, cooldown/ready states, weekly focus.
+Stats = readable progress history and branch development.
+Awards = meaningful achievements and unlocked/secret rewards.
+Notifications = reminders and action events.
+```
+
+Do not put everything in Profile.
+
+## Inventory direction
+
+Use a Destiny/Fortnite hybrid:
+
+- profile identity card;
+- equipped slots;
+- item tabs;
+- preview;
+- equip/unequip;
+- owned/locked/coming soon.
+
+Categories:
+
+- Badges;
+- Titles;
+- Frames;
+- Profile Effects;
+- Tree Themes;
+- Legacy / Prestige.
+
+Tree themes remain accessible in the Tree, but if many themes exist, use 3-5 quick theme slots plus `Theme Library`, not a long row of buttons.
+
+## Notifications direction
+
+Start with in-app notifications before browser push/email.
+
+Events:
+
+- mission timer finished;
+- cooldown finished;
+- guide step waiting;
+- reward unclaimed;
+- weekly review available;
+- trial ready;
+- sync issue;
+- account/security events.
+
+Requirements:
+
+- notification center;
+- unread counter;
+- action button;
+- notification settings later;
+- no spam.
+
+## Current technical state to verify before coding
+
+Known implemented systems:
+
+- Supabase Auth with confirmed email and Habid profile.
+- `profiles` and `user_game_state` tables with RLS.
+- Account-first access gate.
+- `MissionDefinition`, `MissionAttempt`, evidence, focus objects and `technologyRuntime` in Zustand/localStorage.
+- Active mission repair for invalid persisted active state.
+- 24h Planner removed from active UI.
+- Public landing, Terms, Privacy and Rules pages exist.
+- First-session guide exists, but it is superseded by v3 guide requirements.
+
+Known weak area:
+
+- Cloud sync currently likely lives inside `CloudAccountPanel`, so autosync may only run when Profile is mounted. This is not acceptable for beta.
+
+## Supabase/Auth notes
+
+Required production env vars:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Do not add a Supabase `service_role`/secret key to the browser or to any `NEXT_PUBLIC_*` variable.
+Never expose `service_role` or secret keys in browser or `NEXT_PUBLIC_*` variables.
 
-Database migration:
+Database:
 
-- `supabase/migrations/20260623150000_auth_cloud_save_mvp.sql`
-- Tables: `public.profiles`, `public.user_game_state`.
-- RLS: enabled on both tables; `anon` access revoked; authenticated users can select/insert/update only their own rows via `(select auth.uid()) = user_id`.
-- `profiles.habid` is unique, lowercase, 3-24 chars, starts with a letter/number, allows only `a-z`, `0-9`, `_`, and blocks reserved names.
-- Profile updates intentionally do not grant column permission for `habid`, so the MVP locks Habid after creation.
+- `public.profiles`
+- `public.user_game_state`
+- RLS enabled on both.
+- `anon` access revoked.
+- authenticated users can select/insert/update only their own rows via `(select auth.uid()) = user_id`.
+- `profiles.habid` is unique, lowercase, 3-24 chars, starts with letter/number, allows only `a-z`, `0-9`, `_`, and blocks reserved names.
+- MVP locks Habid after creation.
 
-Supabase Auth dashboard setup:
+Auth dashboard:
 
 - Site URL: `https://www.habidoo.com`
-- Redirect allow list: `https://www.habidoo.com/auth/confirm` and local dev `http://localhost:3000/auth/confirm`.
-- Enable email confirmations.
-- Configure custom SMTP with Resend in Supabase Auth settings. Use Resend SMTP credentials from the verified Habidoo sending domain; never commit the Resend API key.
-- Use `supabase/email-templates/habidoo-magic-link.html` as the branded Magic Link/confirmation template. The button routes to `/auth/confirm` and then back to `/profile`.
-- Configure Auth rate limits in the Supabase dashboard. Add Turnstile/hCaptcha there before public launch if abuse appears; the app currently has no committed CAPTCHA secret.
-- Implementation commit: `1d25bdf feat: add supabase cloud auth mvp`.
-- Pushed to GitHub `main`: `1d25bdfec50e4f592b0b7602139231fab72f76bb`.
-- Vercel Git deployment for this commit is `BLOCKED` because GitHub still reports `githubCommitVerification: unverified`.
-- Direct Vercel CLI production deploy succeeded by deploying a clean temporary copy outside the Git repository, avoiding GitHub verification metadata:
-  - Production deployment: `dpl_Dm72hSGokLhBBfc7aTaEgTgYguw2`.
-  - Production URL: `https://lifequest-lkmd829m3-kazi-s-projects3.vercel.app`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
-- Supabase project `habidoo-prod` exists:
-  - Project ref: `oywbykuqvdvqsybwpkig`.
-  - API URL: `https://oywbykuqvdvqsybwpkig.supabase.co`.
-  - Migration `auth_cloud_save_mvp` applied successfully.
-  - Corrective migration `tighten_cloud_save_table_grants` applied successfully.
-  - RLS verified enabled on `profiles` and `user_game_state`.
-  - Policies verified: own-row `SELECT`, `INSERT`, `UPDATE` via `(select auth.uid()) = user_id`.
-  - Grants verified: no `anon` grants; `authenticated` has table-level `SELECT/INSERT` and column-level `UPDATE` only for allowed update columns.
-- Vercel production env added:
-  - `NEXT_PUBLIC_SUPABASE_URL`
-  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- Production redeploy after env setup:
-  - Deployment: `dpl_8NttKBTc5ymH2RS2v3eyr6CAFVXR`.
-  - Production URL: `https://lifequest-itq414tjo-kazi-s-projects3.vercel.app`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
-- Test account cleanup:
-  - Removed the only auth user (`kaziodimm@gmail.com`) after the first signup test.
-  - Verified `auth.users` count returned `0`.
-- Account UX correction:
-  - Profile now presents `Habidoo account` with `Create account` / `Log in`, not `Cloud save` as the primary concept.
-  - Signup now uses email + password with email confirmation.
-  - Login uses email + password.
-  - Added branded `Confirm signup` email template at `supabase/email-templates/habidoo-confirm-signup.html`; Supabase dashboard must use this template for signup confirmation emails.
-  - Verification: tests 34/34 passing, typecheck passing, Next production build passing.
-  - Production deployment: `dpl_G55txkyFHutqcxKp8yNFYYzM6DHL`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
-- Account autosync correction:
-  - Removed manual `Save progress to account` CTA.
-  - After Habid/profile creation, progress sync starts automatically.
-  - If account progress already exists on login, the user still chooses `Use account progress` or `Keep this device progress`; after that choice autosync starts.
-  - Verification: tests 34/34 passing, typecheck passing, Next production build passing.
-  - Production deployment: `dpl_G3RB9T95W8gtPgCFSboVwDAwbt55`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Vercel fetch check: `https://www.habidoo.com/profile` returned HTTP `200`.
-- Account-first access gate:
-  - Unauthenticated users no longer see Tree, Missions, Stats, Awards, or Profile.
-  - `/` is now a pre-login landing page with Habidoo positioning and account signup/login.
-  - Tool routes require a confirmed Supabase account, a Habid/profile row, and completed onboarding.
-  - Confirmed users without Habid/profile are routed to `/profile`.
-  - Verification: tests 35/35 passing, typecheck passing, Next production build passing.
-  - Production deployment: `dpl_92XiK2vi46S2A5nx1vLi8J4pSCCe`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Vercel fetch checks: `/` returned HTTP `200`; `/tree` unauthenticated returned the gated `Preparing Habidoo...` shell.
-- Pre-login and post-Habid fix:
-  - `/` pre-login page now has language switching, richer product copy, Foundation Era visual, product steps, and account form.
-  - Fixed post-login/profile gate bug by dispatching and listening for `habidoo:account-profile-changed` after Habid creation.
-  - This prevents the app from bouncing the user back to Profile after Habid creation when clicking Tree/Missions/Stats.
-  - Verification: tests 35/35 passing, typecheck passing, Next production build passing.
-  - Production deployment: `dpl_5iDbrJSD9VXfVrMyogRQNpVNxKEd`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Vercel fetch check: `/` returned HTTP `200`.
+- Redirect allow list: `https://www.habidoo.com/auth/confirm` and local dev `http://localhost:3000/auth/confirm`
+- Email confirmations enabled.
+- Resend SMTP configured through Supabase dashboard, not committed.
 
-## Active mission state repair — 2026-06-23
+## Implementation rules for Codex
 
-- Implementation commit: `ece1068 fix: repair broken active mission state`.
-- Pushed to GitHub `main`: `ece1068c17b5a69786aecb04905d2ff4ada1aa89`.
-- Added active mission reconciliation for persisted state:
-  - active technology runtime must have an `activeMissionAttemptId`;
-  - that attempt must exist in `missionAttempts`;
-  - the attempt must belong to the same technology;
-  - invalid active runtimes are safely reset to `ready` with `startedAt` cleared;
-  - no fake attempt is created during migration.
-- Added MissionPanel recovery UI for broken active missions:
-  - shows “Mission state needs repair” instead of an empty non-saving form;
-  - “Reset active mission” resets only the broken active runtime, not all local progress.
-- Legacy `dailyMissions` and `planner` are now treated as migration/deprecated fields; active MVP progress is `technologyRuntime + missionAttempts + focusObjects + chapterSummaries`.
-- Verification:
-  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 30/30 passing.
-  - `tsc --noEmit`: passing.
-  - `next build`: passing.
-  - Local browser smoke: `/tree` loads, mission can start, rating/text answers accept input, `/command` has no 24h Planner and shows the active mission.
-- Vercel Git deployments for `ece1068` and `86b5c6e` are `BLOCKED` because GitHub still reports commits as `unverified`.
-- Direct Vercel CLI production deploy succeeded after the Git block:
-  - Production deployment: `dpl_B2J3Ux4pwX5b6DFN6931psHic95F`.
-  - Production URL: `https://lifequest-hl8nmxl6s-kazi-s-projects3.vercel.app`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Domain checks: `https://www.habidoo.com/`, `/tree`, and `/command` returned HTTP `200`.
+Before any coding pass:
 
-## Pre-login polish and profile-bounce fix — 2026-06-23
+1. Read this file.
+2. Read `docs/product/HABIDOO_Product_Logic_v3_RU.md`.
+3. Inspect the actual code files relevant to the task.
+4. Do not assume old product docs are current if v3 says otherwise.
 
-- Fixed the post-login navigation bug where clicking Tree/Missions/Stats could flash `Preparing Habidoo...` and return to Profile.
-- Cause: protected tool routes were hard-gated on the async `hasProfile/profileLoaded` check. If the local session was authenticated but profile hydration was late/stale, AppShell treated the account as not ready and redirected back to `/profile`.
-- Change: protected app routes now require an authenticated account; tool routes additionally require completed onboarding. Habid/profile state remains available for account UI and sync, but it is no longer a brittle navigation blocker.
-- Improved `/` pre-login page:
-  - richer Foundation Era hero section;
-  - visible language switcher;
-  - product promise/steps;
-  - stronger account-first messaging;
-  - code-generated Habidoo product visual with account, focus, mission, tree and stats nodes.
-- Verification:
-  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 35/35 passing.
-  - `tsc --noEmit`: passing.
-  - `next build`: passing.
-- Commit: `1263c01 fix: polish prelogin and loosen auth gate`.
-- Pushed to GitHub `main`.
-- Production deployment:
-  - Deployment id: `dpl_HLKmkLytQH2x4ujGhn1fVUxRfYjK`.
-  - Production URL: `https://lifequest-i6cab8rmm-kazi-s-projects3.vercel.app`.
-  - Aliases: `https://habidoo.com`, `https://www.habidoo.com`, `https://lifequest-gamma.vercel.app`.
-  - Deployment state: `READY`.
-  - Fetch checks: `https://www.habidoo.com/` returned HTTP `200`; `/tree` returned HTTP `200`.
-- Pending manual check: register/login again and click Tree/Missions/Stats/Profile from the real account.
+During implementation:
 
-## Public landing, localization, legal pages — 2026-06-23
+- Keep changes scoped.
+- Do not add new eras.
+- Do not add new generated art/themes unless explicitly requested.
+- Do not reintroduce 24h Planner.
+- Do not build a Habitica clone.
+- Do not make Profile the dumping ground for settings/inventory/theme selection.
+- Do not let guide/lesson changes break cloud state migration.
+- Every pass must update `HANDOFF.md` with what changed and what was verified.
 
-- Improved the public pre-login page toward a Habitica-like product landing structure, but with Habidoo's mature life-progress positioning instead of RPG/pixel art.
-- Generated and added a new hero image:
-  - `public/art/landing/habidoo-life-system-hero.png`
-  - Prompt goal: premium modern self-improvement product visual showing a living life tree, guided missions, focus areas, progress and stats.
-- `/` now uses the generated hero image and localized landing/onboarding/auth copy for EN/RU/CS/UK on the public and first-user path.
-- `CloudAccountPanel` accepts an optional `locale` prop and localizes account/signup/login/Habid/sync messages for EN/RU/CS/UK.
-- Added public legal/info pages:
-  - `/terms` — Terms of Use MVP text.
-  - `/privacy` — Privacy Policy MVP text.
-  - `/rules` — Rules of Use MVP text.
-- Added footer links from the landing page to Rules, Terms and Privacy.
-- Verification:
-  - `node --experimental-strip-types --test tests/mission-rules.test.ts`: 35/35 passing.
-  - `tsc --noEmit`: passing.
-  - `next build`: passing.
-- Commit: `6136a23 feat: polish public landing and legal pages`.
-- Pushed to GitHub `main`.
-- Production deployment:
-  - Deployment id: `dpl_HPUkedZ2nEchp8zGc864vK8zy9BF`.
-  - Production URL: `https://lifequest-cwyvxyfg3-kazi-s-projects3.vercel.app`.
-  - Alias: `https://www.habidoo.com`.
-  - Deployment state: `READY`.
-  - Fetch checks: `/`, `/terms`, `/privacy`, `/rules`, and `/art/landing/habidoo-life-system-hero.png` returned HTTP `200`.
-- Note: global `lib/i18n.ts` still contains legacy mojibake in older translated keys. The public pre-login/onboarding/auth path now bypasses that with clean local copy; a later technical cleanup can re-encode/replace the full global dictionary.
+Verification expected for code passes:
 
-Read this file first when continuing in a new Codex thread.
+```bash
+npm test
+tsc --noEmit
+next build
+```
 
-## First-session guidance pass — 2026-06-24
+If scripts differ in `package.json`, use the repository scripts.
 
-- Implementation commit: `702a3f4 feat: guide first mission session`.
-- Reworked all seven root missions so the first step is a concrete real-world action before any reflection-style evidence:
-  - Health starts with water, slow breathing and a 60-second stretch, then records energy/body signal.
-  - Mind starts with closing distractions and naming a 5-minute next action.
-  - Finance requires opening a money source and saving a sanitized snapshot.
-  - Business requires opening a project surface and producing a tiny visible artifact.
-  - Career requires saving an opportunity or updating a career surface.
-  - Relationships requires sending/drafting a meaningful message.
-  - Creativity requires a 10-minute rough draft and saved result.
-- Added first-session guide state to the persisted game state: `firstSessionGuideDismissed`, `firstMissionCompletedAt`, and `firstPostMissionHintSeen`, with safe migration defaults.
-- Added a compact dismissible first-session guide on the Life Tree that explains the five-step loop: start root mission, do action, save evidence, read result, choose next step in Command Center.
-- Added restrained first-completion feedback in the mission panel with XP, Research, cooldown explanation, “You are not blocked” guidance, and CTAs to Command Center or Tree.
-- Reduced the first completed root mission global cooldown to the existing micro cooldown path while preserving the one-active-mission rule and personal branch cooldowns.
-- Improved Command Center cooldown state so it explains personal/global cooldown, shows remaining time, and suggests non-fake actions: review evidence, profile progress, achievements, prepare next focus, or return later.
-- Updated EN/RU/CS/UK mission and guide/cooldown copy for changed first-session content.
-- Added tests for action-first root missions, first-session guide state migration, localized guide/cooldown copy, and preserved no-24h-Planner guardrails.
+Manual QA expected before beta:
 
-Verification:
+- desktop account signup/login;
+- mobile account login;
+- desktop -> complete mission -> phone sees progress;
+- phone -> complete mission -> desktop sees progress;
+- first-user guide on mobile 390x844;
+- desktop 1440x900 layout;
+- no important buttons clipped;
+- no horizontal overflow;
+- legal pages reachable;
+- user can understand next action without founder explanation.
 
-- `npm test`: 38/38 passing.
-- `npm run typecheck`: passing.
-- `npm run build`: passing.
+## Last documentation changes
 
-Remaining limitations / manual checks still needed:
-
-- Browser signup/login and full first-session completion should still be checked against a real Supabase/Vercel environment before production release.
-- Real mobile Safari/Android Chrome overflow and mission-panel ergonomics still need device QA.
-- Czech and Ukrainian new copy is localized but native-speaker editorial review remains recommended.
+- Added `docs/product/HABIDOO_Product_Logic_v3_RU.md`.
+- Replaced old progression spec with a compatibility note pointing to v3.
+- Reset this `HANDOFF.md` around current v3 logic to avoid old repeat-count/cooldown guidance confusing future Codex chats.
