@@ -51,6 +51,8 @@ export default function CommandPage() {
   const alternatives = available.slice(1, 3);
   const globalCooldownSeconds = state.globalMissionCooldownUntil ? Math.max(0, Math.floor((state.globalMissionCooldownUntil - now) / 1000)) : 0;
   const completedThisWeek = state.missionAttempts.filter((attempt) => attempt.completedAt && now - attempt.completedAt < 7 * 24 * 60 * 60 * 1000).length;
+  const latestCompletedAttempt = [...state.missionAttempts].reverse().find((attempt) => attempt.completedAt);
+  const latestCompletedTechnology = latestCompletedAttempt ? technologies.find((technology) => technology.id === latestCompletedAttempt.technologyId) : undefined;
   const nextMilestone = technologies.find((technology) => !state.completedTechnologyIds.includes(technology.id) && (technology.type === "milestone" || technology.type === "challenge") && getTechnologyLockReasons(technology, state).length === 0);
 
   function missionCopy(technology: (typeof technologies)[number]) {
@@ -81,6 +83,26 @@ export default function CommandPage() {
             </CardContent>
           </Card>
 
+
+          {globalCooldownSeconds > 0 && !activeTechnology ? (
+            <Card className="border-primary/35 bg-primary/5">
+              <CardHeader><CardTitle>{translate(state.locale, "What can I do now?")}</CardTitle></CardHeader>
+              <CardContent className="grid gap-3 text-sm">
+                <p className="font-bold text-foreground">{translate(state.locale, "You are not blocked.")}</p>
+                <p className="text-muted-foreground">{translate(state.locale, "Global cooldown is a short recovery window before another focused mission. Personal cooldown means this exact branch rests.")}</p>
+                <p className="text-xs font-black uppercase tracking-wide text-primary">{translate(state.locale, "Cooldown remaining")}: {formatDuration(globalCooldownSeconds)}</p>
+                <div className="grid gap-2 rounded-md border border-border bg-background/50 p-3 text-xs leading-5 text-muted-foreground">
+                  {latestCompletedTechnology ? <p><strong className="text-foreground">{translate(state.locale, "Review completed evidence")}:</strong> {localizeTechnology(latestCompletedTechnology, state.locale).title}</p> : null}
+                  <p>{translate(state.locale, "Check profile progress, view achievements, prepare the next focus, or return later.")}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild><Link href="/tree">{translate(state.locale, "Continue Tree")}</Link></Button>
+                  <Button variant="outline" asChild><Link href="/profile">{translate(state.locale, "Review progress")}</Link></Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+
           {recommendation ? <Card><CardHeader><CardTitle>{translate(state.locale, "Recommended next mission")}</CardTitle></CardHeader><CardContent className="grid gap-3"><div><p className="font-black text-foreground">{localizeTechnology(recommendation, state.locale).title}</p><p className="mt-1 text-sm text-muted-foreground">{missionCopy(recommendation).concreteOutcome}</p></div><Button disabled={Boolean(activeTechnology) || globalCooldownSeconds > 0} onClick={() => startTechnologyMission(recommendation.id)}><Play size={16} />{globalCooldownSeconds > 0 ? `${translate(state.locale, "Cooldown")} ${formatDuration(globalCooldownSeconds)}` : translate(state.locale, "Start Mission")}</Button></CardContent></Card> : null}
 
           {alternatives.length ? <Card><CardHeader><CardTitle>{translate(state.locale, "Available alternatives")}</CardTitle></CardHeader><CardContent className="grid gap-2">{alternatives.map((technology) => <div key={technology.id} className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 p-3"><div className="min-w-0"><p className="font-bold text-foreground">{localizeTechnology(technology, state.locale).title}</p><p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{missionCopy(technology).concreteOutcome}</p></div><Button size="sm" variant="outline" disabled={Boolean(activeTechnology) || globalCooldownSeconds > 0} onClick={() => startTechnologyMission(technology.id)}><Play size={15} />{translate(state.locale, "Start")}</Button></div>)}</CardContent></Card> : null}
@@ -96,7 +118,7 @@ export default function CommandPage() {
               </div>
               <div className="rounded-md border border-border bg-muted/30 p-3">
                 <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">{translate(state.locale, "Daily state")}</p>
-                <p className="mt-1 text-sm font-bold text-foreground">{activeTechnology ? translate(state.locale, "One active mission is waiting for completion.") : globalCooldownSeconds > 0 ? translate(state.locale, "Recovery cooldown is active.") : translate(state.locale, "Ready for one focused mission.")}</p>
+                <p className="mt-1 text-sm font-bold text-foreground">{activeTechnology ? translate(state.locale, "One active mission is waiting for completion.") : globalCooldownSeconds > 0 ? translate(state.locale, "Recovery cooldown is active. You can review progress or prepare the next focus.") : translate(state.locale, "Ready for one focused mission.")}</p>
               </div>
               <div className="rounded-md border border-border bg-muted/30 p-3">
                 <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">{translate(state.locale, "Weekly state")}</p>

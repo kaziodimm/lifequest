@@ -143,6 +143,9 @@ const initialState: PlayerState = {
   activeMissionAttemptId: undefined,
   missionAttempts: [],
   focusObjects: [],
+  firstSessionGuideDismissed: false,
+  firstMissionCompletedAt: undefined,
+  firstPostMissionHintSeen: false,
   dailyMissions: [],
   planner: [],
   achievements: [
@@ -241,7 +244,10 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     planner: [],
     achievements: persisted?.achievements ?? initialState.achievements,
     progressHistory: persisted?.progressHistory ?? initialState.progressHistory,
-    chapterSummaries: Array.isArray(persisted?.chapterSummaries) ? persisted.chapterSummaries : []
+    chapterSummaries: Array.isArray(persisted?.chapterSummaries) ? persisted.chapterSummaries : [],
+    firstSessionGuideDismissed: persisted?.firstSessionGuideDismissed === true,
+    firstMissionCompletedAt: typeof persisted?.firstMissionCompletedAt === "number" ? persisted.firstMissionCompletedAt : undefined,
+    firstPostMissionHintSeen: persisted?.firstPostMissionHintSeen === true
   };
 }
 
@@ -258,6 +264,8 @@ type LifeStore = PlayerState & {
   saveFocusObject: (focusObject: UserFocusObject) => void;
   unlockTechnology: (technologyId: string) => void;
   resetBrokenActiveMission: (technologyId: string) => void;
+  dismissFirstSessionGuide: () => void;
+  markFirstPostMissionHintSeen: () => void;
   restoreCloudState: (state: Partial<PlayerState>) => void;
   resetLocalProgress: () => void;
 };
@@ -363,7 +371,9 @@ export const useLifeStore = create<LifeStore>()(
         const completedTechnology = nextProgress >= target;
         const alreadyCompleted = stateBeforeCompletion.completedTechnologyIds.includes(technologyId);
         const missionXp = completedTechnology ? tech.xpReward : Math.max(5, Math.round(tech.xpReward / target));
-        const globalCooldownUntil = now + getGlobalCooldownSeconds(mission.globalCooldownType) * 1000;
+        const isFirstCompletedMission = stateBeforeCompletion.missionAttempts.every((attempt) => !attempt.completedAt);
+        const globalCooldownSeconds = isFirstCompletedMission && tech.parents.length === 0 ? getGlobalCooldownSeconds("micro") : getGlobalCooldownSeconds(mission.globalCooldownType);
+        const globalCooldownUntil = now + globalCooldownSeconds * 1000;
         const categoryReward = tech.rewards.researchPoints?.[tech.category] ?? 0;
         const researchGain = completedTechnology ? categoryReward : Math.max(1, Math.round(categoryReward / target));
         const completionInsight = completedTechnology && !alreadyCompleted ? tech.rewards.insightPoints ?? 0 : 0;
@@ -404,6 +414,8 @@ export const useLifeStore = create<LifeStore>()(
           unlockedNodeFrames: completedTechnology ? addUnique(state.unlockedNodeFrames, tech.rewards.nodeFrame) : state.unlockedNodeFrames,
           unlockedBackgroundEffects: completedTechnology ? addUnique(state.unlockedBackgroundEffects, tech.rewards.backgroundEffect) : state.unlockedBackgroundEffects,
           globalMissionCooldownUntil: globalCooldownUntil,
+          firstMissionCompletedAt: state.firstMissionCompletedAt ?? now,
+          firstPostMissionHintSeen: false,
           activeMissionAttemptId: undefined,
           focusObjects: newFocusObject ? [...state.focusObjects.filter((item) => item.category !== tech.category), newFocusObject] : state.focusObjects,
           chapterSummaries: chapterSummary ? [...state.chapterSummaries.filter((summary) => summary.chapterId !== chapterSummary.chapterId), chapterSummary] : state.chapterSummaries,
@@ -430,6 +442,12 @@ export const useLifeStore = create<LifeStore>()(
       },
       unlockTechnology(technologyId) {
         get().startTechnologyMission(technologyId);
+      },
+      dismissFirstSessionGuide() {
+        set({ firstSessionGuideDismissed: true });
+      },
+      markFirstPostMissionHintSeen() {
+        set({ firstPostMissionHintSeen: true });
       },
       resetBrokenActiveMission(technologyId) {
         const state = get();

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent, WheelEvent } from "react";
 import { Check, ChevronLeft, ChevronRight, Clock3, LocateFixed, Lock, Play, RotateCcw, ShieldAlert, Sparkles, Timer, X as CloseIcon } from "lucide-react";
@@ -227,6 +228,9 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const totalXp = useLifeStore((state) => state.totalXp);
   const insightPoints = useLifeStore((state) => state.insightPoints);
   const locale = useLifeStore((state) => state.locale);
+  const firstMissionCompletedAt = useLifeStore((state) => state.firstMissionCompletedAt);
+  const firstPostMissionHintSeen = useLifeStore((state) => state.firstPostMissionHintSeen);
+  const markFirstPostMissionHintSeen = useLifeStore((state) => state.markFirstPostMissionHintSeen);
   const activeAttemptId = useLifeStore((state) => state.activeMissionAttemptId);
   const activeAttempt = useLifeStore((state) => state.missionAttempts.find((attempt) => attempt.id === state.activeMissionAttemptId && attempt.technologyId === technology.id));
   const allAttempts = useLifeStore((state) => state.missionAttempts);
@@ -266,6 +270,9 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
   const color = categoryColors[technology.category];
   const researchReward = technology.rewards.researchPoints?.[technology.category] ?? 0;
   const showSpecialRewards = technology.type === "challenge" || technology.type === "milestone" || technology.id === "awakening-trial";
+  const latestCompletedAttempt = [...allAttempts].reverse().find((attempt) => attempt.technologyId === technology.id && attempt.completedAt);
+  const shouldShowFirstCompletionHint = Boolean(latestCompletedAttempt && firstMissionCompletedAt === latestCompletedAttempt?.completedAt && !firstPostMissionHintSeen);
+  const earnedResearch = latestCompletedAttempt?.earnedRewards?.researchPoints?.[technology.category] ?? researchReward;
   const futureRewards = showSpecialRewards ? [technology.rewards.badge && `${translate(locale, "Badge")}: ${technology.rewards.badge}`, technology.rewards.title && `${translate(locale, "Title")}: ${technology.rewards.title}`, technology.rewards.themeUnlock && `${translate(locale, "Theme")}: ${technology.rewards.themeUnlock}`].filter(Boolean) : [];
 
   return (
@@ -291,6 +298,20 @@ function MissionPanel({ anchor, technology, now, onClose }: { anchor: PanelAncho
           </button>
         </div>
       </div>
+
+
+      {shouldShowFirstCompletionHint ? (
+        <div className="mb-3 rounded-lg border border-primary/40 bg-primary/10 p-3 text-sm">
+          <p className="text-xs font-black uppercase tracking-wide text-primary">{translate(locale, "Mission complete")}</p>
+          <p className="mt-1 font-black text-foreground">+{latestCompletedAttempt?.earnedRewards?.xp ?? technology.rewards.xp} XP · +{earnedResearch} {translate(locale, "Research")}</p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">{translate(locale, "This branch is cooling down so the action stays meaningful. You are not blocked.")}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{translate(locale, "Next recommended step: open Command Center and choose what is available now.")}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button size="sm" asChild><Link href="/command">{translate(locale, "Open Command Center")}</Link></Button>
+            <Button size="sm" variant="outline" onClick={markFirstPostMissionHintSeen}>{translate(locale, "Continue Tree")}</Button>
+          </div>
+        </div>
+      ) : null}
 
       <p className="text-sm leading-6 text-muted-foreground">{localizedTechnology.description}</p>
 
@@ -443,6 +464,9 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
   const totalXp = useLifeStore((state) => state.totalXp);
   const insightPoints = useLifeStore((state) => state.insightPoints);
   const locale = useLifeStore((state) => state.locale);
+  const firstSessionGuideDismissed = useLifeStore((state) => state.firstSessionGuideDismissed);
+  const firstMissionCompletedAt = useLifeStore((state) => state.firstMissionCompletedAt);
+  const dismissFirstSessionGuide = useLifeStore((state) => state.dismissFirstSessionGuide);
   const activeTechnology = technologies.find((technology) => technologyRuntime[technology.id]?.status === "active");
   const selectedTechnology = useMemo(() => technologies.find((tech) => tech.id === selectedId) ?? null, [selectedId]);
   const rootTechnologies = useMemo(() => technologies.filter((tech) => tech.parents.length === 0), []);
@@ -605,6 +629,25 @@ export function LifeTree({ initialTechnologyId }: { initialTechnologyId?: string
 
   return (
     <div className="life-tree-shell immersive-tree-shell">
+      {!firstSessionGuideDismissed && !firstMissionCompletedAt ? (
+        <div className="pointer-events-auto absolute left-3 right-3 top-[76px] z-30 rounded-xl border border-primary/35 bg-card/95 p-3 shadow-2xl backdrop-blur md:left-4 md:right-auto md:w-[360px]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-wide text-primary">{translate(locale, "First session guide")}</p>
+              <p className="mt-1 text-sm font-black text-foreground">{translate(locale, "Complete one real action first.")}</p>
+            </div>
+            <button type="button" className="rounded-full border border-border px-2 py-1 text-xs font-black text-muted-foreground" onClick={dismissFirstSessionGuide}>{translate(locale, "Dismiss")}</button>
+          </div>
+          <ol className="mt-2 grid list-decimal gap-1 pl-4 text-xs leading-5 text-muted-foreground">
+            <li>{translate(locale, "Start the highlighted root mission.")}</li>
+            <li>{translate(locale, "Do the real-world action.")}</li>
+            <li>{translate(locale, "Save evidence.")}</li>
+            <li>{translate(locale, "Read the completion result.")}</li>
+            <li>{translate(locale, "Choose next step from Command Center.")}</li>
+          </ol>
+        </div>
+      ) : null}
+
       <div className="life-tree-toolbar epoch-toolbar">
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{translate(locale, "The Awakening")}</p>

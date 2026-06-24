@@ -258,3 +258,34 @@ Supabase Auth dashboard setup:
 - Note: global `lib/i18n.ts` still contains legacy mojibake in older translated keys. The public pre-login/onboarding/auth path now bypasses that with clean local copy; a later technical cleanup can re-encode/replace the full global dictionary.
 
 Read this file first when continuing in a new Codex thread.
+
+## First-session guidance pass — 2026-06-24
+
+- Implementation commit: `702a3f4 feat: guide first mission session`.
+- Reworked all seven root missions so the first step is a concrete real-world action before any reflection-style evidence:
+  - Health starts with water, slow breathing and a 60-second stretch, then records energy/body signal.
+  - Mind starts with closing distractions and naming a 5-minute next action.
+  - Finance requires opening a money source and saving a sanitized snapshot.
+  - Business requires opening a project surface and producing a tiny visible artifact.
+  - Career requires saving an opportunity or updating a career surface.
+  - Relationships requires sending/drafting a meaningful message.
+  - Creativity requires a 10-minute rough draft and saved result.
+- Added first-session guide state to the persisted game state: `firstSessionGuideDismissed`, `firstMissionCompletedAt`, and `firstPostMissionHintSeen`, with safe migration defaults.
+- Added a compact dismissible first-session guide on the Life Tree that explains the five-step loop: start root mission, do action, save evidence, read result, choose next step in Command Center.
+- Added restrained first-completion feedback in the mission panel with XP, Research, cooldown explanation, “You are not blocked” guidance, and CTAs to Command Center or Tree.
+- Reduced the first completed root mission global cooldown to the existing micro cooldown path while preserving the one-active-mission rule and personal branch cooldowns.
+- Improved Command Center cooldown state so it explains personal/global cooldown, shows remaining time, and suggests non-fake actions: review evidence, profile progress, achievements, prepare next focus, or return later.
+- Updated EN/RU/CS/UK mission and guide/cooldown copy for changed first-session content.
+- Added tests for action-first root missions, first-session guide state migration, localized guide/cooldown copy, and preserved no-24h-Planner guardrails.
+
+Verification:
+
+- `npm test`: 38/38 passing.
+- `npm run typecheck`: passing.
+- `npm run build`: passing.
+
+Remaining limitations / manual checks still needed:
+
+- Browser signup/login and full first-session completion should still be checked against a real Supabase/Vercel environment before production release.
+- Real mobile Safari/Android Chrome overflow and mission-panel ergonomics still need device QA.
+- Czech and Ukrainian new copy is localized but native-speaker editorial review remains recommended.

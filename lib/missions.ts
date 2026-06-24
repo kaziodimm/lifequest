@@ -2,20 +2,20 @@ import type { LifeCategory, LifeTechnology, MissionDefinition, MissionInput, Tec
 
 const guidedRootMissions: Record<string, Partial<MissionDefinition>> = {
   "health-root": {
-    actionTitle: "Check your energy now",
-    concreteOutcome: "Save one clear body-state snapshot.",
-    recommendedChoice: "Rate the state you feel right now, without trying to improve it first.",
-    exampleResult: "Energy 3/5, stress 2/5, sitting too long is affecting me.",
+    actionTitle: "Reset your body with one tiny action",
+    concreteOutcome: "Water, breathing and a 60-second shoulder or neck stretch are completed before you save the result.",
+    recommendedChoice: "Stand up, drink water, take 10 slow breaths, then stretch shoulders or neck for 60 seconds.",
+    exampleResult: "Action complete; energy 3/5; body signal: neck feels tight after sitting.",
     inputSchema: [
-      { id: "energy", type: "rating", label: "Energy right now", required: true, min: 1, max: 5 },
-      { id: "stress", type: "rating", label: "Stress right now", required: true, min: 1, max: 5 },
-      { id: "body-factor", type: "shortText", label: "What affects your body most right now?", placeholder: "For example: sitting too long", example: "Sitting too long is affecting me.", required: true }
+      { id: "body-reset-completed", type: "confirmation", label: "I stood up, drank water, breathed slowly and stretched for 60 seconds.", required: true },
+      { id: "energy-after", type: "rating", label: "Energy after the reset", required: true, min: 1, max: 5 },
+      { id: "body-factor", type: "shortText", label: "One body signal you noticed", placeholder: "For example: tight neck after sitting", example: "My neck feels tight after sitting.", required: true }
     ]
   },
   "mind-root": {
     actionTitle: "Clear the workspace and choose one physical next step",
-    concreteOutcome: "One distracting surface is closed and one immediately startable action is saved.",
-    recommendedChoice: "Close unrelated tabs and continue the task already closest to completion.",
+    concreteOutcome: "One distracting surface is closed and one immediately startable 5-minute action is saved.",
+    recommendedChoice: "Close unrelated tabs or apps, clear one visible distraction, then choose a task you can start for 5 minutes.",
     exampleResult: "Open the registration page file and finish the email field.",
     inputSchema: [
       { id: "workspace-cleared", type: "confirmation", label: "I closed unrelated tabs, apps or materials.", required: true },
@@ -23,59 +23,65 @@ const guidedRootMissions: Record<string, Partial<MissionDefinition>> = {
     ]
   },
   "finance-root": {
-    actionTitle: "Enter four numbers for a money snapshot",
-    concreteOutcome: "Current balance, expected monthly income, fixed costs and flexible spending are saved.",
-    recommendedChoice: "Use approximate numbers if exact values are not available within two minutes.",
-    exampleResult: "Balance 1200; income 2100; fixed costs 1250; flexible spending 500.",
+    actionTitle: "Open your money source and save a basic snapshot",
+    concreteOutcome: "Bank app, notes or spreadsheet opened; four basic numbers or a recurring payment are recorded.",
+    recommendedChoice: "Open one money source now and use approximate numbers if exact values are not available within two minutes.",
+    exampleResult: "Opened bank app; balance 1200; income 2100; fixed costs 1250; flexible spending 500.",
     inputSchema: [
       { id: "balance", type: "number", label: "Current available balance", required: true },
       { id: "income", type: "number", label: "Expected income this month", required: true },
       { id: "fixed-costs", type: "number", label: "Fixed monthly costs", required: true },
-      { id: "flexible-spending", type: "number", label: "Expected flexible spending", required: true }
+      { id: "flexible-spending", type: "number", label: "Expected flexible spending", required: true },
+      { id: "money-source-opened", type: "confirmation", label: "I opened a bank app, notes or spreadsheet before saving this snapshot.", required: true }
     ]
   },
   "business-root": {
-    actionTitle: "Set the project for this chapter",
-    concreteOutcome: "One current project and its desired visible result are saved as your focus object.",
-    recommendedChoice: "Choose the project already closest to a useful visible version.",
-    exampleResult: "My project — a working registration screen ready to show.",
+    actionTitle: "Open a project file and create one tiny artifact",
+    concreteOutcome: "A real project surface is opened and one visible artifact or change exists.",
+    recommendedChoice: "Open the project already closest to a useful visible version and create the smallest visible change.",
+    exampleResult: "Opened Habidoo notes; added a rough registration screen checklist.",
     inputSchema: [
       { id: "project-type", type: "singleChoice", label: "What will you work on?", required: true, allowCustomChoice: true, choices: [
         { id: "site-app", label: "Website or application" }, { id: "document-process", label: "Work document or process" }, { id: "service-business", label: "Service or business idea" }, { id: "creative-project", label: "Creative project" }
       ] },
       { id: "project-name", type: "shortText", label: "Project name", placeholder: "For example: my project", required: true },
-      { id: "desired-result", type: "shortText", label: "What visible result should exist?", example: "A working registration screen ready to show.", required: true }
+      { id: "desired-result", type: "shortText", label: "What visible result should exist?", example: "A working registration screen ready to show.", required: true },
+      { id: "visible-artifact", type: "shortText", label: "What tiny visible artifact exists now?", placeholder: "For example: outline, draft, screen, checklist", required: true }
     ]
   },
   "career-root": {
-    actionTitle: "Choose the nearest career target",
-    concreteOutcome: "One practical career target is saved for this chapter.",
-    recommendedChoice: "Choose the option that can create visible evidence within 30 days.",
-    exampleResult: "Create one portfolio case for frontend roles.",
+    actionTitle: "Save one opportunity or update one career surface",
+    concreteOutcome: "One target role and one saved career item now exist.",
+    recommendedChoice: "Save a realistic role/opportunity or update one CV, profile or portfolio line.",
+    exampleResult: "Frontend developer; saved one React role and updated one portfolio line.",
     inputSchema: [{ id: "career-target", type: "singleChoice", label: "What is your nearest career target?", required: true, allowCustomChoice: true, choices: [
       { id: "prove-skill", label: "Create visible proof of a skill" }, { id: "improve-profile", label: "Improve CV or professional profile" }, { id: "learn-skill", label: "Learn one role-relevant skill" }, { id: "explore-role", label: "Explore a realistic new role" }
-    ] }]
+    ] },
+      { id: "career-saved-item", type: "shortText", label: "What did you save or update?", placeholder: "Role link, CV line, profile line or portfolio item", required: true }]
   },
   "relationships-root": {
-    actionTitle: "Choose one person for intentional contact",
-    concreteOutcome: "One relationship is saved as the current connection focus.",
-    recommendedChoice: "Choose someone important whom you have not contacted recently.",
-    exampleResult: "Anna — send a real check-in this week.",
+    actionTitle: "Send or draft one meaningful message",
+    concreteOutcome: "A real person, contact method and next step are saved after a concrete message action.",
+    recommendedChoice: "Send it if appropriate; otherwise save a complete draft ready to send.",
+    exampleResult: "Anna — drafted a specific check-in by WhatsApp; next step: send tonight.",
     inputSchema: [
       { id: "person-name", type: "shortText", label: "Person's name", placeholder: "For example: Anna", required: true },
-      { id: "connection-outcome", type: "singleChoice", label: "What would be a useful next step?", required: true, choices: [
-        { id: "message", label: "Send a meaningful message" }, { id: "call", label: "Arrange a short call" }, { id: "meet", label: "Suggest a simple meeting" }, { id: "thanks", label: "Send a specific thank-you" }
-      ] }
+      { id: "contact-method", type: "singleChoice", label: "Where did you send or draft it?", required: true, allowCustomChoice: true, choices: [
+        { id: "message", label: "Messenger or SMS" }, { id: "email", label: "Email" }, { id: "call", label: "Call note" }, { id: "social", label: "Social app" }
+      ] },
+      { id: "connection-outcome", type: "shortText", label: "What is the next step?", placeholder: "Send tonight / wait for reply / suggest a call", required: true }
     ]
   },
   "creativity-root": {
-    actionTitle: "Choose a creative format and make a ten-minute draft",
-    concreteOutcome: "One creative medium is saved and a first draft exists.",
-    recommendedChoice: "Use the format requiring the least setup right now.",
+    actionTitle: "Create a rough draft for 10 minutes",
+    concreteOutcome: "One creative medium is selected and a rough saved artifact exists now.",
+    recommendedChoice: "Use the format requiring the least setup right now and stop after a rough first version.",
     exampleResult: "Writing — a rough opening paragraph saved in notes.",
-    inputSchema: [{ id: "creative-medium", type: "singleChoice", label: "Which format will you use?", required: true, allowCustomChoice: true, choices: [
+    inputSchema: [{ id: "creative-medium", type: "singleChoice", label: "Which format did you use?", required: true, allowCustomChoice: true, choices: [
       { id: "writing", label: "Writing" }, { id: "drawing-design", label: "Drawing or design" }, { id: "photo-video", label: "Photo or video" }, { id: "music-audio", label: "Music or audio" }
-    ] }]
+    ] },
+      { id: "draft-created", type: "confirmation", label: "I created and saved a rough 10-minute draft.", required: true },
+      { id: "draft-result", type: "shortText", label: "What exists now?", placeholder: "Rough paragraph, sketch, clip, melody…", required: true }]
   },
   "morning-walk": {
     actionTitle: "Walk outside for 10 minutes",
