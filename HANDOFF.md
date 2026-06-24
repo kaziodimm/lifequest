@@ -258,3 +258,91 @@ Supabase Auth dashboard setup:
 - Note: global `lib/i18n.ts` still contains legacy mojibake in older translated keys. The public pre-login/onboarding/auth path now bypasses that with clean local copy; a later technical cleanup can re-encode/replace the full global dictionary.
 
 Read this file first when continuing in a new Codex thread.
+
+## First-session guidance pass — 2026-06-24
+
+- Implementation commit: `702a3f4 feat: guide first mission session`.
+- Reworked all seven root missions so the first step is a concrete real-world action before any reflection-style evidence:
+  - Health starts with water, slow breathing and a 60-second stretch, then records energy/body signal.
+  - Mind starts with closing distractions and naming a 5-minute next action.
+  - Finance requires opening a money source and saving a sanitized snapshot.
+  - Business requires opening a project surface and producing a tiny visible artifact.
+  - Career requires saving an opportunity or updating a career surface.
+  - Relationships requires sending/drafting a meaningful message.
+  - Creativity requires a 10-minute rough draft and saved result.
+- Added first-session guide state to the persisted game state: `firstSessionGuideDismissed`, `firstMissionCompletedAt`, and `firstPostMissionHintSeen`, with safe migration defaults.
+- Added a compact dismissible first-session guide on the Life Tree that explains the five-step loop: start root mission, do action, save evidence, read result, choose next step in Command Center.
+- Added restrained first-completion feedback in the mission panel with XP, Research, cooldown explanation, “You are not blocked” guidance, and CTAs to Command Center or Tree.
+- Reduced the first completed root mission global cooldown to the existing micro cooldown path while preserving the one-active-mission rule and personal branch cooldowns.
+- Improved Command Center cooldown state so it explains personal/global cooldown, shows remaining time, and suggests non-fake actions: review evidence, profile progress, achievements, prepare next focus, or return later.
+- Updated EN/RU/CS/UK mission and guide/cooldown copy for changed first-session content.
+- Added tests for action-first root missions, first-session guide state migration, localized guide/cooldown copy, and preserved no-24h-Planner guardrails.
+
+Verification:
+
+- `npm test`: 38/38 passing.
+- `npm run typecheck`: passing.
+- `npm run build`: passing.
+
+Remaining limitations / manual checks still needed:
+
+- Browser signup/login and full first-session completion should still be checked against a real Supabase/Vercel environment before production release.
+- Real mobile Safari/Android Chrome overflow and mission-panel ergonomics still need device QA.
+- Czech and Ukrainian new copy is localized but native-speaker editorial review remains recommended.
+
+## First Step Guide Mission pass — 2026-06-24
+
+- Implementation commit: `1addc41 feat: add first step guide missions`.
+- Changed files:
+  - `lib/guide-missions.ts`
+  - `lib/types.ts`
+  - `lib/store.ts`
+  - `components/life-tree.tsx`
+  - `app/command/page.tsx`
+  - `lib/i18n.ts`
+  - `tests/mission-rules.test.ts`
+- First session now uses a separate onboarding-layer guide mission before the real Life Tree mission:
+  1. user chooses one first step from the seven life branches;
+  2. user completes a short concrete guide action;
+  3. the guide step grants a small one-time Research reward;
+  4. a restrained reward banner shows “First Step Complete / Life Tree Activated”;
+  5. CTA opens the matching root Technology Mission;
+  6. normal mission cooldown appears only after real Technology Missions.
+- Guide missions are separate from Technology Missions:
+  - they do not call `startTechnologyMission` or `completeTechnologyMission`;
+  - they do not set `globalMissionCooldownUntil`;
+  - they do not set personal cooldown;
+  - they do not mutate `technologyRuntime`;
+  - they do not create `MissionAttempt` or active Technology Mission state;
+  - they are one-time and the Research reward cannot be farmed.
+- Added guide state to Zustand/localStorage/cloud snapshots:
+  - `guideMissionSelectedId`;
+  - `guideMissionCompletedIds`;
+  - `guideMissionAnswers`;
+  - `firstGuideCompletedAt`;
+  - `firstGuideRewardClaimed`;
+  - `firstRealMissionStartedAt`.
+- Old persisted states migrate safely. If a persisted user already has Technology Mission attempts, `firstRealMissionStartedAt` is inferred so the new first-step onboarding does not reappear for existing users.
+- Command Center now handles first-step scenarios:
+  - no guide selected → choose first step;
+  - guide selected but incomplete → continue first step;
+  - guide completed but real mission not started → start the matching root mission;
+  - real mission active/cooldown → existing mission flow.
+- Normal Technology Mission cooldown remains preserved for real Life Tree missions. The previous first-root micro-cooldown special case was removed from `completeTechnologyMission`; cooldown is now only a real mission concept, not the onboarding action.
+- Added EN/RU/CS/UK guide UI and guide mission copy. Native-speaker editorial review for CS/UK remains recommended.
+
+Verification:
+
+- `npm test`: 44/44 passing.
+- `npm run typecheck`: passing.
+- `npm run build`: passing.
+
+Remaining manual checks:
+
+- New account / post-onboarding first session in a real browser.
+- Choose and complete guide mission.
+- Verify no cooldown after guide mission.
+- Verify reward banner appears and CTA opens the correct root node.
+- Start and complete the first real Technology Mission; verify normal cooldown appears only there.
+- Mobile 390×844 and desktop 1440×900 overflow/ergonomics.
+- Production deploy check after merge.

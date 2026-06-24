@@ -4,9 +4,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { technologies } from "./life-tree";
 import { getGlobalCooldownSeconds, getMissionDefinition, getTechnologyMission, getTechnologyTarget } from "./missions";
+import { canCompleteGuideMission, getGuideMission } from "./guide-missions";
 import { getTechnologyLockReasons } from "./progression";
 import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, reconcileActiveMissionState, sanitizeEvidenceAnswers } from "./mission-rules";
-import { ChapterSummary, DailyMission, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
+import { ChapterSummary, DailyMission, GuideMissionAnswer, LifeCategory, Locale, MissionAnswer, MissionCompletionEvidence, PlayerState, ProgressionReward, ResearchPointBalances, TechnologyRuntime, UserFocusObject, VisualThemeId } from "./types";
 
 const emptyResearchPoints: ResearchPointBalances = {
   health: 0,
@@ -143,6 +144,15 @@ const initialState: PlayerState = {
   activeMissionAttemptId: undefined,
   missionAttempts: [],
   focusObjects: [],
+  firstSessionGuideDismissed: false,
+  firstMissionCompletedAt: undefined,
+  firstPostMissionHintSeen: false,
+  guideMissionSelectedId: undefined,
+  guideMissionCompletedIds: [],
+  guideMissionAnswers: {},
+  firstGuideCompletedAt: undefined,
+  firstGuideRewardClaimed: false,
+  firstRealMissionStartedAt: undefined,
   dailyMissions: [],
   planner: [],
   achievements: [
@@ -204,6 +214,7 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
   const normalizedMissionData = normalizePersistedMissionData(persisted);
   const missionAttempts = (normalizedMissionData.missionAttempts as PlayerState["missionAttempts"]).filter((attempt) => attempt?.id && attempt?.missionId && attempt?.technologyId && attempt?.startedAt);
   const focusObjects = (normalizedMissionData.focusObjects as PlayerState["focusObjects"]).filter((object) => object?.id && object?.type && object?.category && object?.name);
+  const earliestTechnologyMissionStartedAt = missionAttempts.length ? Math.min(...missionAttempts.map((attempt) => attempt.startedAt).filter((startedAt) => typeof startedAt === "number")) : undefined;
   const savedCompletedIds = persisted?.completedTechnologyIds;
   const isLegacyDemo = savedCompletedIds?.length === legacyCompletedTechnologyIds.length && legacyCompletedTechnologyIds.every((id) => savedCompletedIds.includes(id));
   const validIds = new Set(technologies.map((technology) => technology.id));
@@ -241,7 +252,16 @@ function normalizeState(persisted: Partial<PlayerState> | undefined): PlayerStat
     planner: [],
     achievements: persisted?.achievements ?? initialState.achievements,
     progressHistory: persisted?.progressHistory ?? initialState.progressHistory,
-    chapterSummaries: Array.isArray(persisted?.chapterSummaries) ? persisted.chapterSummaries : []
+    chapterSummaries: Array.isArray(persisted?.chapterSummaries) ? persisted.chapterSummaries : [],
+    firstSessionGuideDismissed: persisted?.firstSessionGuideDismissed === true,
+    firstMissionCompletedAt: typeof persisted?.firstMissionCompletedAt === "number" ? persisted.firstMissionCompletedAt : undefined,
+    firstPostMissionHintSeen: persisted?.firstPostMissionHintSeen === true,
+    guideMissionSelectedId: typeof persisted?.guideMissionSelectedId === "string" ? persisted.guideMissionSelectedId : undefined,
+    guideMissionCompletedIds: Array.isArray(persisted?.guideMissionCompletedIds) ? persisted.guideMissionCompletedIds.filter((id): id is string => typeof id === "string") : [],
+    guideMissionAnswers: persisted?.guideMissionAnswers && typeof persisted.guideMissionAnswers === "object" ? persisted.guideMissionAnswers : {},
+    firstGuideCompletedAt: typeof persisted?.firstGuideCompletedAt === "number" ? persisted.firstGuideCompletedAt : undefined,
+    firstGuideRewardClaimed: persisted?.firstGuideRewardClaimed === true,
+    firstRealMissionStartedAt: typeof persisted?.firstRealMissionStartedAt === "number" ? persisted.firstRealMissionStartedAt : earliestTechnologyMissionStartedAt
   };
 }
 
@@ -255,9 +275,14 @@ type LifeStore = PlayerState & {
   startTechnologyMission: (technologyId: string) => void;
   completeTechnologyMission: (technologyId: string) => void;
   setMissionAnswer: (attemptId: string, inputId: string, value: MissionAnswer) => void;
+  selectGuideMission: (missionId: string) => void;
+  setGuideMissionAnswer: (missionId: string, inputId: string, value: GuideMissionAnswer) => void;
+  completeGuideMission: (missionId: string) => void;
   saveFocusObject: (focusObject: UserFocusObject) => void;
   unlockTechnology: (technologyId: string) => void;
   resetBrokenActiveMission: (technologyId: string) => void;
+  dismissFirstSessionGuide: () => void;
+  markFirstPostMissionHintSeen: () => void;
   restoreCloudState: (state: Partial<PlayerState>) => void;
   resetLocalProgress: () => void;
 };
@@ -319,6 +344,8 @@ export const useLifeStore = create<LifeStore>()(
         const runtime = state.technologyRuntime[technologyId] ?? { progress: 0, status: "ready" };
         const now = Date.now();
         const hasAnotherActiveMission = Object.entries(state.technologyRuntime).some(([id, item]) => id !== technologyId && item.status === "active");
+        const selectedGuide = getGuideMission(state.guideMissionSelectedId);
+        const firstRealMissionStartedAt = state.firstRealMissionStartedAt ?? (selectedGuide?.rootTechnologyId === technologyId ? now : undefined);
         if (!canStartMission({ locked, completed: completed.includes(technologyId), globalCooldownUntil: state.globalMissionCooldownUntil, runtime, hasAnotherActiveMission, now })) return;
 
         const startedAt = now;
@@ -338,7 +365,8 @@ export const useLifeStore = create<LifeStore>()(
           technologyRuntime: {
             ...state.technologyRuntime,
             [technologyId]: { ...runtime, status: "active", startedAt, completedAt: undefined }
-          }
+          },
+          firstRealMissionStartedAt
         }));
       },
       completeTechnologyMission(technologyId) {
@@ -404,6 +432,8 @@ export const useLifeStore = create<LifeStore>()(
           unlockedNodeFrames: completedTechnology ? addUnique(state.unlockedNodeFrames, tech.rewards.nodeFrame) : state.unlockedNodeFrames,
           unlockedBackgroundEffects: completedTechnology ? addUnique(state.unlockedBackgroundEffects, tech.rewards.backgroundEffect) : state.unlockedBackgroundEffects,
           globalMissionCooldownUntil: globalCooldownUntil,
+          firstMissionCompletedAt: state.firstMissionCompletedAt ?? now,
+          firstPostMissionHintSeen: false,
           activeMissionAttemptId: undefined,
           focusObjects: newFocusObject ? [...state.focusObjects.filter((item) => item.category !== tech.category), newFocusObject] : state.focusObjects,
           chapterSummaries: chapterSummary ? [...state.chapterSummaries.filter((summary) => summary.chapterId !== chapterSummary.chapterId), chapterSummary] : state.chapterSummaries,
@@ -430,6 +460,42 @@ export const useLifeStore = create<LifeStore>()(
       },
       unlockTechnology(technologyId) {
         get().startTechnologyMission(technologyId);
+      },
+      selectGuideMission(missionId) {
+        if (!getGuideMission(missionId)) return;
+        set((state) => ({ guideMissionSelectedId: state.firstGuideCompletedAt ? state.guideMissionSelectedId : missionId }));
+      },
+      setGuideMissionAnswer(missionId, inputId, value) {
+        set((state) => ({
+          guideMissionSelectedId: state.guideMissionSelectedId ?? missionId,
+          guideMissionAnswers: {
+            ...state.guideMissionAnswers,
+            [missionId]: { ...(state.guideMissionAnswers[missionId] ?? {}), [inputId]: value }
+          }
+        }));
+      },
+      completeGuideMission(missionId) {
+        const definition = getGuideMission(missionId);
+        if (!definition) return;
+        const state = get();
+        if (state.guideMissionCompletedIds.includes(missionId)) return;
+        const answers = state.guideMissionAnswers[missionId] ?? {};
+        if (!canCompleteGuideMission(definition, answers)) return;
+        const now = Date.now();
+        const shouldReward = !state.firstGuideRewardClaimed;
+        set((current) => ({
+          guideMissionSelectedId: missionId,
+          guideMissionCompletedIds: [...current.guideMissionCompletedIds, missionId],
+          firstGuideCompletedAt: current.firstGuideCompletedAt ?? now,
+          firstGuideRewardClaimed: true,
+          researchPoints: shouldReward ? addResearchPoints(current.researchPoints, { [definition.category]: definition.reward.research }) : current.researchPoints
+        }));
+      },
+      dismissFirstSessionGuide() {
+        set({ firstSessionGuideDismissed: true });
+      },
+      markFirstPostMissionHintSeen() {
+        set({ firstPostMissionHintSeen: true });
       },
       resetBrokenActiveMission(technologyId) {
         const state = get();

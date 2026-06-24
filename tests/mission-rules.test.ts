@@ -4,7 +4,8 @@ import test from "node:test";
 import { buildEvidenceSummary, canCompleteAwakeningTrial, canCompleteMissionAttempt, canStartMission, completedBranchCategories, completeAttemptOnce, findReusableFocusObject, migrateLocale, migrateThemeId, normalizePersistedMissionData, recommendUnlocked, reconcileActiveMissionState, sanitizeEvidenceAnswers, validateMissionAnswers } from "../lib/mission-rules.ts";
 import { technologies } from "../lib/life-tree.ts";
 import { localizeMissionDefinition } from "../lib/mission-i18n.ts";
-import { getMissionDefinition } from "../lib/missions.ts";
+import { getGlobalCooldownSeconds, getMissionDefinition } from "../lib/missions.ts";
+import { canCompleteGuideMission, getRecommendedRootTechnologyIdAfterGuide, guideMissions, localizeGuideMission } from "../lib/guide-missions.ts";
 import { getUiTranslationSourceKeys, translate } from "../lib/i18n.ts";
 import { validateHabid } from "../lib/habid.ts";
 import { localizeTechnology } from "../lib/technology-i18n.ts";
@@ -175,6 +176,100 @@ test("mission panel has a recovery state for broken active attempts", () => {
   assert.equal(panel.includes("Mission state needs repair"), true);
   assert.equal(panel.includes("Reset active mission"), true);
   assert.equal(panel.includes("missionNeedsRepair"), true);
+});
+
+test("guide missions are separate from technology missions and recommend matching roots", () => {
+  const expected = {
+    "guide-health": "health-root",
+    "guide-mind": "mind-root",
+    "guide-finance": "finance-root",
+    "guide-business": "business-root",
+    "guide-career": "career-root",
+    "guide-relationships": "relationships-root",
+    "guide-creativity": "creativity-root"
+  } as const;
+  assert.equal(guideMissions.length, 7);
+  guideMissions.forEach((mission) => {
+    assert.equal(mission.rootTechnologyId, expected[mission.id as keyof typeof expected]);
+    assert.equal(getRecommendedRootTechnologyIdAfterGuide({ guideMissionSelectedId: mission.id, guideMissionCompletedIds: [mission.id] }), mission.rootTechnologyId);
+    assert.equal(mission.reward.research, 10);
+    assert.equal(canCompleteGuideMission(mission, {}), false);
+  });
+});
+
+test("guide mission completion is modeled without cooldown or technology runtime mutation", () => {
+  const store = readFileSync("lib/store.ts", "utf8");
+  const guideBlock = store.slice(store.indexOf("completeGuideMission(missionId)"), store.indexOf("dismissFirstSessionGuide()"));
+  assert.equal(guideBlock.includes("globalMissionCooldownUntil"), false);
+  assert.equal(guideBlock.includes("technologyRuntime"), false);
+  assert.equal(guideBlock.includes("activeMissionAttemptId"), false);
+  assert.equal(guideBlock.includes("missionAttempts"), false);
+});
+
+test("guide mission reward is one-time and cannot be farmed", () => {
+  const store = readFileSync("lib/store.ts", "utf8");
+  assert.equal(store.includes("if (state.guideMissionCompletedIds.includes(missionId)) return"), true);
+  assert.equal(store.includes("const shouldReward = !state.firstGuideRewardClaimed"), true);
+  assert.equal(store.includes("firstGuideRewardClaimed: true"), true);
+});
+
+test("old persisted states migrate safely when guide fields are absent", () => {
+  const types = readFileSync("lib/types.ts", "utf8");
+  const store = readFileSync("lib/store.ts", "utf8");
+  assert.equal(types.includes("guideMissionSelectedId?: string"), true);
+  assert.equal(types.includes("guideMissionCompletedIds: string[]"), true);
+  assert.equal(types.includes("firstGuideCompletedAt?: number"), true);
+  assert.equal(store.includes("guideMissionCompletedIds: Array.isArray(persisted?.guideMissionCompletedIds)"), true);
+  assert.equal(store.includes("firstGuideRewardClaimed: persisted?.firstGuideRewardClaimed === true"), true);
+});
+
+test("normal technology mission cooldown remains available", () => {
+  assert.equal(getGlobalCooldownSeconds("micro"), 15 * 60);
+  assert.equal(getGlobalCooldownSeconds("standard"), 30 * 60);
+  assert.equal(getGlobalCooldownSeconds("deep"), 60 * 60);
+  const store = readFileSync("lib/store.ts", "utf8");
+  assert.equal(store.includes("globalMissionCooldownUntil: globalCooldownUntil"), true);
+});
+
+test("guide mission copy and reward strings are localized", () => {
+  const mission = guideMissions.find((item) => item.id === "guide-health");
+  assert.ok(mission);
+  (["ru", "cs", "uk"] as const).forEach((locale) => {
+    const localized = localizeGuideMission(mission, locale);
+    assert.notEqual(localized.actionTitle, mission.actionTitle, `${locale}/guide/action`);
+    assert.notEqual(localized.inputSchema[0]?.label, mission.inputSchema[0]?.label, `${locale}/guide/input`);
+    ["Choose your first step", "First Step Complete", "Life Tree Activated", "Open first mission", "No cooldown"].forEach((key) => assert.notEqual(translate(locale, key), key, `${locale}/${key}`));
+  });
+});
+
+test("root missions are action-first and require concrete evidence", () => {
+  const rootIds = ["health-root", "mind-root", "finance-root", "business-root", "career-root", "relationships-root", "creativity-root"];
+  const reflectiveFirstInputs = new Set(["rating", "text"]);
+  rootIds.forEach((id) => {
+    const technology = technologies.find((item) => item.id === id);
+    assert.ok(technology);
+    const mission = getMissionDefinition(technology);
+    assert.ok(mission.inputSchema.length >= 2, id);
+    assert.equal(mission.inputSchema.every((input) => input.required), true, id);
+    assert.equal(reflectiveFirstInputs.has(mission.inputSchema[0]!.type), false, id);
+    assert.match(`${mission.actionTitle} ${mission.recommendedChoice} ${mission.concreteOutcome}`, /open|stand|drink|close|clear|start|send|draft|create|save|вод|встан/i, id);
+  });
+});
+
+test("first-session guide state is persisted and safely normalized", () => {
+  const types = readFileSync("lib/types.ts", "utf8");
+  const store = readFileSync("lib/store.ts", "utf8");
+  assert.equal(types.includes("firstSessionGuideDismissed?: boolean"), true);
+  assert.equal(types.includes("firstMissionCompletedAt?: number"), true);
+  assert.equal(types.includes("firstPostMissionHintSeen?: boolean"), true);
+  assert.equal(store.includes("firstSessionGuideDismissed: persisted?.firstSessionGuideDismissed === true"), true);
+  assert.equal(store.includes('typeof persisted?.firstMissionCompletedAt === "number"'), true);
+});
+
+test("first-session guide and cooldown explanation copy are localized", () => {
+  ["First session guide", "Mission complete", "You are not blocked.", "What can I do now?"].forEach((key) => {
+    (["ru", "cs", "uk"] as const).forEach((locale) => assert.notEqual(translate(locale, key), key, `${locale}/${key}`));
+  });
 });
 
 test("the first mission after each root is guided", () => {

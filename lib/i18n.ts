@@ -206,6 +206,53 @@ const russian: Record<string, string> = {
   ,Details: "Подробности"
 };
 
+
+Object.assign(russian, {
+  'Mission complete': 'Миссия выполнена',
+  'This branch is cooling down so the action stays meaningful. You are not blocked.': 'Ветка восстанавливается, чтобы действие оставалось значимым. Вы не заблокированы.',
+  'Next recommended step: open Command Center and choose what is available now.': 'Следующий шаг: откройте Командный центр и выберите доступное действие.',
+  'Open Command Center': 'Открыть Командный центр',
+  'Continue Tree': 'Продолжить дерево',
+  'First session guide': 'Гайд первой сессии',
+  'Complete one real action first.': 'Сначала выполните одно реальное действие.',
+  'Dismiss': 'Скрыть',
+  'Start the highlighted root mission.': 'Начните выделенную корневую миссию.',
+  'Do the real-world action.': 'Сделайте действие в реальном мире.',
+  'Save evidence.': 'Сохраните доказательство.',
+  'Read the completion result.': 'Прочитайте результат завершения.',
+  'Choose next step from Command Center.': 'Выберите следующий шаг в Командном центре.',
+  'What can I do now?': 'Что можно сделать сейчас?',
+  'You are not blocked.': 'Вы не заблокированы.',
+  'Global cooldown is a short recovery window before another focused mission. Personal cooldown means this exact branch rests.': 'Общая пауза — короткое восстановление перед другой фокусной миссией. Личная пауза означает, что отдыхает именно эта ветка.',
+  'Cooldown remaining': 'Осталось паузы',
+  'Review completed evidence': 'Посмотреть доказательство',
+  'Check profile progress, view achievements, prepare the next focus, or return later.': 'Проверьте прогресс профиля, посмотрите награды, подготовьте следующий фокус или вернитесь позже.',
+  'Review progress': 'Посмотреть прогресс',
+  'Recovery cooldown is active. You can review progress or prepare the next focus.': 'Активна пауза восстановления. Можно посмотреть прогресс или подготовить следующий фокус.'
+});
+
+
+Object.assign(russian, {
+  'Choose your first step': 'Выберите первый шаг',
+  'First step': 'Первый шаг',
+  'Tutorial step': 'Обучающий шаг',
+  'No cooldown': 'Без перезарядки',
+  'First Step Complete': 'Первый шаг завершён',
+  'Life Tree Activated': 'Дерево жизни активировано',
+  'Your progress has started': 'Ваш прогресс начался',
+  'Open first mission': 'Открыть первую миссию',
+  'Open Command Center': 'Открыть командный центр',
+  'Continue first step': 'Продолжить первый шаг',
+  'Start real tree mission': 'Начать настоящее задание дерева',
+  'Start your first real Life Tree mission': 'Начать настоящее задание дерева',
+  'Guide step does not start cooldown. Cooldown appears later in real Life Tree missions so progress stays honest.': 'Обучающий шаг не запускает перезарядку. Перезарядка появится позже в настоящих миссиях дерева, чтобы прогресс оставался честным.',
+  'Start first step': 'Начать первый шаг',
+  'Complete first step': 'Завершить первый шаг',
+  'Step 1 of 3': 'Шаг 1 из 3',
+  'Next: open your first real mission': 'Следующий шаг: открыть первую настоящую миссию',
+  'Continue your first step': 'Продолжить первый шаг'
+});
+
 Object.assign(russian, {
   "Close mission panel": "Закрыть панель миссии",
   "Previous epochs": "Предыдущие эпохи",
@@ -411,6 +458,139 @@ const editorialOverrides: Partial<Record<Locale, Record<string, string>>> = {
     "Invalid date or time": "Некоректна дата або час"
   }
 };
+
+
+Object.assign(editorialOverrides.cs ??= {}, {
+  'Mission complete': 'Mise dokončena',
+  'This branch is cooling down so the action stays meaningful. You are not blocked.': 'Tato větev odpočívá, aby akce zůstala smysluplná. Nejste zablokováni.',
+  'Next recommended step: open Command Center and choose what is available now.': 'Doporučený další krok: otevřete Velitelské centrum a vyberte, co je teď dostupné.',
+  'Open Command Center': 'Otevřít Velitelské centrum',
+  'Continue Tree': 'Pokračovat ve stromu',
+  'First session guide': 'Průvodce první relací',
+  'Complete one real action first.': 'Nejdřív dokončete jednu reálnou akci.',
+  'Dismiss': 'Skrýt',
+  'Start the highlighted root mission.': 'Spusťte zvýrazněnou kořenovou misi.',
+  'Do the real-world action.': 'Udělejte akci ve skutečném světě.',
+  'Save evidence.': 'Uložte důkaz.',
+  'Read the completion result.': 'Přečtěte si výsledek dokončení.',
+  'Choose next step from Command Center.': 'Vyberte další krok ve Velitelském centru.',
+  'What can I do now?': 'Co můžu dělat teď?',
+  'You are not blocked.': 'Nejste zablokováni.',
+  'Global cooldown is a short recovery window before another focused mission. Personal cooldown means this exact branch rests.': 'Globální cooldown je krátké zotavení před další soustředěnou misí. Osobní cooldown znamená, že odpočívá tato konkrétní větev.',
+  'Cooldown remaining': 'Zbývá cooldown',
+  'Review completed evidence': 'Zkontrolovat uložený důkaz',
+  'Check profile progress, view achievements, prepare the next focus, or return later.': 'Zkontrolujte profil, prohlédněte úspěchy, připravte další fokus nebo se vraťte později.',
+  'Review progress': 'Zkontrolovat postup',
+  'Recovery cooldown is active. You can review progress or prepare the next focus.': 'Probíhá zotavení. Můžete zkontrolovat postup nebo připravit další fokus.'
+});
+Object.assign(editorialOverrides.uk ??= {}, {
+  'Mission complete': 'Місію виконано',
+  'This branch is cooling down so the action stays meaningful. You are not blocked.': 'Ця гілка відновлюється, щоб дія залишалась значущою. Ви не заблоковані.',
+  'Next recommended step: open Command Center and choose what is available now.': 'Рекомендований наступний крок: відкрийте Командний центр і виберіть доступну дію.',
+  'Open Command Center': 'Відкрити Командний центр',
+  'Continue Tree': 'Продовжити дерево',
+  'First session guide': 'Гайд першої сесії',
+  'Complete one real action first.': 'Спочатку виконайте одну реальну дію.',
+  'Dismiss': 'Сховати',
+  'Start the highlighted root mission.': 'Почніть виділену кореневу місію.',
+  'Do the real-world action.': 'Зробіть дію в реальному світі.',
+  'Save evidence.': 'Збережіть доказ.',
+  'Read the completion result.': 'Прочитайте результат завершення.',
+  'Choose next step from Command Center.': 'Виберіть наступний крок у Командному центрі.',
+  'What can I do now?': 'Що можна зробити зараз?',
+  'You are not blocked.': 'Ви не заблоковані.',
+  'Global cooldown is a short recovery window before another focused mission. Personal cooldown means this exact branch rests.': 'Глобальне відновлення — коротка пауза перед іншою фокусною місією. Особисте відновлення означає, що відпочиває саме ця гілка.',
+  'Cooldown remaining': 'Залишилось відновлення',
+  'Review completed evidence': 'Переглянути доказ',
+  'Check profile progress, view achievements, prepare the next focus, or return later.': 'Перевірте прогрес профілю, перегляньте досягнення, підготуйте наступний фокус або поверніться пізніше.',
+  'Review progress': 'Переглянути прогрес',
+  'Recovery cooldown is active. You can review progress or prepare the next focus.': 'Активна пауза відновлення. Можна переглянути прогрес або підготувати наступний фокус.'
+});
+Object.assign(editorialOverrides.ru ??= {}, {
+  'Mission complete': 'Миссия выполнена',
+  'This branch is cooling down so the action stays meaningful. You are not blocked.': 'Ветка восстанавливается, чтобы действие оставалось значимым. Вы не заблокированы.',
+  'Next recommended step: open Command Center and choose what is available now.': 'Следующий шаг: откройте Командный центр и выберите доступное действие.',
+  'Open Command Center': 'Открыть Командный центр',
+  'Continue Tree': 'Продолжить дерево',
+  'First session guide': 'Гайд первой сессии',
+  'Complete one real action first.': 'Сначала выполните одно реальное действие.',
+  'Dismiss': 'Скрыть',
+  'Start the highlighted root mission.': 'Начните выделенную корневую миссию.',
+  'Do the real-world action.': 'Сделайте действие в реальном мире.',
+  'Save evidence.': 'Сохраните доказательство.',
+  'Read the completion result.': 'Прочитайте результат завершения.',
+  'Choose next step from Command Center.': 'Выберите следующий шаг в Командном центре.',
+  'What can I do now?': 'Что можно сделать сейчас?',
+  'You are not blocked.': 'Вы не заблокированы.',
+  'Global cooldown is a short recovery window before another focused mission. Personal cooldown means this exact branch rests.': 'Общая пауза — короткое восстановление перед другой фокусной миссией. Личная пауза означает, что отдыхает именно эта ветка.',
+  'Cooldown remaining': 'Осталось паузы',
+  'Review completed evidence': 'Посмотреть доказательство',
+  'Check profile progress, view achievements, prepare the next focus, or return later.': 'Проверьте прогресс профиля, посмотрите награды, подготовьте следующий фокус или вернитесь позже.',
+  'Review progress': 'Посмотреть прогресс',
+  'Recovery cooldown is active. You can review progress or prepare the next focus.': 'Активна пауза восстановления. Можно посмотреть прогресс или подготовить следующий фокус.'
+});
+
+
+Object.assign(editorialOverrides.cs ??= {}, {
+  'Choose your first step': 'Vyberte první krok',
+  'First step': 'První krok',
+  'Tutorial step': 'Výukový krok',
+  'No cooldown': 'Bez cooldownu',
+  'First Step Complete': 'První krok dokončen',
+  'Life Tree Activated': 'Strom života aktivován',
+  'Your progress has started': 'Váš postup začal',
+  'Open first mission': 'Otevřít první misi',
+  'Open Command Center': 'Otevřít Velitelské centrum',
+  'Continue first step': 'Pokračovat v prvním kroku',
+  'Start real tree mission': 'Začít skutečnou misi stromu',
+  'Start your first real Life Tree mission': 'Začít skutečnou misi Life Tree',
+  'Guide step does not start cooldown. Cooldown appears later in real Life Tree missions so progress stays honest.': 'Výukový krok nespouští cooldown. Cooldown se objeví později ve skutečných misích Life Tree, aby postup zůstal poctivý.',
+  'Start first step': 'Začít první krok',
+  'Complete first step': 'Dokončit první krok',
+  'Step 1 of 3': 'Krok 1 ze 3',
+  'Next: open your first real mission': 'Další: otevřete první skutečnou misi',
+  'Continue your first step': 'Pokračovat v prvním kroku'
+});
+Object.assign(editorialOverrides.uk ??= {}, {
+  'Choose your first step': 'Виберіть перший крок',
+  'First step': 'Перший крок',
+  'Tutorial step': 'Навчальний крок',
+  'No cooldown': 'Без перезарядки',
+  'First Step Complete': 'Перший крок завершено',
+  'Life Tree Activated': 'Дерево життя активовано',
+  'Your progress has started': 'Ваш прогрес почався',
+  'Open first mission': 'Відкрити першу місію',
+  'Open Command Center': 'Відкрити командний центр',
+  'Continue first step': 'Продовжити перший крок',
+  'Start real tree mission': 'Почати справжнє завдання дерева',
+  'Start your first real Life Tree mission': 'Почати справжнє завдання Life Tree',
+  'Guide step does not start cooldown. Cooldown appears later in real Life Tree missions so progress stays honest.': 'Навчальний крок не запускає перезарядку. Перезарядка зʼявиться пізніше у справжніх місіях дерева, щоб прогрес залишався чесним.',
+  'Start first step': 'Почати перший крок',
+  'Complete first step': 'Завершити перший крок',
+  'Step 1 of 3': 'Крок 1 із 3',
+  'Next: open your first real mission': 'Далі: відкрийте першу справжню місію',
+  'Continue your first step': 'Продовжити перший крок'
+});
+Object.assign(editorialOverrides.ru ??= {}, {
+  'Choose your first step': 'Выберите первый шаг',
+  'First step': 'Первый шаг',
+  'Tutorial step': 'Обучающий шаг',
+  'No cooldown': 'Без перезарядки',
+  'First Step Complete': 'Первый шаг завершён',
+  'Life Tree Activated': 'Дерево жизни активировано',
+  'Your progress has started': 'Ваш прогресс начался',
+  'Open first mission': 'Открыть первую миссию',
+  'Open Command Center': 'Открыть командный центр',
+  'Continue first step': 'Продолжить первый шаг',
+  'Start real tree mission': 'Начать настоящее задание дерева',
+  'Start your first real Life Tree mission': 'Начать настоящее задание дерева',
+  'Guide step does not start cooldown. Cooldown appears later in real Life Tree missions so progress stays honest.': 'Обучающий шаг не запускает перезарядку. Перезарядка появится позже в настоящих миссиях дерева, чтобы прогресс оставался честным.',
+  'Start first step': 'Начать первый шаг',
+  'Complete first step': 'Завершить первый шаг',
+  'Step 1 of 3': 'Шаг 1 из 3',
+  'Next: open your first real mission': 'Следующий шаг: открыть первую настоящую миссию',
+  'Continue your first step': 'Продолжить первый шаг'
+});
 
 Object.assign(editorialOverrides.ru ??= {}, {
   "Mission state needs repair": "Состояние миссии нужно восстановить",

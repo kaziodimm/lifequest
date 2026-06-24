@@ -80,6 +80,8 @@ export type MissionCompletionEvidence = {
 };
 
 export type MissionAnswer = string | number | boolean | string[];
+export type GuideMissionAnswer = MissionAnswer;
+export type GuideMissionStatus = "unselected" | "selected" | "completed";
 
 export type MissionAttempt = {
   id: string;
@@ -102,6 +104,20 @@ export type ChapterSummary = {
   personalRule: string;
   weeklyStandard: string;
   evidenceSummary: string;
+};
+
+
+export type GuideMissionDefinition = {
+  id: string;
+  category: LifeCategory;
+  rootTechnologyId: string;
+  title: string;
+  shortAction: string;
+  actionTitle: string;
+  concreteOutcome: string;
+  exampleResult: string;
+  inputSchema: MissionInput[];
+  reward: { research: number };
 };
 
 export type MissionDefinition = {
@@ -231,6 +247,18 @@ export type PlayerState = {
   technologyRuntime: Record<string, TechnologyRuntime>;
   globalMissionCooldownUntil?: number;
   activeMissionAttemptId?: string;
+  /** @deprecated Replaced by first-step guide missions. */
+  firstSessionGuideDismissed?: boolean;
+  /** @deprecated Replaced by firstGuideCompletedAt. */
+  firstMissionCompletedAt?: number;
+  /** @deprecated Replaced by first-step reward flow. */
+  firstPostMissionHintSeen?: boolean;
+  guideMissionSelectedId?: string;
+  guideMissionCompletedIds: string[];
+  guideMissionAnswers: Record<string, Record<string, GuideMissionAnswer>>;
+  firstGuideCompletedAt?: number;
+  firstGuideRewardClaimed?: boolean;
+  firstRealMissionStartedAt?: number;
   missionAttempts: MissionAttempt[];
   focusObjects: UserFocusObject[];
   /** @deprecated Legacy bridge only. MVP progress is technologyRuntime + missionAttempts + focusObjects + chapterSummaries. */
