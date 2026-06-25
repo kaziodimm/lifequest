@@ -1,6 +1,6 @@
 # Habidoo — current handoff
 
-Last updated: 2026-06-24
+Last updated: 2026-06-25
 
 ## Start here
 
@@ -9,6 +9,8 @@ Every new Codex thread must read these files first:
 1. `HANDOFF.md`
 2. `docs/product/HABIDOO_Product_Logic_v3_RU.md`
 3. `docs/product/HABIDOO_Progression_Rewards_Level_100_RU.md`
+4. `docs/dev/CODEX_LOCAL_SETUP_RU.md`
+5. `docs/dev/CODEX_FIRST_TASK_GLOBAL_SYNC_RU.md`
 
 `docs/product/HABIDOO_Product_Logic_v3_RU.md` is the current product source of truth.
 
@@ -30,6 +32,22 @@ Habidoo is not ready for beta yet. The current focus is product hardening, not a
 The artistic direction is frozen. Do not generate new tree themes, future-era visuals, large decorative effects, new backgrounds, or new icon sets unless explicitly requested.
 
 Current goal: bring the product from demo/MVP feeling toward beta-quality product foundation.
+
+## Local development note
+
+The repo has `pnpm-lock.yaml`, so local work should use pnpm.
+
+Required local setup is documented in:
+
+```text
+docs/dev/CODEX_LOCAL_SETUP_RU.md
+```
+
+First recommended coding task is documented in:
+
+```text
+docs/dev/CODEX_FIRST_TASK_GLOBAL_SYNC_RU.md
+```
 
 ## Superseded logic / do not continue
 
@@ -182,7 +200,7 @@ Known weak area:
 
 ## Supabase/Auth notes
 
-Required production env vars:
+Required production/local env vars:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
@@ -212,8 +230,9 @@ Before any coding pass:
 
 1. Read this file.
 2. Read `docs/product/HABIDOO_Product_Logic_v3_RU.md`.
-3. Inspect the actual code files relevant to the task.
-4. Do not assume old product docs are current if v3 says otherwise.
+3. Read `docs/dev/CODEX_LOCAL_SETUP_RU.md`.
+4. Inspect the actual code files relevant to the task.
+5. Do not assume old product docs are current if v3 says otherwise.
 
 During implementation:
 
@@ -229,12 +248,10 @@ During implementation:
 Verification expected for code passes:
 
 ```bash
-npm test
-tsc --noEmit
-next build
+pnpm test
+pnpm typecheck
+pnpm build
 ```
-
-If scripts differ in `package.json`, use the repository scripts.
 
 Manual QA expected before beta:
 
@@ -251,6 +268,9 @@ Manual QA expected before beta:
 
 ## Last documentation changes
 
+- Added `.env.example` for local Supabase public env variables.
+- Added `docs/dev/CODEX_LOCAL_SETUP_RU.md`.
+- Added `docs/dev/CODEX_FIRST_TASK_GLOBAL_SYNC_RU.md`.
+- Updated `README.md` to point new Codex sessions to HANDOFF/v3/local setup.
 - Added `docs/product/HABIDOO_Product_Logic_v3_RU.md`.
 - Replaced old progression spec with a compatibility note pointing to v3.
-- Reset this `HANDOFF.md` around current v3 logic to avoid old repeat-count/cooldown guidance confusing future Codex chats.
