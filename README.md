@@ -1,65 +1,119 @@
 # Habidoo
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/kaziodimm/lifequest)
+Habidoo is a mobile-first Life Strategy RPG web app that turns real life into visible long-term progress.
 
-Habidoo is a mobile-first Life Strategy web app that turns real life into a strategy game.
+This is not a habit tracker, not a task manager, and not a todo list. The core product is a **Life Technology Tree** where users progress through real-life domains by completing guided real-world actions, evidence-based lesson chains, milestones, trials, rewards and profile progression.
 
-This is not a habit tracker, not a task manager, and not a todo list. The core product is a **Life Technology Tree**: users progress through real-life categories by unlocking technologies such as Morning Walk, Cardio I, MVP Launch, First Paying User, Emergency Fund, and Financial Independence.
+## Current Status
 
-The experience should feel like a premium strategy game for ambitious adults: inspired by Civilization, Stellaris, Path of Exile progression systems, Duolingo-style daily loops, and personal development.
+Habidoo is not ready for public beta yet. The current stage is product hardening before closed beta.
+
+Current priority:
+
+1. Reliable global cloud sync across devices.
+2. Strong first-user guide flow.
+3. Convert root/start missions from repeat-count tasks to lesson chains.
+4. Visible progress, reward banners and beta-quality UI.
+5. Profile / Inventory / Settings separation.
 
 ## Source of Truth
 
-Read [VISION.md](./VISION.md) before making product, design, or engineering decisions.
+New Codex sessions must read these files first:
 
-The Life Tree is the product. Everything else supports the Life Tree.
+1. [HANDOFF.md](./HANDOFF.md)
+2. [Product Logic v3 RU](./docs/product/HABIDOO_Product_Logic_v3_RU.md)
+3. [Progression Compatibility Note RU](./docs/product/HABIDOO_Progression_Rewards_Level_100_RU.md)
+4. [Codex Local Setup RU](./docs/dev/CODEX_LOCAL_SETUP_RU.md)
+5. [First Local Codex Task: Global Sync RU](./docs/dev/CODEX_FIRST_TASK_GLOBAL_SYNC_RU.md)
 
-Users should open Habidoo because they want to progress their Life Tree, not because they want to check off tasks.
+If older docs conflict with Product Logic v3, follow v3.
 
 ## Product Direction
 
-The Life Tree direction keeps the business decisions: global audience, strong visual identity, five visual styles, multilingual architecture, Vercel deployment, and future Supabase/Resend/mobile monetization.
+Correct current mission architecture:
 
-## Main Screens
+```text
+Technology Node = Lesson Chain + Gold/Mastery Step
+```
 
-- Home
+Do not continue the old repeat-count model where a root/start mission asks the user to repeat the same action N times.
+
+The Life Tree is still the center of the product. Everything else supports the Life Tree.
+
+## Main Screens Target
+
+- Public landing / pre-login
+- First-user guide
 - Life Tree
-- Daily Command Center
-- Statistics
+- Command / Missions
+- Stats
+- Awards / Achievements
 - Profile
+- Inventory
+- Settings
+- Notifications
+- Legal pages
 
 ## Life Categories
 
-- Health
-- Mind
-- Career
-- Business
-- Finance
-- Relationships
-- Creativity
+- Body & Energy
+- Focus & Mind
+- Money & Freedom
+- Build & Create
+- Direction & Career
+- People & Connection
+- Creative Practice
 
-## MVP Stack
+## Stack
 
-- Next.js
-- React
+- Next.js 14
+- React 18
 - TypeScript
 - Tailwind CSS
-- shadcn/ui
-- Recharts
 - Zustand
-- localStorage
+- Supabase Auth / cloud save
+- Vercel
+- Recharts
+- lucide-react
 
-Version 1 has no backend. Future architecture should be ready for Supabase, Vercel, Resend, leaderboards, friends, and guilds.
+## Local Development
+
+Use Node.js 20 or 22.
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+cp .env.example .env.local
+pnpm dev
+```
+
+Required local env:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+```
+
+Do not commit `.env.local` or secret keys.
+
+## Verification
+
+Run before commits:
+
+```bash
+pnpm test
+pnpm typecheck
+pnpm build
+```
 
 ## Product Docs
 
-- [Vision](./VISION.md)
-- [Product Decisions](./PRODUCT_DECISIONS.md)
-- [Life Strategy Product Brief](./PRODUCT_BRIEF.md)
-- [MVP Scope](./MVP_SCOPE.md)
-- [Roadmap](./ROADMAP.md)
-- [Design Direction](./DESIGN_DIRECTION.md)
-- [Technical Architecture](./TECH_ARCHITECTURE.md)
-- [Business Plan](./BUSINESS_PLAN.md)
-- [Mobile App Strategy](./MOBILE_APP_STRATEGY.md)
-- [Deployment Guide](./DEPLOYMENT.md)
+Some older docs remain for historical context, but current implementation decisions should follow `HANDOFF.md` and Product Logic v3.
+
+Current docs:
+
+- [HANDOFF](./HANDOFF.md)
+- [Product Logic v3 RU](./docs/product/HABIDOO_Product_Logic_v3_RU.md)
+- [Progression Compatibility Note RU](./docs/product/HABIDOO_Progression_Rewards_Level_100_RU.md)
+- [Codex Local Setup RU](./docs/dev/CODEX_LOCAL_SETUP_RU.md)
+- [First Local Codex Task: Global Sync RU](./docs/dev/CODEX_FIRST_TASK_GLOBAL_SYNC_RU.md)
